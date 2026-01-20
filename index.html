@@ -134,11 +134,13 @@
 </head>
 <body class="min-h-screen text-slate-800">
 
+    <!-- Modal de Carregamento -->
     <div id="loading-overlay">
         <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="w-32 mb-8 invert" alt="Unico">
         <div class="w-10 h-10 border-4 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
     </div>
 
+    <!-- Modal Adicionar Item -->
     <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[11000] p-4">
         <div class="bg-white w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl">
             <h3 id="modal-title" class="text-xl font-black mb-4 uppercase tracking-tighter text-center">Adicionar Item</h3>
@@ -170,13 +172,21 @@
     <main class="max-w-7xl mx-auto p-6 mt-4 main-content text-slate-800">
         
         <!-- DASHBOARD -->
-        <div id="view-dashboard" class="block no-print">
-            <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 text-slate-800">
+        <div id="view-dashboard" class="block no-print text-slate-800">
+            <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 class="text-4xl font-black tracking-tighter uppercase leading-none">Estratégia & Operação</h1>
                     <p class="text-slate-400 text-xs font-bold uppercase mt-2 tracking-widest">Visão macro de eficiência corporativa</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
+                    <!-- Novo Filtro de Período -->
+                    <select id="dash-filter-period" class="input-premium !py-2 !text-xs shadow-sm" onchange="refreshUI()">
+                        <option value="all">Todo o Período</option>
+                        <option value="mes">Mensal (Este Mês)</option>
+                        <option value="trimestre">Trimestral (Este Trimestre)</option>
+                        <option value="semestre">Semestral (Este Semestre)</option>
+                        <option value="ano">Anual (Este Ano)</option>
+                    </select>
                     <select id="dash-filter-area" class="input-premium !py-2 !text-xs shadow-sm" onchange="refreshUI()">
                         <option value="">Todas as Áreas Impactadas</option>
                     </select>
@@ -382,7 +392,7 @@
                             <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm">
                                 <label class="label-forte !text-slate-600 mb-4">Plano de Atividades</label>
                                 <div class="flex gap-2 mb-4">
-                                    <input type="text" id="task-input" placeholder="Nova tarefa..." class="flex-1 input-premium !py-2 !text-sm">
+                                    <input type="text" id="task-input" placeholder="O que precisa ser feito?" class="flex-1 input-premium !py-2 !text-sm">
                                     <button type="button" onclick="addTaskToList()" class="bg-slate-900 text-white px-4 rounded-xl font-bold transition hover:bg-slate-800 shadow-md">+</button>
                                 </div>
                                 <div id="tasks-container" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
@@ -393,10 +403,10 @@
                                 <label class="label-forte text-red-500">🚫 Impedimentos e Bloqueios</label>
                                 <textarea id="impedimentos" rows="3" class="w-full input-premium !bg-red-50/30 !border-red-100 text-sm" placeholder="Algo travando o progresso?"></textarea>
                             </div>
-                            <div id="notes-section" class="hidden">
+                            <div id="notes-section" class="hidden text-slate-800">
                                 <label class="label-forte">Histórico de Evolução</label>
-                                <div id="notes-history-list" class="space-y-3 mb-4 max-h-56 overflow-y-auto pr-2 text-slate-800"></div>
-                                <div class="bg-cyan-50/40 p-5 rounded-2xl border border-cyan-100 no-print">
+                                <div id="notes-history-list" class="space-y-3 mb-4 max-h-56 overflow-y-auto pr-2"></div>
+                                <div class="bg-cyan-50/40 p-5 rounded-2xl border border-cyan-100 no-print text-slate-800">
                                     <label class="label-forte !text-cyan-600">Nova Nota de Atualização</label>
                                     <textarea id="new-milestone-note" rows="2" class="w-full input-premium !border-cyan-200 !text-sm" placeholder="Relate o avanço de hoje..."></textarea>
                                 </div>
@@ -429,7 +439,7 @@
                     <button onclick="clearListFilters()" class="text-[9px] font-black text-slate-300 hover:text-red-500 uppercase px-2">Limpar</button>
                 </div>
             </div>
-            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden text-slate-800">
                 <table class="w-full text-left">
                     <thead class="bg-slate-50 border-b border-slate-100 text-slate-400">
                         <tr class="text-[9px] uppercase font-black tracking-wider">
@@ -443,7 +453,7 @@
                             <th class="p-6 text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="detailed-table-body" class="divide-y divide-slate-50 text-slate-800"></tbody>
+                    <tbody id="detailed-table-body" class="divide-y divide-slate-50"></tbody>
                 </table>
             </div>
         </div>
@@ -476,6 +486,7 @@
         let currentUser = null;
         let currentTasks = [];
         const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Rodrigo Prinz De Paiva", "Simone Thomé de Andrade"];
+        const defaultAreas = ["Análise", "CX", "Mesa", "Onboarding", "Comunicação"];
 
         async function initAuth() {
             try {
@@ -496,14 +507,15 @@
             });
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'areas'), (snap) => {
                 dynamicAreas = snap.docs.map(doc => doc.data().name);
-                updateDropdown('time', dynamicAreas, ["Análise", "CX", "Mesa", "Tecnologia"]);
-                updateDropdown('dash-filter-area', dynamicAreas, ["Análise", "CX", "Mesa", "Tecnologia"], "Todas as Áreas Impactadas");
-                updateDropdown('list-filter-area', dynamicAreas, ["Análise", "CX", "Mesa", "Tecnologia"], "Área Impactada");
+                updateDropdown('time', dynamicAreas, defaultAreas);
+                updateDropdown('dash-filter-area', dynamicAreas, defaultAreas, "Todas as Áreas Impactadas");
+                updateDropdown('list-filter-area', dynamicAreas, defaultAreas, "Área Impactada");
             });
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'frentes'), (snap) => {
                 dynamicFrentes = snap.docs.map(doc => doc.data().name);
-                updateDropdown('frente', dynamicFrentes, ["Performance", "Reestruturação", "Automação", "Simplificação"]);
-                updateDropdown('list-filter-frente', dynamicFrentes, ["Performance", "Reestruturação", "Automação", "Simplificação"], "Frente Trabalho");
+                const defFrentes = ["Performance", "Reestruturação", "Automação", "Simplificação"];
+                updateDropdown('frente', dynamicFrentes, defFrentes);
+                updateDropdown('list-filter-frente', dynamicFrentes, defFrentes, "Frente Trabalho");
             });
         };
 
@@ -560,8 +572,8 @@
             div.className = 'metrica-row animate-in fade-in slide-in-from-left-2 duration-300 mb-4';
             div.innerHTML = `
                 <div><label class="label-forte !text-[9px]">KPI</label><input type="text" class="metrica-label input-premium !py-1.5 !text-[10px] w-full uppercase" value="${label}" placeholder="Ex: TMA"></div>
-                <div><label class="label-forte !text-[9px]">Meta</label><input type="text" class="metrica-meta input-premium !py-1.5 !text-[10px] w-full" value="${meta}" placeholder="15%"></div>
-                <div><label class="label-forte !text-[9px]">Real</label><input type="text" class="metrica-real input-premium !py-1.5 !text-[10px] w-full" value="${real}" placeholder="10%"></div>
+                <div><label class="label-forte !text-[9px]">Meta</label><input type="text" class="metrica-meta input-premium !py-1.5 !text-[10px] w-full" value="${meta}"></div>
+                <div><label class="label-forte !text-[9px]">Real</label><input type="text" class="metrica-real input-premium !py-1.5 !text-[10px] w-full" value="${real}"></div>
                 <button type="button" onclick="this.parentElement.remove()" class="text-red-300 hover:text-red-500 transition pb-2 font-black text-xl">×</button>`;
             container.appendChild(div);
         };
@@ -591,11 +603,36 @@
             });
         }
 
+        const isProjectInPeriod = (projDate, period) => {
+            if (!projDate || period === 'all') return true;
+            const date = new Date(projDate);
+            const now = new Date();
+            const year = now.getFullYear();
+            if (period === 'ano') return date.getFullYear() === year;
+            if (period === 'mes') return date.getFullYear() === year && date.getMonth() === now.getMonth();
+            if (period === 'trimestre') {
+                const currentQuarter = Math.floor(now.getMonth() / 3);
+                const projQuarter = Math.floor(date.getMonth() / 3);
+                return date.getFullYear() === year && currentQuarter === projQuarter;
+            }
+            if (period === 'semestre') {
+                const currentSemester = now.getMonth() < 6 ? 0 : 1;
+                const projSemester = date.getMonth() < 6 ? 0 : 1;
+                return date.getFullYear() === year && currentSemester === projSemester;
+            }
+            return true;
+        };
+
         window.refreshUI = () => {
             const activeTab = document.querySelector('.active-tab')?.id.split('-')[1] || 'dashboard';
             if (activeTab === 'dashboard') {
                 const area = document.getElementById('dash-filter-area').value;
-                const filtered = area ? projects.filter(p => p.time === area) : projects;
+                const period = document.getElementById('dash-filter-period').value;
+                const filtered = projects.filter(p => {
+                    const mArea = !area || p.time === area;
+                    const mPeriod = isProjectInPeriod(p.data_criacao, period);
+                    return mArea && mPeriod;
+                });
                 updateKPIs(filtered);
                 renderDashboard(filtered); 
                 updateCharts(filtered); 
@@ -651,16 +688,16 @@
                 }
                 let closureNote = '';
                 if(isFinished && proj.comentario_conclusao) {
-                    closureNote = `<div class="mt-2 p-2 bg-green-50 border border-green-100 rounded-lg text-[9px] italic text-green-700">Descrição: ${proj.comentario_conclusao}</div>`;
+                    closureNote = `<div class="mt-2 p-2 bg-green-50 border border-green-100 rounded-lg text-[9px] italic text-green-700 truncate">Descrição: ${proj.comentario_conclusao}</div>`;
                 } else if(isCancelled && proj.comentario_cancelamento) {
-                    closureNote = `<div class="mt-2 p-2 bg-red-50 border border-red-100 rounded-lg text-[9px] italic text-red-700">Motivo: ${proj.comentario_cancelamento}</div>`;
+                    closureNote = `<div class="mt-2 p-2 bg-red-50 border border-red-100 rounded-lg text-[9px] italic text-red-700 truncate">Motivo: ${proj.comentario_cancelamento}</div>`;
                 }
                 let metricsHTML = '';
                 if(proj.metricas?.length) {
                     metricsHTML = `<div class="bg-slate-50 p-3 rounded-xl mt-3 border border-slate-100">
                         <p class="text-[8px] font-black uppercase text-slate-400 mb-2">KPIs de Performance</p>
                         ${proj.metricas.map(m => `<div class="flex justify-between items-center text-[10px] mb-1">
-                            <span class="font-bold text-slate-600 truncate mr-2">${m.label}</span>
+                            <span class="font-bold text-slate-600 truncate mr-2" title="${m.label}">${m.label}</span>
                             <div class="flex gap-2">
                                 <span class="text-cyan-600 font-black">🎯 ${m.meta || '-'}</span>
                                 <span class="${isFinished ? 'text-green-600 font-black' : 'text-slate-400 font-black'}">✅ ${m.real || '-'}</span>
@@ -713,51 +750,20 @@
         window.renderDetailedList = (data) => {
             const tbody = document.getElementById('detailed-table-body');
             if(!tbody) return; tbody.innerHTML = '';
-            
-            const today = new Date();
-            today.setHours(0,0,0,0);
-
+            const today = new Date(); today.setHours(0,0,0,0);
             data.forEach((proj) => {
                 const resp = Array.isArray(proj.responsavel) ? proj.responsavel.slice(0,2).join(', ') : proj.responsavel;
-                
-                // Cálculo de dias restantes
-                let daysText = "-";
-                let daysColor = "text-slate-400";
-                
-                if (proj.status === 'Finalizado') {
-                    daysText = "Concluído";
-                    daysColor = "text-green-500 font-black";
-                } else if (proj.prazo) {
+                let daysText = "-"; let daysColor = "text-slate-400";
+                if (proj.status === 'Finalizado') { daysText = "Concluído"; daysColor = "text-green-500 font-black"; }
+                else if (proj.prazo) {
                     const deadline = new Date(proj.prazo);
                     const diffTime = deadline - today;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    
-                    if (diffDays > 0) {
-                        daysText = `${diffDays} dias`;
-                        daysColor = diffDays <= 5 ? "text-amber-500 font-black" : "text-slate-600 font-bold";
-                    } else if (diffDays === 0) {
-                        daysText = "Entrega Hoje";
-                        daysColor = "text-orange-500 font-black";
-                    } else {
-                        daysText = `Atrasado (${Math.abs(diffDays)} d)`;
-                        daysColor = "text-red-500 font-black";
-                    }
+                    if (diffDays > 0) { daysText = `${diffDays} dias`; daysColor = diffDays <= 5 ? "text-amber-500 font-black" : "text-slate-600 font-bold"; }
+                    else if (diffDays === 0) { daysText = "Entrega Hoje"; daysColor = "text-orange-500 font-black"; }
+                    else { daysText = `Atrasado (${Math.abs(diffDays)} d)`; daysColor = "text-red-500 font-black"; }
                 }
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-6 font-black text-[10px] uppercase text-slate-400">${proj.prioridade}</td>
-                        <td class="p-6 font-black uppercase text-sm">${proj.iniciativa}</td>
-                        <td class="p-6 text-[11px] font-bold text-slate-500">${formatDate(proj.data_criacao)}</td>
-                        <td class="p-6 text-[11px] font-black text-slate-900">${formatDate(proj.prazo)}</td>
-                        <td class="p-6 text-[11px] ${daysColor}">${daysText}</td>
-                        <td class="p-6 text-xs font-bold text-slate-700">${resp}</td>
-                        <td class="p-6 text-center"><span class="status-pill bg-slate-100 text-slate-600 font-black">${proj.status}</span></td>
-                        <td class="p-6 text-right space-x-4">
-                            <button onclick="editProjectByID('${proj.id}')" class="text-cyan-500 font-black text-[10px] uppercase tracking-widest hover:underline">Ficha Técnica</button>
-                            <button onclick="deleteProject('${proj.id}')" class="text-red-300 font-black text-[10px] uppercase hover:text-red-500 transition">Excluir</button>
-                        </td>
-                    </tr>`;
+                tbody.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="p-6 font-black text-[10px] uppercase text-slate-400">${proj.prioridade}</td><td class="p-6 font-black uppercase text-sm">${proj.iniciativa}</td><td class="p-6 text-[11px] font-bold text-slate-500">${formatDate(proj.data_criacao)}</td><td class="p-6 text-[11px] font-black text-slate-900">${formatDate(proj.prazo)}</td><td class="p-6 text-[11px] ${daysColor}">${daysText}</td><td class="p-6 text-xs font-bold text-slate-700">${resp}</td><td class="p-6 text-center"><span class="status-pill bg-slate-100 text-slate-600 font-black">${proj.status}</span></td><td class="p-6 text-right space-x-4"><button onclick="editProjectByID('${proj.id}')" class="text-cyan-500 font-black text-[10px] uppercase hover:underline">Ficha Técnica</button><button onclick="deleteProject('${proj.id}')" class="text-red-300 font-black text-[10px] uppercase hover:text-red-500 transition">Excluir</button></td></tr>`;
             });
         };
 
@@ -784,12 +790,10 @@
             document.getElementById('status-display').value = newStatus;
             toggleConclusionField(newStatus);
             if(newStatus === 'Finalizado') {
-                const field = document.getElementById('data_conclusao');
-                if(!field.value) field.value = new Date().toISOString().split('T')[0];
+                document.getElementById('data_conclusao').value = new Date().toISOString().split('T')[0];
                 document.getElementById('comentario_conclusao').focus();
             } else if (newStatus === 'Despriorizado') {
-                const field = document.getElementById('data_cancelamento');
-                if(!field.value) field.value = new Date().toISOString().split('T')[0];
+                document.getElementById('data_cancelamento').value = new Date().toISOString().split('T')[0];
                 document.getElementById('comentario_cancelamento').focus();
             }
             document.getElementById('closure-dates').scrollIntoView({ behavior: 'smooth' });
@@ -802,6 +806,7 @@
             const editId = document.getElementById('edit-id').value;
             const newNote = document.getElementById('new-milestone-note').value.trim();
             const currentStatus = document.getElementById('project-status-internal').value;
+            
             if(currentStatus === 'Finalizado' && !document.getElementById('data_conclusao').value) {
                 alert("Data de conclusão obrigatória."); return;
             } else if(currentStatus === 'Despriorizado') {
@@ -809,6 +814,7 @@
                     alert("Data e Motivo são obrigatórios para despriorizar."); return;
                 }
             }
+
             const originalText = btn.innerText; btn.innerText = "Sincronizando..."; btn.disabled = true;
             const selectedLeaders = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const metricas = Array.from(document.querySelectorAll('.metrica-row')).map(row => ({
@@ -816,6 +822,7 @@
                 meta: row.querySelector('.metrica-meta').value,
                 real: row.querySelector('.metrica-real').value
             })).filter(m => m.label.trim() !== "");
+
             const data = {
                 iniciativa: document.getElementById('iniciativa').value.toUpperCase(),
                 prioridade: document.getElementById('prioridade').value,
@@ -834,6 +841,7 @@
                 nota_inicial: document.getElementById('nota_inicial').value,
                 atividades: [...currentTasks]
             };
+
             try {
                 if (editId) {
                     const existing = projects.find(p => p.id === editId);
@@ -882,7 +890,7 @@
             document.getElementById('notes-section').classList.remove('hidden');
             const history = document.getElementById('notes-history-list'); history.innerHTML = '';
             [...(p.notes || [])].reverse().forEach(n => {
-                history.innerHTML += `<div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-2 shadow-sm"><span class="text-[8px] font-black text-cyan-500 uppercase">${n.date}</span><p class="text-xs text-slate-700 font-bold mt-1">${n.text}</p></div>`;
+                history.innerHTML += `<div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-2 shadow-sm text-slate-800"><span class="text-[8px] font-black text-cyan-500 uppercase">${n.date}</span><p class="text-xs text-slate-700 font-bold mt-1">${n.text}</p></div>`;
             });
             document.getElementById('btn-print-project').classList.remove('hidden');
             switchTab('form');
