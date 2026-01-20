@@ -139,7 +139,8 @@
         <div class="w-10 h-10 border-4 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
     </div>
 
-    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[11000] p-4 text-slate-800">
+    <!-- Modal Adicionar Item -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[11000] p-4">
         <div class="bg-white w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl">
             <h3 id="modal-title" class="text-xl font-black mb-4 uppercase tracking-tighter text-center">Adicionar Item</h3>
             <input type="text" id="modal-input" class="w-full input-premium mb-6" placeholder="Digite o nome...">
@@ -150,8 +151,9 @@
         </div>
     </div>
 
+    <!-- Modal de Report -->
     <div id="report-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[11000] p-4 text-slate-800">
-        <div class="bg-white w-full max-w-2xl p-10 rounded-[2.5rem] shadow-2xl relative text-slate-800">
+        <div class="bg-white w-full max-w-2xl p-10 rounded-[2.5rem] shadow-2xl relative">
             <button onclick="closeReportModal()" class="absolute top-8 right-8 text-slate-300 hover:text-slate-900 transition text-2xl font-bold">×</button>
             <div>
                 <span class="label-forte">Resumo de Status</span>
@@ -172,8 +174,8 @@
         </div>
     </div>
 
-    <header class="bg-white border-b border-slate-100 sticky top-0 z-50 no-print">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center text-slate-800">
+    <header class="bg-white border-b border-slate-100 sticky top-0 z-50 no-print text-slate-800">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <div class="flex items-center gap-6">
                 <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="h-8" alt="Unico Logo">
                 <div id="sync-indicator" class="hidden md:flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-100">
@@ -190,14 +192,15 @@
     </header>
 
     <main class="max-w-7xl mx-auto p-6 mt-4 main-content">
+        
         <!-- DASHBOARD VIEW -->
         <div id="view-dashboard" class="block no-print text-slate-800">
             <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 class="text-4xl font-black tracking-tighter uppercase leading-none">Estratégia & Operação</h1>
-                    <p class="text-slate-400 text-xs font-bold uppercase mt-2 tracking-widest">Visão macro de eficiência corporativa</p>
+                    <p class="text-slate-400 text-xs font-bold uppercase mt-1">Visão macro de eficiência corporativa</p>
                 </div>
-                <div class="flex flex-wrap gap-2 text-slate-800">
+                <div class="flex flex-wrap gap-2">
                     <select id="dash-filter-period" class="input-premium !py-2 !text-xs shadow-sm" onchange="refreshUI()">
                         <option value="all">Todo o Período</option>
                         <option value="mes">Mensal (Este Mês)</option>
@@ -222,25 +225,30 @@
                 <div class="kpi-card border-l-4 border-indigo-500"><p class="label-forte !text-[9px] text-indigo-600">Saúde</p><h2 id="kpi-saude" class="text-2xl font-black text-indigo-600">0%</h2></div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 text-slate-800">
+            <!-- Gráficos Superiores -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center">
                     <span class="label-forte mb-6 text-center">Status das Iniciativas</span>
-                    <div class="w-full h-56 mt-4 text-slate-800"><canvas id="chartStatus"></canvas></div>
+                    <div class="w-full h-56 mt-4"><canvas id="chartStatus"></canvas></div>
                 </div>
                 <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center">
                     <span class="label-forte mb-6 text-center">Área Impactada</span>
-                    <div class="w-full h-56 mt-4 text-slate-800"><canvas id="chartTime"></canvas></div>
+                    <div class="w-full h-56 mt-4"><canvas id="chartTime"></canvas></div>
                 </div>
                 <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center">
                     <span class="label-forte mb-6 text-center">Pilar Estratégico</span>
-                    <div class="w-full h-56 mt-4 text-slate-800"><canvas id="chartFrente"></canvas></div>
+                    <div class="w-full h-56 mt-4"><canvas id="chartFrente"></canvas></div>
                 </div>
             </div>
 
+            <!-- Capacidade e Esforço -->
             <div class="mb-12">
-                <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm text-slate-800">
+                <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
                     <div class="flex justify-between items-center mb-8">
-                        <div><span class="label-forte">Gestão de Recursos</span><h3 class="text-2xl font-black uppercase tracking-tighter text-slate-800">Capacidade por Líder</h3></div>
+                        <div>
+                            <span class="label-forte">Gestão de Recursos</span>
+                            <h3 class="text-2xl font-black uppercase tracking-tighter">Capacidade por Líder</h3>
+                        </div>
                         <div class="flex gap-4">
                             <div class="flex items-center gap-2"><span class="w-3 h-3 bg-cyan-400 rounded"></span><span class="text-[9px] font-black uppercase text-slate-400">Rápido</span></div>
                             <div class="flex items-center gap-2"><span class="w-3 h-3 bg-amber-400 rounded"></span><span class="text-[9px] font-black uppercase text-slate-400">Intermediário</span></div>
@@ -256,10 +264,10 @@
 
         <!-- FORMULÁRIO (FICHA TÉCNICA) -->
         <div id="view-form" class="hidden max-w-5xl mx-auto text-slate-800">
-            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border-t-[12px] border-cyan-400 print-card mb-12 text-slate-800">
-                <div class="flex justify-between items-start mb-10 text-slate-800">
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border-t-[12px] border-cyan-400 print-card mb-12">
+                <div class="flex justify-between items-start mb-10">
                     <div>
-                        <h2 id="form-title" class="text-3xl font-black uppercase tracking-tighter text-slate-800">Ficha Técnica</h2>
+                        <h2 id="form-title" class="text-3xl font-black uppercase tracking-tighter">Ficha Técnica</h2>
                         <p class="text-slate-400 text-sm font-medium">Acompanhamento tático e detalhamento da iniciativa</p>
                     </div>
                     <button id="btn-print-project" onclick="window.print()" class="no-print hidden bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-3 hover:bg-slate-800 transition shadow-lg">
@@ -267,27 +275,26 @@
                     </button>
                 </div>
                 
-                <form id="project-form" class="space-y-10 text-slate-800">
+                <form id="project-form" class="space-y-10">
                     <input type="hidden" id="edit-id" value="">
-                    <input type="hidden" id="project-status-internal" value="Backlog">
                     
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="md:col-span-2 text-slate-800">
-                            <label class="label-forte text-slate-800">Iniciativa / Projeto</label>
+                        <div class="md:col-span-2">
+                            <label class="label-forte">Iniciativa / Projeto</label>
                             <input type="text" id="iniciativa" required class="w-full input-premium text-lg uppercase" placeholder="EX: PROJETO DE EFICIÊNCIA">
                         </div>
                         <div>
-                            <label class="label-forte text-slate-800">Prioridade</label>
+                            <label class="label-forte">Prioridade</label>
                             <select id="prioridade" class="w-full input-premium font-bold">
-                                <option value="Baixa">Baixa</option>
-                                <option value="Média">Média</option>
-                                <option value="Alta">Alta</option>
+                                <option value="Baixa">🟢 Baixa</option>
+                                <option value="Média">🟡 Média</option>
+                                <option value="Alta">🔴 Alta</option>
                             </select>
                         </div>
                         <div>
                             <div class="flex items-center gap-2 mb-1">
-                                <label class="label-forte !mb-0 text-slate-800">Tamanho do Esforço</label>
-                                <div class="cursor-help text-slate-400 hover:text-cyan-400 transition" title="Rápido: Execução imediata. &#10;Intermediário: Exige apoio. &#10;Estruturante: Complexo.">
+                                <label class="label-forte !mb-0">Tamanho do Esforço</label>
+                                <div class="cursor-help text-slate-400 hover:text-cyan-400 transition" title="Rápido: Execução imediata e individual. &#10;Intermediário: Exige apoio de outras áreas. &#10;Estruturante: Mudanças complexas ou longo prazo.">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 </div>
                             </div>
@@ -316,7 +323,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="label-forte text-slate-800">Status Atual</label>
+                            <label class="label-forte">Status Atual</label>
                             <select id="status" class="w-full input-premium font-black text-slate-900" onchange="updateInternalStatus(this.value)">
                                 <option value="Backlog">Backlog</option>
                                 <option value="Em Andamento">Em Andamento</option>
@@ -325,30 +332,39 @@
                             </select>
                         </div>
                         
+                        <!-- Cronograma -->
                         <div class="md:col-span-2 bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm text-slate-800">
-                             <label class="label-forte mb-6 text-slate-500">Cronograma</label>
+                             <label class="label-forte mb-6 text-slate-500">Cronograma da Iniciativa</label>
                              <div class="grid grid-cols-2 gap-6">
-                                <div><label class="label-forte !text-slate-600">Início</label><input type="date" id="data_criacao" required class="w-full input-premium text-sm font-bold border-slate-300"></div>
-                                <div><label class="label-forte !text-slate-600">Prazo Target</label><input type="date" id="prazo" required class="w-full input-premium text-sm font-bold border-slate-300"></div>
+                                <div>
+                                    <label class="label-forte !text-slate-600 !mb-2">Data Início</label>
+                                    <input type="date" id="data_criacao" required class="w-full input-premium text-sm font-bold border-slate-300">
+                                </div>
+                                <div>
+                                    <label class="label-forte !text-slate-600 !mb-2">Prazo Estimado</label>
+                                    <input type="date" id="prazo" required class="w-full input-premium text-sm font-bold border-slate-300">
+                                </div>
                              </div>
+                             
+                             <!-- SLA / Conclusão -->
                              <div id="closure-dates" class="mt-8 pt-6 border-t border-slate-200 hidden">
-                                <div id="container-conclusao" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden text-slate-800">
+                                <div id="container-conclusao" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
                                     <div>
-                                        <label class="label-forte !text-green-600">Data Conclusão Real <span class="text-red-500">*</span></label>
+                                        <label class="label-forte !text-green-600 !mb-2">Data Conclusão Real <span class="text-red-500">*</span></label>
                                         <input type="date" id="data_conclusao" class="w-full input-premium text-sm font-bold border-green-300 shadow-sm">
                                     </div>
                                     <div>
-                                        <label class="label-forte !text-green-600">Comentário Final</label>
+                                        <label class="label-forte !text-green-600 !mb-2">Observações de Finalização</label>
                                         <textarea id="comentario_conclusao" class="w-full input-premium text-xs h-11 border-green-200 shadow-sm" placeholder="Opcional..."></textarea>
                                     </div>
                                 </div>
-                                <div id="container-cancelamento" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden text-slate-800">
+                                <div id="container-cancelamento" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
                                     <div>
-                                        <label class="label-forte !text-red-600">Data Despriorização <span class="text-red-500">*</span></label>
+                                        <label class="label-forte !text-red-600 !mb-2">Data Despriorização <span class="text-red-500">*</span></label>
                                         <input type="date" id="data_cancelamento" class="w-full input-premium text-sm font-bold border-red-300 shadow-sm">
                                     </div>
                                     <div>
-                                        <label class="label-forte !text-red-600">Motivo <span class="text-red-500">*</span></label>
+                                        <label class="label-forte !text-red-600 !mb-2">Motivo <span class="text-red-500">*</span></label>
                                         <textarea id="comentario_cancelamento" class="w-full input-premium text-xs h-11 border-red-200 shadow-sm" placeholder="Obrigatório..."></textarea>
                                     </div>
                                 </div>
@@ -358,13 +374,13 @@
                         <div class="md:col-span-2 text-slate-800">
                              <label class="label-forte text-cyan-600">Expectativas de Ganho (KPIs)</label>
                              <div class="bg-white p-6 rounded-3xl border-2 border-slate-200 shadow-sm text-slate-800">
-                                <div id="metricas-container" class="space-y-3 mb-4 text-slate-800"></div>
+                                <div id="metricas-container" class="space-y-3 mb-4"></div>
                                 <button type="button" onclick="addMetricaInput()" class="text-[10px] font-black text-cyan-500 hover:text-cyan-700 uppercase tracking-widest">+ Adicionar Métrica</button>
                              </div>
                         </div>
                         
                         <div class="md:col-span-4 bg-white p-6 rounded-3xl border-2 border-slate-900 shadow-sm text-slate-800">
-                            <div class="flex justify-between items-center mb-4">
+                            <div class="flex justify-between items-center mb-4 text-slate-800">
                                 <label class="label-forte !mb-0">Responsáveis Líderes (Seleção Múltipla)</label>
                                 <button type="button" onclick="openAdderModal('team')" class="btn-icon-add">+</button>
                             </div>
@@ -383,7 +399,7 @@
                                     <label class="label-forte !mb-0 !text-slate-600">Plano de Atividades (Tasks)</label>
                                     <span id="task-counter" class="text-[9px] font-black bg-white px-2 py-1 rounded-md border border-slate-200">0 TASKS</span>
                                 </div>
-                                <div class="flex gap-2 mb-4 no-print text-slate-800">
+                                <div class="flex gap-2 mb-4 no-print">
                                     <input type="text" id="task-input" placeholder="O que precisa ser feito?" class="flex-1 input-premium !py-2 !text-sm">
                                     <button type="button" onclick="addTaskToList()" class="bg-slate-900 text-white px-4 rounded-xl font-bold transition hover:bg-slate-800 shadow-md">+</button>
                                 </div>
@@ -409,9 +425,9 @@
                     <div id="status-actions" class="pt-10 flex flex-wrap gap-4 border-t border-slate-100 no-print">
                         <button type="submit" id="btn-submit" class="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black hover:bg-slate-800 shadow-xl transition flex-1 uppercase tracking-widest text-xs">Salvar Alterações</button>
                         <button type="button" id="btn-report" onclick="generateProjectReport()" class="hidden bg-cyan-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-cyan-600 transition uppercase tracking-widest text-xs shadow-lg">Gerar Report</button>
-                        <button type="button" id="btn-finish" onclick="prepareStatusChange('Finalizado')" class="hidden bg-green-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-green-600 transition uppercase tracking-widest text-xs shadow-lg">Finalizar Projeto</button>
-                        <button type="button" id="btn-cancel" onclick="prepareStatusChange('Despriorizado')" class="hidden bg-red-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-red-600 transition uppercase tracking-widest text-xs shadow-lg">Despriorizar</button>
-                        <button type="button" onclick="resetForm(); switchTab('dashboard');" class="bg-white text-slate-400 border border-slate-200 px-8 py-5 rounded-2xl font-bold transition text-xs uppercase tracking-widest">Voltar</button>
+                        <button type="button" id="btn-finish" onclick="prepareStatusChange('Finalizado')" class="hidden bg-green-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-green-600 transition uppercase tracking-widest text-xs shadow-lg shadow-green-100">Finalizar Projeto</button>
+                        <button type="button" id="btn-cancel" onclick="prepareStatusChange('Despriorizado')" class="hidden bg-red-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-red-600 transition uppercase tracking-widest text-xs shadow-lg shadow-red-100">Despriorizar</button>
+                        <button type="button" onclick="resetForm(); switchTab('dashboard');" class="bg-white text-slate-400 border border-slate-200 px-8 py-5 rounded-2xl font-bold transition text-xs uppercase tracking-widest text-slate-800">Voltar</button>
                     </div>
                 </form>
             </div>
@@ -421,7 +437,7 @@
         <div id="view-list" class="hidden no-print text-slate-800">
             <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 text-slate-800">
                 <div>
-                    <h1 class="text-4xl font-black uppercase tracking-tighter leading-none">Controle de Projetos</h1>
+                    <h1 class="text-4xl font-black uppercase tracking-tighter leading-none text-slate-800">Controle de Projetos</h1>
                     <p class="text-slate-400 text-xs font-black uppercase tracking-widest mt-2">Visão detalhada do cronograma e equipe</p>
                 </div>
                 <div class="flex flex-wrap gap-2 text-slate-800">
@@ -429,13 +445,13 @@
                     <select id="list-filter-frente" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Frente Trabalho</option></select>
                     <select id="list-filter-status" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Status</option></select>
                     <select id="list-filter-leader" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Líder</option></select>
-                    <button onclick="clearListFilters()" class="text-[9px] font-black text-slate-300 hover:text-red-500 uppercase px-2">Limpar</button>
+                    <button onclick="clearListFilters()" class="text-[9px] font-black text-slate-300 hover:text-red-500 uppercase px-2 text-slate-800">Limpar</button>
                 </div>
             </div>
             <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden text-slate-800">
                 <table class="w-full text-left text-slate-800">
                     <thead class="bg-slate-50 border-b border-slate-100 text-slate-400 uppercase text-[9px] font-black tracking-widest">
-                        <tr><th class="p-6">Prioridade</th><th class="p-6">Iniciativa</th><th class="p-6">Início</th><th class="p-6">Prazo Target</th><th class="p-6">Dias p/ Finalizar</th><th class="p-6">Responsáveis</th><th class="p-6 text-center">Status</th><th class="p-6 text-right">Ações</th></tr>
+                        <tr><th class="p-6">Prioridade</th><th class="p-6">Iniciativa</th><th class="p-6">Início</th><th class="p-6">Prazo Target</th><th class="p-6 text-center">Status</th><th class="p-6 text-right">Ações</th></tr>
                     </thead>
                     <tbody id="detailed-table-body" class="divide-y divide-slate-50 text-slate-800"></tbody>
                 </table>
@@ -448,7 +464,7 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Usar variáveis globais para evitar erros de token mismatch
+        // Inicialização robusta
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -465,6 +481,7 @@
         const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Rodrigo Prinz De Paiva", "Simone Thomé de Andrade"];
         const defaultAreas = ["Análise", "CX", "Mesa", "Onboarding", "Comunicação"];
 
+        // Autenticação primeiro
         async function initAuth() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -474,7 +491,6 @@
                 }
             } catch (error) { 
                 console.error("Auth Error:", error);
-                // Fallback para anónimo se o token falhar
                 await signInAnonymously(auth);
             }
         }
@@ -491,24 +507,29 @@
 
         const setupDynamicListeners = () => {
             if (!currentUser) return;
+            // Equipe
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'team'), (snap) => {
                 dynamicTeam = snap.docs.map(doc => doc.data().name);
                 renderTeamCheckboxes();
                 updateLeaderFilters();
                 refreshUI();
-            });
+            }, err => console.error(err));
+
+            // Áreas
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'areas'), (snap) => {
                 dynamicAreas = snap.docs.map(doc => doc.data().name);
                 updateDropdown('time', dynamicAreas, defaultAreas);
                 updateDropdown('dash-filter-area', dynamicAreas, defaultAreas, "Todas as Áreas Impactadas");
                 updateDropdown('list-filter-area', dynamicAreas, defaultAreas, "Área Impactada");
-            });
+            }, err => console.error(err));
+
+            // Frentes
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'frentes'), (snap) => {
                 dynamicFrentes = snap.docs.map(doc => doc.data().name);
                 const defFrentes = ["Performance", "Reestruturação", "Automação", "Simplificação"];
                 updateDropdown('frente', dynamicFrentes, defFrentes);
                 updateDropdown('list-filter-frente', dynamicFrentes, defFrentes, "Frente Trabalho");
-            });
+            }, err => console.error(err));
         };
 
         const updateDropdown = (elementId, dynamicList, defaults, firstOptionText) => {
@@ -539,8 +560,11 @@
                 const overlay = document.getElementById('loading-overlay');
                 if(overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 500); }
                 refreshUI();
-            });
+            }, err => console.error(err));
         };
+
+        // UI HELPERS
+        const safeSetText = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
 
         window.openAdderModal = (target) => {
             window.currentModalTarget = target;
@@ -595,7 +619,7 @@
             }
             currentTasks.forEach(task => {
                 const div = document.createElement('div');
-                div.className = "flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl mb-2 text-slate-800 shadow-sm";
+                div.className = "flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl mb-2 shadow-sm";
                 div.innerHTML = `
                     <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})" class="w-4 h-4 rounded border-slate-300 text-cyan-500">
                     <span class="flex-1 text-[13px] font-bold ${task.completed ? 'line-through text-slate-300' : 'text-slate-700'}">${task.text}</span>
@@ -618,33 +642,31 @@
         window.refreshUI = () => {
             const activeTab = document.querySelector('.active-tab')?.id.split('-')[1] || 'dashboard';
             if (activeTab === 'dashboard') {
-                const area = document.getElementById('dash-filter-area').value;
-                const period = document.getElementById('dash-filter-period').value;
+                const area = document.getElementById('dash-filter-area')?.value || "";
+                const period = document.getElementById('dash-filter-period')?.value || 'all';
                 const filtered = projects.filter(p => (!area || p.time === area) && isProjectInPeriod(p.data_criacao, period));
                 updateKPIs(filtered); renderDashboard(filtered); updateCharts(filtered); renderCapacidadeChart(filtered);
             } else if (activeTab === 'list') {
-                const area = document.getElementById('list-filter-area').value;
-                const frente = document.getElementById('list-filter-frente').value;
-                const status = document.getElementById('list-filter-status').value;
-                const leader = document.getElementById('list-filter-leader').value;
+                const area = document.getElementById('list-filter-area')?.value || "";
+                const frente = document.getElementById('list-filter-frente')?.value || "";
+                const status = document.getElementById('list-filter-status')?.value || "";
+                const leader = document.getElementById('list-filter-leader')?.value || "";
                 const filtered = projects.filter(p => (!area || p.time === area) && (!frente || p.frente === frente) && (!status || p.status === status) && (!leader || (Array.isArray(p.responsavel) && p.responsavel.includes(leader))));
                 renderDetailedList(filtered);
             }
         };
 
         const updateKPIs = (data) => {
-            const el = (id) => document.getElementById(id);
-            if(!el('kpi-total')) return;
             const finished = data.filter(p => p.status === 'Finalizado');
             const onTime = finished.filter(p => p.data_conclusao && p.prazo && new Date(p.data_conclusao) <= new Date(p.prazo));
-            el('kpi-total').innerText = data.length;
-            el('kpi-concluidos-prazo').innerText = onTime.length;
-            el('kpi-concluidos-atraso').innerText = finished.length - onTime.length;
-            el('kpi-sla').innerText = (finished.length ? Math.round((onTime.length/finished.length)*100) : 0) + '%';
-            el('kpi-blockers').innerText = data.filter(p => p.impedimentos?.trim()).length;
-            el('kpi-prioridade').innerText = data.filter(p => p.prioridade?.includes('Alta')).length;
+            safeSetText('kpi-total', data.length);
+            safeSetText('kpi-concluidos-prazo', onTime.length);
+            safeSetText('kpi-concluidos-atraso', finished.length - onTime.length);
+            safeSetText('kpi-sla', (finished.length ? Math.round((onTime.length/finished.length)*100) : 0) + '%');
+            safeSetText('kpi-blockers', data.filter(p => p.impedimentos?.trim()).length);
+            safeSetText('kpi-prioridade', data.filter(p => p.prioridade?.includes('Alta')).length);
             const saude = data.length ? Math.round(((data.length - data.filter(p => p.impedimentos?.trim()).length)/data.length)*100) : 100;
-            el('kpi-saude').innerText = saude + '%';
+            safeSetText('kpi-saude', saude + '%');
         };
 
         window.renderDashboard = (data) => {
@@ -655,7 +677,7 @@
                 let sla = (p.status === 'Finalizado' && p.data_conclusao && p.prazo) ? `<span class="ml-2 px-2 py-0.5 rounded text-[8px] font-black uppercase ${new Date(p.data_conclusao) <= new Date(p.prazo) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${new Date(p.data_conclusao) <= new Date(p.prazo) ? 'No Prazo' : 'Atrasado'}</span>` : "";
                 let closure = p.status === 'Finalizado' && p.comentario_conclusao ? `<div class="mt-2 p-2 bg-green-50 border border-green-100 rounded-lg text-[9px] italic text-green-700 truncate">Descrição: ${p.comentario_conclusao}</div>` : (p.status === 'Despriorizado' && p.comentario_cancelamento ? `<div class="mt-2 p-2 bg-red-50 border border-red-100 rounded-lg text-[9px] italic text-red-700 truncate">Motivo: ${p.comentario_cancelamento}</div>` : '');
                 let metrics = p.metricas?.length ? `<div class="bg-slate-50 p-3 rounded-xl mt-3 border border-slate-100"><p class="text-[8px] font-black uppercase text-slate-400 mb-2">KPIs</p>${p.metricas.map(m => `<div class="flex justify-between items-center text-[10px] mb-1"><span>${m.label}</span><span>🎯${m.meta} | ✅${m.real||'-'}</span></div>`).join('')}</div>` : "";
-                grid.innerHTML += `<div class="card-project p-8 flex flex-col h-full border-t-[12px] text-slate-800" style="border-top-color: ${p.time === 'Análise' ? '#00e5ff' : '#000a28'}"><div class="flex justify-between items-start mb-6"><span class="text-[9px] font-black text-slate-300 uppercase">${p.time} | ${p.frente}</span><div class="flex items-center"><span class="status-pill status-${slug}">${p.status}</span>${sla}</div></div><h3 class="text-xl font-black mb-4 uppercase line-clamp-2 leading-tight">${p.iniciativa}</h3><div class="text-[11px] font-bold space-y-2 mb-6 border-l-2 border-slate-50 pl-4 text-slate-500"><p class="flex justify-between"><span>TARGET:</span> <span class="text-slate-900">${formatDate(p.prazo)}</span></p>${metrics}${closure}</div><div class="bg-slate-50 p-4 rounded-2xl flex-grow mb-6 shadow-inner text-[11px] text-slate-600 italic">"${p.notes?.length ? p.notes[p.notes.length-1].text : 'Iniciada.'}"</div><button onclick="editProjectByID('${p.id}')" class="bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg">Ver Ficha Técnica</button></div>`;
+                grid.innerHTML += `<div class="card-project p-8 flex flex-col h-full border-t-[12px] shadow-sm" style="border-top-color: ${p.time === 'Análise' ? '#00e5ff' : '#000a28'}"><div class="flex justify-between items-start mb-6 text-slate-800"><span class="text-[9px] font-black text-slate-300 uppercase">${p.time} | ${p.frente}</span><div class="flex items-center"><span class="status-pill status-${slug}">${p.status}</span>${sla}</div></div><h3 class="text-xl font-black mb-4 uppercase line-clamp-2 leading-tight">${p.iniciativa}</h3><div class="text-[11px] font-bold space-y-2 mb-6 border-l-2 border-slate-50 pl-4 text-slate-500"><p class="flex justify-between"><span>TARGET:</span> <span class="text-slate-900">${formatDate(p.prazo)}</span></p>${metrics}${closure}</div><div class="bg-slate-50 p-4 rounded-2xl flex-grow mb-6 shadow-inner text-[11px] text-slate-600 italic">"${p.notes?.length ? p.notes[p.notes.length-1].text : 'Iniciada.'}"</div><button onclick="editProjectByID('${p.id}')" class="bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-slate-800 transition">Ver Detalhes</button></div>`;
             });
         };
 
@@ -675,25 +697,33 @@
 
         window.renderDetailedList = (data) => {
             const tbody = document.getElementById('detailed-table-body'); if(!tbody) return; tbody.innerHTML = '';
-            const today = new Date(); today.setHours(0,0,0,0);
             data.forEach(p => {
-                let diffText = "-", diffColor = "text-slate-400";
-                if(p.status === 'Finalizado') { diffText = "Concluído"; diffColor = "text-green-500 font-black"; }
-                else if(p.prazo) {
-                    const diff = Math.ceil((new Date(p.prazo) - today)/(1000*60*60*24));
-                    diffText = diff > 0 ? diff+" dias" : (diff === 0 ? "Entrega Hoje" : "Atrasado ("+Math.abs(diff)+" d)");
-                    diffColor = diff < 0 ? "text-red-500 font-black" : (diff <= 5 ? "text-amber-500 font-black" : "text-slate-600 font-bold");
-                }
                 const resps = Array.isArray(p.responsavel) ? p.responsavel.slice(0,2).join(', ') : "";
-                tbody.innerHTML += `<tr class="hover:bg-slate-50 transition text-slate-800"><td class="p-6 font-black text-[10px] uppercase text-slate-400">${p.prioridade}</td><td class="p-6 font-black uppercase text-sm">${p.iniciativa}</td><td class="p-6 text-[11px] font-bold text-slate-500">${formatDate(p.data_criacao)}</td><td class="p-6 text-[11px] font-black">${formatDate(p.prazo)}</td><td class="p-6 text-[11px] ${diffColor}">${diffText}</td><td class="p-6 text-xs">${resps}</td><td class="p-6 text-center"><span class="status-pill bg-slate-100 text-slate-600 font-black">${p.status}</span></td><td class="p-6 text-right"><button onclick="editProjectByID('${p.id}')" class="text-cyan-500 font-black text-[10px] uppercase hover:underline">Ficha Técnica</button></td></tr>`;
+                tbody.innerHTML += `<tr class="hover:bg-slate-50 transition text-slate-800"><td class="p-6 font-black text-[10px] uppercase text-slate-400">${p.prioridade}</td><td class="p-6 font-black uppercase text-sm">${p.iniciativa}</td><td class="p-6 text-[11px] font-bold text-slate-500">${formatDate(p.data_criacao)}</td><td class="p-6 text-[11px] font-black">${formatDate(p.prazo)}</td><td class="p-6 text-xs text-slate-700">${resps}</td><td class="p-6 text-center"><span class="status-pill bg-slate-100 font-black">${p.status}</span></td><td class="p-6 text-right space-x-4"><button onclick="editProjectByID('${p.id}')" class="text-cyan-500 font-black text-[10px] uppercase hover:underline">Ficha Técnica</button></td></tr>`;
             });
         };
 
         window.updateCharts = (data) => {
-            const c = (k) => data.reduce((a,v) => { a[v[k]||'N/A'] = (a[v[k]||'N/A']||0)+1; return a; }, {});
-            renderChart('chartStatus', 'pie', c('status'), ['#e2e8f0', '#fef3c7', '#dcfce7', '#fee2e2']);
-            renderChart('chartTime', 'bar', c('time'), '#00e5ff');
-            renderChart('chartFrente', 'bar', c('frente'), '#000a28');
+            const cStatus = (k) => data.reduce((a,v) => { a[v[k]||'N/A'] = (a[v[k]||'N/A']||0)+1; return a; }, {});
+            renderChart('chartStatus', 'pie', cStatus('status'), ['#e2e8f0', '#fef3c7', '#dcfce7', '#fee2e2']);
+            
+            // Gráfico de Esforço por Área atualizado
+            const areas = Array.from(new Set(data.map(p => p.time))).sort();
+            const effortData = {
+                labels: areas,
+                datasets: [
+                    { label: 'Rápido', data: areas.map(a => data.filter(p => p.time === a && p.esforco === 'Rápido').length), backgroundColor: '#00e5ff' },
+                    { label: 'Intermediário', data: areas.map(a => data.filter(p => p.time === a && p.esforco === 'Intermediário').length), backgroundColor: '#fbbf24' },
+                    { label: 'Estruturante', data: areas.map(a => data.filter(p => p.time === a && p.esforco === 'Estruturante').length), backgroundColor: '#000a28' }
+                ]
+            };
+            
+            // Re-render do gráfico de esforço
+            const idTime = 'chartTime'; if(charts[idTime]) charts[idTime].destroy();
+            const ctxTime = document.getElementById(idTime)?.getContext('2d');
+            if(ctxTime) charts[idTime] = new Chart(ctxTime, { type: 'bar', data: effortData, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } } });
+
+            renderChart('chartFrente', 'bar', cStatus('frente'), ['#000a28', '#00e5ff', '#fbbf24', '#f8fafc']);
         };
 
         function renderChart(id, type, data, colors) {
@@ -703,39 +733,74 @@
         }
 
         window.prepareStatusChange = (s) => {
-            document.getElementById('project-status-internal').value = s;
-            document.getElementById('status').value = s;
+            const statusInt = document.getElementById('project-status-internal');
+            const statusDisp = document.getElementById('status');
+            if(statusInt) statusInt.value = s;
+            if(statusDisp) statusDisp.value = s;
             toggleConclusionField(s);
             if(s === 'Finalizado') {
-                const el = document.getElementById('data_conclusao');
-                if(el && !el.value) el.value = new Date().toISOString().split('T')[0];
+                const dc = document.getElementById('data_conclusao');
+                if(dc && !dc.value) dc.value = new Date().toISOString().split('T')[0];
             } else if (s === 'Despriorizado') {
-                const el = document.getElementById('data_cancelamento');
-                if(el && !el.value) el.value = new Date().toISOString().split('T')[0];
+                const dc = document.getElementById('data_cancelamento');
+                if(dc && !dc.value) dc.value = new Date().toISOString().split('T')[0];
             }
-            const closureSec = document.getElementById('closure-dates');
-            if(closureSec) closureSec.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('closure-dates')?.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.updateInternalStatus = (v) => {
+            const internal = document.getElementById('project-status-internal');
+            if(internal) internal.value = v;
+            toggleConclusionField(v);
         };
 
         document.getElementById('project-form').addEventListener('submit', async (e) => {
             e.preventDefault(); if(!currentUser) return;
             const btn = document.getElementById('btn-submit');
             const editId = document.getElementById('edit-id').value;
-            const currentStatus = document.getElementById('project-status-internal').value;
-            if(currentStatus === 'Finalizado' && !document.getElementById('data_conclusao').value) return alert("Data obrigatória.");
-            if(currentStatus === 'Despriorizado' && (!document.getElementById('data_cancelamento').value || !document.getElementById('comentario_cancelamento').value.trim())) return alert("Data e motivo obrigatórios.");
+            const currentStatus = document.getElementById('status').value;
             
+            if(currentStatus === 'Finalizado' && !document.getElementById('data_conclusao')?.value) {
+                alert("Data de conclusão obrigatória."); return;
+            } else if(currentStatus === 'Despriorizado') {
+                if(!document.getElementById('data_cancelamento')?.value || !document.getElementById('comentario_cancelamento')?.value.trim()) {
+                    alert("Data e Motivo obrigatórios."); return;
+                }
+            }
+
             btn.innerText = "Sincronizando..."; btn.disabled = true;
             const leaders = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
-            const metricas = Array.from(document.querySelectorAll('.metrica-row')).map(row => ({ label: row.querySelector('.metrica-label').value.toUpperCase(), meta: row.querySelector('.metrica-meta').value, real: row.querySelector('.metrica-real').value })).filter(m => m.label.trim());
-            const data = { iniciativa: document.getElementById('iniciativa').value.toUpperCase(), prioridade: document.getElementById('prioridade').value, esforco: document.getElementById('esforco').value, time: document.getElementById('time').value, frente: document.getElementById('frente').value, status: currentStatus, data_criacao: document.getElementById('data_criacao').value, prazo: document.getElementById('prazo').value, data_conclusao: document.getElementById('data_conclusao').value || null, comentario_conclusao: document.getElementById('comentario_conclusao').value || "", data_cancelamento: document.getElementById('data_cancelamento').value || null, comentario_cancelamento: document.getElementById('comentario_cancelamento').value || "", responsavel: leaders, metricas, impedimentos: document.getElementById('impedimentos').value, nota_inicial: document.getElementById('nota_inicial').value, atividades: [...currentTasks] };
-            
+            const metricas = Array.from(document.querySelectorAll('.metrica-row')).map(row => ({
+                label: row.querySelector('.metrica-label').value.toUpperCase(),
+                meta: row.querySelector('.metrica-meta').value,
+                real: row.querySelector('.metrica-real').value
+            })).filter(m => m.label.trim());
+
+            const data = {
+                iniciativa: document.getElementById('iniciativa').value.toUpperCase(),
+                prioridade: document.getElementById('prioridade').value,
+                esforco: document.getElementById('esforco').value,
+                time: document.getElementById('time').value,
+                frente: document.getElementById('frente').value,
+                status: currentStatus,
+                data_criacao: document.getElementById('data_criacao').value,
+                prazo: document.getElementById('prazo').value,
+                data_conclusao: document.getElementById('data_conclusao')?.value || null,
+                comentario_conclusao: document.getElementById('comentario_conclusao')?.value || "",
+                data_cancelamento: document.getElementById('data_cancelamento')?.value || null,
+                comentario_cancelamento: document.getElementById('comentario_cancelamento')?.value || "",
+                responsavel: leaders, metricas,
+                impedimentos: document.getElementById('impedimentos').value,
+                nota_inicial: document.getElementById('nota_inicial').value,
+                atividades: [...currentTasks]
+            };
+
             try {
-                if(editId) {
+                if (editId) {
                     const existing = projects.find(p => p.id === editId);
                     const notes = [...(existing?.notes || [])];
                     const newNote = document.getElementById('new-milestone-note').value.trim();
-                    if(newNote) notes.push({ text: newNote, date: new Date().toLocaleDateString('pt-BR') });
+                    if (newNote) notes.push({ text: newNote, date: new Date().toLocaleDateString('pt-BR') });
                     data.notes = notes;
                     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', editId), data);
                 } else {
@@ -743,63 +808,130 @@
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
                 }
                 resetForm(); switchTab('dashboard');
-            } catch(err) { console.error(err); } finally { btn.innerText = "Salvar Alterações"; btn.disabled = false; }
+            } catch (err) { console.error("Save Error:", err); }
+            finally { btn.innerText = "Salvar Alterações"; btn.disabled = false; }
         });
 
         window.generateProjectReport = () => {
             const editId = document.getElementById('edit-id').value;
-            const p = projects.find(proj => proj.id === editId); if(!p) return;
+            const p = projects.find(proj => proj.id === editId);
+            if(!p) return;
             const report = `📢 *STATUS REPORT: ${p.iniciativa}*\n📌 *Status:* ${p.status}\n👥 *Líderes:* ${p.responsavel.join(', ')}\n🎯 *Área:* ${p.time}\n🚀 *Evolução:* "${p.notes?.length ? p.notes[p.notes.length-1].text : 'Sem notas'}"`;
             document.getElementById('report-text').innerText = report;
             document.getElementById('report-modal').classList.remove('hidden'); document.getElementById('report-modal').classList.add('flex');
         };
 
-        window.sendReportByEmail = () => { const text = document.getElementById('report-text').innerText; const init = document.getElementById('iniciativa').value; window.location.href = `mailto:?subject=Status Report: ${init}&body=${encodeURIComponent(text)}`; };
-        window.copyReportForSlack = () => { const text = document.getElementById('report-text').innerText; const temp = document.createElement('textarea'); temp.value = text; document.body.appendChild(temp); temp.select(); document.execCommand('copy'); document.body.removeChild(temp); const msg = document.getElementById('copy-success'); if(msg) { msg.classList.remove('hidden'); setTimeout(() => msg.classList.add('hidden'), 2000); } };
+        window.sendReportByEmail = () => {
+            const text = document.getElementById('report-text').innerText;
+            const init = document.getElementById('iniciativa').value;
+            window.location.href = `mailto:?subject=Status Report: ${init}&body=${encodeURIComponent(text)}`;
+        };
+
+        window.copyReportForSlack = () => {
+            const text = document.getElementById('report-text').innerText;
+            const temp = document.createElement('textarea');
+            temp.value = text; document.body.appendChild(temp);
+            temp.select(); document.execCommand('copy');
+            document.body.removeChild(temp);
+            const msg = document.getElementById('copy-success');
+            if(msg) { msg.classList.remove('hidden'); setTimeout(() => msg.classList.add('hidden'), 2000); }
+        };
+
         window.closeReportModal = () => document.getElementById('report-modal').classList.add('hidden');
 
-        window.editProjectByID = (id) => { const p = projects.find(x => x.id === id); if(p) {
-            document.getElementById('edit-id').value = p.id;
-            document.getElementById('iniciativa').value = p.iniciativa;
-            document.getElementById('prioridade').value = p.prioridade;
-            document.getElementById('esforco').value = p.esforco;
-            document.getElementById('time').value = p.time;
-            document.getElementById('frente').value = p.frente;
-            document.getElementById('status').value = p.status;
-            document.getElementById('project-status-internal').value = p.status;
-            document.getElementById('status-display').value = p.status;
-            document.getElementById('data_criacao').value = p.data_criacao;
-            document.getElementById('prazo').value = p.prazo;
-            document.getElementById('data_conclusao').value = p.data_conclusao || "";
-            document.getElementById('comentario_conclusao').value = p.comentario_conclusao || "";
-            document.getElementById('data_cancelamento').value = p.data_cancelamento || "";
-            document.getElementById('comentario_cancelamento').value = p.comentario_cancelamento || "";
-            document.getElementById('impedimentos').value = p.impedimentos;
-            document.getElementById('nota_inicial').value = p.nota_inicial;
-            toggleConclusionField(p.status);
-            document.getElementById('btn-finish').classList.remove('hidden');
-            document.getElementById('btn-cancel').classList.remove('hidden');
-            document.getElementById('btn-report').classList.remove('hidden');
-            document.getElementById('btn-print-project').classList.remove('hidden');
-            currentTasks = Array.isArray(p.atividades) ? [...p.atividades] : []; renderTasksList();
-            const mContainer = document.getElementById('metricas-container'); if(mContainer) mContainer.innerHTML = '';
-            if(p.metricas?.length && mContainer) p.metricas.forEach(m => addMetricaInput(m.label, m.meta, m.real)); else addMetricaInput();
-            document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => cb.checked = p.responsavel.includes(cb.value));
-            const history = document.getElementById('notes-history-list'); if(history) history.innerHTML = '';
-            [...(p.notes || [])].reverse().forEach(n => {
-                if(history) history.innerHTML += `<div class="p-4 bg-slate-50 rounded-2xl mb-2 border border-slate-100 shadow-sm text-slate-800"><span class="text-[8px] font-black text-cyan-500 uppercase">${n.date}</span><p class="text-xs font-bold mt-1">${n.text}</p></div>`;
-            });
-            document.getElementById('notes-section').classList.remove('hidden');
-            switchTab('form');
-        }};
+        window.editProjectByID = (id) => { 
+            const p = projects.find(x => x.id === id); 
+            if(p) {
+                document.getElementById('edit-id').value = p.id;
+                document.getElementById('iniciativa').value = p.iniciativa || "";
+                document.getElementById('prioridade').value = p.prioridade || "Baixa";
+                document.getElementById('esforco').value = p.esforco || 'Rápido';
+                document.getElementById('time').value = p.time || "";
+                document.getElementById('frente').value = p.frente || "";
+                document.getElementById('status').value = p.status || "Backlog";
+                document.getElementById('project-status-internal').value = p.status || "Backlog";
+                document.getElementById('data_criacao').value = p.data_criacao || "";
+                document.getElementById('prazo').value = p.prazo || "";
+                document.getElementById('data_conclusao').value = p.data_conclusao || "";
+                document.getElementById('comentario_conclusao').value = p.comentario_conclusao || "";
+                document.getElementById('data_cancelamento').value = p.data_cancelamento || "";
+                document.getElementById('comentario_cancelamento').value = p.comentario_cancelamento || "";
+                document.getElementById('impedimentos').value = p.impedimentos || "";
+                document.getElementById('nota_inicial').value = p.nota_inicial || "";
+                
+                toggleConclusionField(p.status);
+                document.getElementById('btn-finish').classList.remove('hidden');
+                document.getElementById('btn-cancel').classList.remove('hidden');
+                document.getElementById('btn-report').classList.remove('hidden');
+                document.getElementById('btn-print-project').classList.remove('hidden');
+                
+                currentTasks = Array.isArray(p.atividades) ? [...p.atividades] : []; 
+                renderTasksList();
+                
+                const mContainer = document.getElementById('metricas-container');
+                if(mContainer) mContainer.innerHTML = '';
+                if(p.metricas?.length && mContainer) p.metricas.forEach(m => addMetricaInput(m.label, m.meta, m.real)); else addMetricaInput();
+                
+                document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => {
+                    cb.checked = Array.isArray(p.responsavel) && p.responsavel.includes(cb.value);
+                });
+                
+                const history = document.getElementById('notes-history-list');
+                if(history) history.innerHTML = '';
+                [...(p.notes || [])].reverse().forEach(n => {
+                    if(history) history.innerHTML += `<div class="p-4 bg-slate-50 rounded-2xl mb-2 border border-slate-100 shadow-sm text-slate-800"><span class="text-[8px] font-black text-cyan-500 uppercase">${n.date}</span><p class="text-xs font-bold mt-1">${n.text}</p></div>`;
+                });
+                document.getElementById('notes-section').classList.remove('hidden');
+                switchTab('form');
+            }
+        };
 
-        window.deleteProject = async (id) => { if(confirm('Eliminar?')) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id)); };
-        window.switchTab = (t) => { ['view-dashboard', 'view-form', 'view-list'].forEach(v => { const el = document.getElementById(v); if(el) el.classList.add('hidden'); }); const target = document.getElementById('view-'+t); if(target) target.classList.remove('hidden'); ['tab-dashboard', 'tab-form', 'tab-list'].forEach(btn => { const el = document.getElementById(btn); if(el) el.classList.toggle('active-tab', btn==='tab-'+t); }); if (t !== 'form') { document.getElementById('edit-id').value = ""; } refreshUI(); };
+        window.deleteProject = async (id) => { if(confirm('Eliminar permanentemente?')) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id)); };
+        
+        window.switchTab = (t) => { 
+            ['view-dashboard', 'view-form', 'view-list'].forEach(v => document.getElementById(v)?.classList.add('hidden')); 
+            document.getElementById('view-'+t)?.classList.remove('hidden'); 
+            ['tab-dashboard', 'tab-form', 'tab-list'].forEach(btn => document.getElementById(btn)?.classList.toggle('active-tab', btn==='tab-'+t)); 
+            if (t !== 'form') { document.getElementById('edit-id').value = ""; } 
+            refreshUI(); 
+        };
+
         window.clearListFilters = () => { ['list-filter-area', 'list-filter-frente', 'list-filter-status', 'list-filter-leader'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; }); refreshUI(); };
-        window.resetForm = () => { document.getElementById('project-form').reset(); document.getElementById('edit-id').value = ""; document.getElementById('status').value = "Backlog"; document.getElementById('project-status-internal').value = "Backlog"; document.getElementById('status-display').value = "Backlog"; document.getElementById('notes-section').classList.add('hidden'); document.getElementById('closure-dates').classList.add('hidden'); document.getElementById('btn-finish').classList.add('hidden'); document.getElementById('btn-cancel').classList.add('hidden'); document.getElementById('btn-report').classList.add('hidden'); const mContainer = document.getElementById('metricas-container'); if(mContainer) mContainer.innerHTML = ''; addMetricaInput(); currentTasks = []; renderTasksList(); const today = new Date().toISOString().split('T')[0]; document.getElementById('data_criacao').value = today; document.getElementById('prazo').value = today; };
-        const renderTeamCheckboxes = () => { const container = document.getElementById('responsaveis-grid'); if(!container) return; const fullList = Array.from(new Set([...defaultTeam, ...dynamicTeam])).sort(); container.innerHTML = ''; fullList.forEach(name => { container.innerHTML += `<label class="checkbox-item text-xs font-bold text-slate-600"><input type="checkbox" name="responsavel_check" value="${name}" class="w-4 h-4 rounded border-slate-300 accent-cyan-500"><span>${name}</span></label>`; }); };
-        window.toggleConclusionField = (s) => { const section = document.getElementById('closure-dates'); if(section) section.classList.toggle('hidden', s !== 'Finalizado' && s !== 'Despriorizado'); const cCon = document.getElementById('container-conclusao'); if(cCon) cCon.classList.toggle('hidden', s !== 'Finalizado'); const cCan = document.getElementById('container-cancelamento'); if(cCan) cCan.classList.toggle('hidden', s !== 'Despriorizado'); };
-        window.updateInternalStatus = (v) => { document.getElementById('project-status-internal').value = v; document.getElementById('status-display').value = v; toggleConclusionField(v); };
+        
+        window.resetForm = () => { 
+            document.getElementById('project-form').reset(); 
+            document.getElementById('edit-id').value = ""; 
+            document.getElementById('status').value = "Backlog"; 
+            document.getElementById('project-status-internal').value = "Backlog"; 
+            document.getElementById('notes-section').classList.add('hidden'); 
+            document.getElementById('closure-dates').classList.add('hidden'); 
+            document.getElementById('btn-finish').classList.add('hidden'); 
+            document.getElementById('btn-cancel').classList.add('hidden'); 
+            document.getElementById('btn-report').classList.add('hidden'); 
+            const mContainer = document.getElementById('metricas-container'); 
+            if(mContainer) mContainer.innerHTML = ''; 
+            addMetricaInput(); 
+            currentTasks = []; 
+            renderTasksList(); 
+            const today = new Date().toISOString().split('T')[0]; 
+            document.getElementById('data_criacao').value = today; 
+            document.getElementById('prazo').value = today; 
+        };
+
+        const renderTeamCheckboxes = () => { 
+            const container = document.getElementById('responsaveis-grid'); if(!container) return; 
+            const fullList = Array.from(new Set([...defaultTeam, ...dynamicTeam])).sort(); 
+            container.innerHTML = ''; 
+            fullList.forEach(name => { container.innerHTML += `<label class="checkbox-item text-xs font-bold text-slate-600"><input type="checkbox" name="responsavel_check" value="${name}" class="w-4 h-4 rounded border-slate-300 accent-cyan-500"><span>${name}</span></label>`; }); 
+        };
+
+        window.toggleConclusionField = (s) => { 
+            const section = document.getElementById('closure-dates'); 
+            if(section) section.classList.toggle('hidden', s !== 'Finalizado' && s !== 'Despriorizado'); 
+            document.getElementById('container-conclusao')?.classList.toggle('hidden', s !== 'Finalizado'); 
+            document.getElementById('container-cancelamento')?.classList.toggle('hidden', s !== 'Despriorizado'); 
+        };
+
         const formatDate = (d) => d ? d.split('-').reverse().join('/') : '---';
         initAuth();
     </script>
