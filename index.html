@@ -132,16 +132,14 @@
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen text-slate-800">
 
-    <!-- Modal de Carregamento -->
     <div id="loading-overlay">
         <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="w-32 mb-8 invert" alt="Unico">
         <div class="w-10 h-10 border-4 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
     </div>
 
-    <!-- Modal Adicionar Item -->
-    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[11000] p-4 text-slate-800">
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[11000] p-4">
         <div class="bg-white w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl">
             <h3 id="modal-title" class="text-xl font-black mb-4 uppercase tracking-tighter text-center">Adicionar Item</h3>
             <input type="text" id="modal-input" class="w-full input-premium mb-6" placeholder="Digite o nome...">
@@ -153,7 +151,7 @@
     </div>
 
     <header class="bg-white border-b border-slate-100 sticky top-0 z-50 no-print">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center text-slate-800">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <div class="flex items-center gap-6">
                 <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="h-8" alt="Unico Logo">
                 <div id="sync-indicator" class="hidden md:flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-100">
@@ -173,7 +171,7 @@
         
         <!-- DASHBOARD -->
         <div id="view-dashboard" class="block no-print">
-            <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 text-slate-800">
+            <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 class="text-4xl font-black tracking-tighter uppercase">Estratégia & Operação</h1>
                     <p class="text-slate-400 text-xs font-bold uppercase mt-1">Visão macro de eficiência corporativa</p>
@@ -185,45 +183,49 @@
                 </div>
             </div>
 
-            <!-- KPIs -->
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-12">
-                <div class="kpi-card border-l-8 border-slate-900">
-                    <p class="label-forte">Total Projetos</p>
-                    <h2 id="kpi-total" class="text-3xl font-black text-slate-900 leading-none">0</h2>
+            <!-- KPIs Expandidos para 7 colunas -->
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-12 text-center md:text-left">
+                <div class="kpi-card border-l-4 border-slate-900">
+                    <p class="label-forte !text-[9px]">Total Projetos</p>
+                    <h2 id="kpi-total" class="text-2xl font-black text-slate-900 leading-none">0</h2>
                 </div>
-                <div class="kpi-card border-l-8 border-cyan-400">
-                    <p class="label-forte text-cyan-600">SLA Geral</p>
-                    <h2 id="kpi-sla" class="text-3xl font-black text-cyan-600 leading-none">0%</h2>
+                <div class="kpi-card border-l-4 border-cyan-400">
+                    <p class="label-forte !text-[9px] text-cyan-600">SLA Geral</p>
+                    <h2 id="kpi-sla" class="text-2xl font-black text-cyan-600 leading-none">0%</h2>
                 </div>
-                <div class="kpi-card border-l-8 border-green-500">
-                    <p class="label-forte text-green-600">No Prazo</p>
-                    <h2 id="kpi-concluidos-prazo" class="text-3xl font-black text-green-600 leading-none">0</h2>
+                <div class="kpi-card border-l-4 border-green-500">
+                    <p class="label-forte !text-[9px] text-green-600">No Prazo</p>
+                    <h2 id="kpi-concluidos-prazo" class="text-2xl font-black text-green-600 leading-none">0</h2>
                 </div>
-                <div class="kpi-card border-l-8 border-red-500">
-                    <p class="label-forte text-red-600">Com Atraso</p>
-                    <h2 id="kpi-concluidos-atraso" class="text-3xl font-black text-red-600 leading-none">0</h2>
+                <div class="kpi-card border-l-4 border-red-500">
+                    <p class="label-forte !text-[9px] text-red-600">Com Atraso</p>
+                    <h2 id="kpi-concluidos-atraso" class="text-2xl font-black text-red-600 leading-none">0</h2>
                 </div>
-                <div class="kpi-card border-l-8 border-amber-400">
-                    <p class="label-forte text-amber-500">Bloqueios</p>
-                    <h2 id="kpi-blockers" class="text-3xl font-black text-amber-600 leading-none">0</h2>
+                <div class="kpi-card border-l-4 border-amber-400">
+                    <p class="label-forte !text-[9px] text-amber-500">Bloqueios</p>
+                    <h2 id="kpi-blockers" class="text-2xl font-black text-amber-600 leading-none">0</h2>
                 </div>
-                <div class="kpi-card border-l-8 border-pink-500">
-                    <p class="label-forte text-pink-600">Prioridade</p>
-                    <h2 id="kpi-prioridade" class="text-3xl font-black text-pink-600 leading-none">0</h2>
+                <div class="kpi-card border-l-4 border-pink-500">
+                    <p class="label-forte !text-[9px] text-pink-600">Prioridade</p>
+                    <h2 id="kpi-prioridade" class="text-2xl font-black text-pink-600 leading-none">0</h2>
+                </div>
+                <div class="kpi-card border-l-4 border-indigo-500">
+                    <p class="label-forte !text-[9px] text-indigo-600">Saúde</p>
+                    <h2 id="kpi-saude" class="text-2xl font-black text-indigo-600 leading-none">0%</h2>
                 </div>
             </div>
 
-            <!-- Gráficos Superiores -->
+            <!-- Gráficos -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800">
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center">
                     <span class="label-forte mb-6 text-center">Status das Iniciativas</span>
                     <div class="w-full h-56 mt-4"><canvas id="chartStatus"></canvas></div>
                 </div>
-                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800">
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center">
                     <span class="label-forte mb-6 text-center">Área Impactada</span>
                     <div class="w-full h-56 mt-4"><canvas id="chartTime"></canvas></div>
                 </div>
-                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800">
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center">
                     <span class="label-forte mb-6 text-center">Pilar Estratégico</span>
                     <div class="w-full h-56 mt-4"><canvas id="chartFrente"></canvas></div>
                 </div>
@@ -232,7 +234,7 @@
             <!-- Capacidade -->
             <div class="mb-12">
                 <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <div class="flex justify-between items-center mb-8 text-slate-800">
+                    <div class="flex justify-between items-center mb-8">
                         <div>
                             <span class="label-forte">Gestão de Recursos</span>
                             <h3 class="text-2xl font-black uppercase tracking-tighter">Capacidade por Líder</h3>
@@ -250,10 +252,10 @@
             <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         </div>
 
-        <!-- FORMULÁRIO (FICHA TÉCNICA) -->
+        <!-- FORMULÁRIO -->
         <div id="view-form" class="hidden max-w-5xl mx-auto">
             <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border-t-[12px] border-cyan-400 print-card mb-12">
-                <div class="flex justify-between items-start mb-10 text-slate-800">
+                <div class="flex justify-between items-start mb-10">
                     <div>
                         <h2 id="form-title" class="text-3xl font-black uppercase tracking-tighter">Ficha Técnica</h2>
                         <p class="text-slate-400 text-sm font-medium">Acompanhamento tático e detalhamento da iniciativa</p>
@@ -264,7 +266,7 @@
                     </button>
                 </div>
                 
-                <form id="project-form" class="space-y-10 text-slate-800">
+                <form id="project-form" class="space-y-10">
                     <input type="hidden" id="edit-id" value="">
                     <input type="hidden" id="project-status-internal" value="Backlog">
                     
@@ -285,7 +287,8 @@
                             <div class="flex items-center gap-2 mb-1">
                                 <label class="label-forte !mb-0">Tamanho do Esforço</label>
                                 <div class="cursor-help text-slate-400 hover:text-cyan-400 transition" title="Rápido: Execução imediata e individual. &#10;Intermediário: Exige análise e apoio de outras áreas. &#10;Estruturante: Mudanças complexas ou longo prazo.">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <!-- Tooltip SVG maior conforme solicitado -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 </div>
                             </div>
                             <select id="esforco" required class="w-full input-premium font-bold">
@@ -331,14 +334,27 @@
                                 </div>
                              </div>
                              
-                             <div id="closure-dates" class="grid grid-cols-2 gap-6 mt-8 pt-6 border-t border-slate-200 hidden text-slate-800">
-                                <div id="container-conclusao" class="hidden">
-                                    <label class="label-forte !text-green-600 !mb-2">Data Conclusão Real</label>
-                                    <input type="date" id="data_conclusao" class="w-full input-premium text-sm font-bold border-green-300 shadow-sm">
+                             <!-- Datas e Comentários de Fechamento -->
+                             <div id="closure-dates" class="mt-8 pt-6 border-t border-slate-200 hidden">
+                                <div id="container-conclusao" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+                                    <div>
+                                        <label class="label-forte !text-green-600 !mb-2">Data Conclusão Real <span class="text-red-500">*</span></label>
+                                        <input type="date" id="data_conclusao" class="w-full input-premium text-sm font-bold border-green-300 shadow-sm">
+                                    </div>
+                                    <div>
+                                        <label class="label-forte !text-green-600 !mb-2">Comentário de Finalização</label>
+                                        <textarea id="comentario_conclusao" class="w-full input-premium text-xs h-11 border-green-200 shadow-sm" placeholder="Opcional..."></textarea>
+                                    </div>
                                 </div>
-                                <div id="container-cancelamento" class="hidden">
-                                    <label class="label-forte !text-red-600 !mb-2">Data Despriorização</label>
-                                    <input type="date" id="data_cancelamento" class="w-full input-premium text-sm font-bold border-red-300 shadow-sm">
+                                <div id="container-cancelamento" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+                                    <div>
+                                        <label class="label-forte !text-red-600 !mb-2">Data Despriorização <span class="text-red-500">*</span></label>
+                                        <input type="date" id="data_cancelamento" class="w-full input-premium text-sm font-bold border-red-300 shadow-sm">
+                                    </div>
+                                    <div>
+                                        <label class="label-forte !text-red-600 !mb-2">Motivo da Despriorização <span class="text-red-500">*</span></label>
+                                        <textarea id="comentario_cancelamento" class="w-full input-premium text-xs h-11 border-red-200 shadow-sm" placeholder="Obrigatório..."></textarea>
+                                    </div>
                                 </div>
                              </div>
                         </div>
@@ -352,7 +368,7 @@
                         </div>
                         
                         <div class="md:col-span-4 bg-white p-6 rounded-3xl border-2 border-slate-900 shadow-sm">
-                            <div class="flex justify-between items-center mb-4 text-slate-800">
+                            <div class="flex justify-between items-center mb-4">
                                 <label class="label-forte !mb-0">Responsáveis Líderes (Seleção Múltipla)</label>
                                 <button type="button" onclick="openAdderModal('team')" class="btn-icon-add">+</button>
                             </div>
@@ -380,7 +396,7 @@
                                 <label class="label-forte text-red-500">🚫 Impedimentos e Bloqueios</label>
                                 <textarea id="impedimentos" rows="3" class="w-full input-premium !bg-red-50/30 !border-red-100 text-sm" placeholder="Algo travando o progresso?"></textarea>
                             </div>
-                            <div id="notes-section" class="hidden text-slate-800">
+                            <div id="notes-section" class="hidden">
                                 <label class="label-forte">Histórico de Evolução</label>
                                 <div id="notes-history-list" class="space-y-3 mb-4 max-h-56 overflow-y-auto pr-2"></div>
                                 <div class="bg-cyan-50/40 p-5 rounded-2xl border border-cyan-100 no-print">
@@ -393,8 +409,8 @@
 
                     <div id="status-actions" class="pt-10 flex flex-wrap gap-4 border-t border-slate-100 no-print">
                         <button type="submit" id="btn-submit" class="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black hover:bg-slate-800 shadow-xl transition flex-1 uppercase tracking-widest text-xs">Salvar Alterações</button>
-                        <button type="button" id="btn-finish" onclick="prepareStatusChange('Finalizado')" class="bg-green-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-green-600 transition uppercase tracking-widest text-xs shadow-lg shadow-green-100">Finalizar Projeto</button>
-                        <button type="button" id="btn-cancel" onclick="prepareStatusChange('Despriorizado')" class="bg-red-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-red-600 transition uppercase tracking-widest text-xs shadow-lg shadow-red-100">Despriorizar</button>
+                        <button type="button" id="btn-finish" onclick="prepareStatusChange('Finalizado')" class="hidden bg-green-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-green-600 transition uppercase tracking-widest text-xs shadow-lg shadow-green-100">Finalizar Projeto</button>
+                        <button type="button" id="btn-cancel" onclick="prepareStatusChange('Despriorizado')" class="hidden bg-red-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-red-600 transition uppercase tracking-widest text-xs shadow-lg shadow-red-100">Despriorizar</button>
                         <button type="button" onclick="resetForm(); switchTab('dashboard');" class="bg-white text-slate-400 border border-slate-200 px-8 py-5 rounded-2xl font-bold transition text-xs uppercase tracking-widest">Voltar</button>
                     </div>
                 </form>
@@ -405,12 +421,12 @@
         <div id="view-list" class="hidden no-print">
             <div class="mb-8 text-slate-800 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
-                    <h1 class="text-4xl font-black uppercase tracking-tighter">Inventário Geral</h1>
+                    <h1 class="text-4xl font-black uppercase tracking-tighter leading-none">Inventário Geral</h1>
                     <p class="text-slate-400 text-xs font-black uppercase tracking-widest mt-2">Ordenação Crescente por Data de Criação</p>
                 </div>
-                <div class="flex flex-wrap gap-2 text-slate-800">
+                <div class="flex flex-wrap gap-2">
                     <select id="list-filter-area" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Área Impactada</option></select>
-                    <select id="list-filter-frente" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Frente</option></select>
+                    <select id="list-filter-frente" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Frente Trabalho</option></select>
                     <select id="list-filter-status" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Status</option></select>
                     <select id="list-filter-leader" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Líder</option></select>
                     <button onclick="clearListFilters()" class="text-[9px] font-black text-slate-300 hover:text-red-500 uppercase px-2">Limpar</button>
@@ -423,7 +439,7 @@
                             <th class="p-6">Prioridade</th><th class="p-6">Iniciativa</th><th class="p-6">Área Impactada</th><th class="p-6">Responsáveis</th><th class="p-6 text-center">Status</th><th class="p-6 text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="detailed-table-body" class="divide-y divide-slate-50 text-slate-800"></tbody>
+                    <tbody id="detailed-table-body" class="divide-y divide-slate-50"></tbody>
                 </table>
             </div>
         </div>
@@ -593,7 +609,9 @@
         };
 
         const updateKPIs = (data) => {
-            document.getElementById('kpi-total').innerText = data.length;
+            const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            
+            setVal('kpi-total', data.length);
             const finished = data.filter(p => p.status === 'Finalizado');
             const onTime = finished.filter(p => {
                 if(!p.data_conclusao || !p.prazo) return false;
@@ -604,17 +622,17 @@
                 return new Date(p.data_conclusao) > new Date(p.prazo);
             });
             
-            document.getElementById('kpi-concluidos-prazo').innerText = onTime.length;
-            document.getElementById('kpi-concluidos-atraso').innerText = delayed.length;
+            setVal('kpi-concluidos-prazo', onTime.length);
+            setVal('kpi-concluidos-atraso', delayed.length);
             
             const sla = finished.length > 0 ? Math.round((onTime.length / finished.length) * 100) : 0;
-            document.getElementById('kpi-sla').innerText = sla + '%';
+            setVal('kpi-sla', sla + '%');
             
             const blockers = data.filter(p => p.impedimentos?.trim()).length;
-            document.getElementById('kpi-blockers').innerText = blockers;
-            document.getElementById('kpi-prioridade').innerText = data.filter(p => p.prioridade?.includes('Alta')).length;
+            setVal('kpi-blockers', blockers);
+            setVal('kpi-prioridade', data.filter(p => p.prioridade?.includes('Alta')).length);
             const saude = data.length > 0 ? Math.round(((data.length - blockers) / data.length) * 100) : 100;
-            document.getElementById('kpi-saude').innerText = saude + '%';
+            setVal('kpi-saude', saude + '%');
         };
 
         window.renderDashboard = (data) => {
@@ -625,6 +643,7 @@
                 const statusClass = `status-${statusSlug === 'emandamento' ? 'andamento' : statusSlug}`;
                 const lastNote = proj.notes?.length ? proj.notes[proj.notes.length - 1].text : 'Iniciativa registrada.';
                 const isFinished = proj.status === 'Finalizado';
+                const isCancelled = proj.status === 'Despriorizado';
                 
                 let slaBadge = "";
                 if(isFinished && proj.data_conclusao && proj.prazo) {
@@ -634,12 +653,19 @@
                     </span>`;
                 }
 
+                let closureNote = '';
+                if(isFinished && proj.comentario_conclusao) {
+                    closureNote = `<div class="mt-2 p-2 bg-green-50 border border-green-100 rounded-lg text-[9px] italic text-green-700">Comentário: ${proj.comentario_conclusao}</div>`;
+                } else if(isCancelled && proj.comentario_cancelamento) {
+                    closureNote = `<div class="mt-2 p-2 bg-red-50 border border-red-100 rounded-lg text-[9px] italic text-red-700">Motivo: ${proj.comentario_cancelamento}</div>`;
+                }
+
                 let metricsHTML = '';
                 if(proj.metricas?.length) {
                     metricsHTML = `<div class="bg-slate-50 p-3 rounded-xl mt-3 border border-slate-100">
                         <p class="text-[8px] font-black uppercase text-slate-400 mb-2">KPIs de Performance</p>
                         ${proj.metricas.map(m => `<div class="flex justify-between items-center text-[10px] mb-1">
-                            <span class="font-bold text-slate-600 truncate mr-2" title="${m.label}">${m.label}</span>
+                            <span class="font-bold text-slate-600 truncate mr-2">${m.label}</span>
                             <div class="flex gap-2">
                                 <span class="text-cyan-600 font-black">🎯 ${m.meta || '-'}</span>
                                 <span class="${isFinished ? 'text-green-600 font-black' : 'text-slate-400 font-black'}">✅ ${m.real || '-'}</span>
@@ -653,9 +679,10 @@
                         <div class="flex items-center"><span class="status-pill ${statusClass}">${proj.status}</span>${slaBadge}</div>
                     </div>
                     <h3 class="text-xl font-black text-slate-900 leading-tight mb-4 uppercase tracking-tighter line-clamp-2">${proj.iniciativa}</h3>
-                    <div class="text-[11px] font-bold space-y-2 mb-6 border-l-2 border-slate-100 pl-4 text-slate-500">
+                    <div class="text-[11px] font-bold space-y-2 mb-6 border-l-2 border-slate-50 pl-4 text-slate-500">
                          <p class="flex justify-between"><span>TARGET:</span> <span class="text-slate-900 font-black uppercase">${formatDate(proj.prazo)}</span></p>
                          ${metricsHTML}
+                         ${closureNote}
                     </div>
                     <div class="bg-slate-50 p-4 rounded-2xl flex-grow mb-6 border border-slate-100 shadow-inner">
                         <span class="text-[8px] font-black uppercase text-slate-300 mb-2 block">Status Recente</span>
@@ -721,11 +748,15 @@
             document.getElementById('status-display').value = newStatus;
             toggleConclusionField(newStatus);
             if(newStatus === 'Finalizado') {
-                document.getElementById('data_conclusao').value = new Date().toISOString().split('T')[0];
+                const field = document.getElementById('data_conclusao');
+                if(!field.value) field.value = new Date().toISOString().split('T')[0];
+                document.getElementById('comentario_conclusao').focus();
             } else if (newStatus === 'Despriorizado') {
-                document.getElementById('data_cancelamento').value = new Date().toISOString().split('T')[0];
+                const field = document.getElementById('data_cancelamento');
+                if(!field.value) field.value = new Date().toISOString().split('T')[0];
+                document.getElementById('comentario_cancelamento').focus();
             }
-            alert(`Iniciativa marcada como: ${newStatus}. Por favor, confirme as datas no cronograma antes de salvar.`);
+            document.getElementById('closure-dates').scrollIntoView({ behavior: 'smooth' });
         };
 
         document.getElementById('project-form').addEventListener('submit', async (e) => {
@@ -734,8 +765,17 @@
             const btn = document.getElementById('btn-submit');
             const editId = document.getElementById('edit-id').value;
             const newNote = document.getElementById('new-milestone-note').value.trim();
-            const originalText = btn.innerText; btn.innerText = "Sincronizando..."; btn.disabled = true;
+            const currentStatus = document.getElementById('project-status-internal').value;
+            
+            if(currentStatus === 'Finalizado' && !document.getElementById('data_conclusao').value) {
+                alert("Data de conclusão obrigatória."); return;
+            } else if(currentStatus === 'Despriorizado') {
+                if(!document.getElementById('data_cancelamento').value || !document.getElementById('comentario_cancelamento').value.trim()) {
+                    alert("Data e Motivo obrigatórios para despriorizar."); return;
+                }
+            }
 
+            const originalText = btn.innerText; btn.innerText = "Sincronizando..."; btn.disabled = true;
             const selectedLeaders = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const metricas = Array.from(document.querySelectorAll('.metrica-row')).map(row => ({
                 label: row.querySelector('.metrica-label').value.toUpperCase(),
@@ -749,11 +789,13 @@
                 esforco: document.getElementById('esforco').value,
                 time: document.getElementById('time').value,
                 frente: document.getElementById('frente').value,
-                status: document.getElementById('project-status-internal').value,
+                status: currentStatus,
                 data_criacao: document.getElementById('data_criacao').value,
                 prazo: document.getElementById('prazo').value,
                 data_conclusao: document.getElementById('data_conclusao').value || null,
+                comentario_conclusao: document.getElementById('comentario_conclusao').value || "",
                 data_cancelamento: document.getElementById('data_cancelamento').value || null,
+                comentario_cancelamento: document.getElementById('comentario_cancelamento').value || "",
                 responsavel: selectedLeaders,
                 metricas: metricas,
                 impedimentos: document.getElementById('impedimentos').value,
@@ -793,11 +835,14 @@
             document.getElementById('data_criacao').value = p.data_criacao || "";
             document.getElementById('prazo').value = p.prazo || "";
             document.getElementById('data_conclusao').value = p.data_conclusao || "";
+            document.getElementById('comentario_conclusao').value = p.comentario_conclusao || "";
             document.getElementById('data_cancelamento').value = p.data_cancelamento || "";
+            document.getElementById('comentario_cancelamento').value = p.comentario_cancelamento || "";
             document.getElementById('impedimentos').value = p.impedimentos || "";
             document.getElementById('nota_inicial').value = p.nota_inicial || "";
-            
             toggleConclusionField(p.status);
+            document.getElementById('btn-finish').classList.remove('hidden');
+            document.getElementById('btn-cancel').classList.remove('hidden');
             currentTasks = Array.isArray(p.atividades) ? [...p.atividades] : [];
             renderTasksList();
             const mContainer = document.getElementById('metricas-container'); mContainer.innerHTML = '';
@@ -832,6 +877,8 @@
             document.getElementById('notes-section').classList.add('hidden');
             document.getElementById('btn-print-project').classList.add('hidden');
             document.getElementById('closure-dates').classList.add('hidden');
+            document.getElementById('btn-finish').classList.add('hidden');
+            document.getElementById('btn-cancel').classList.add('hidden');
             document.getElementById('metricas-container').innerHTML = '';
             addMetricaInput(); renderTasksList();
             const today = new Date().toISOString().split('T')[0];
