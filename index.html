@@ -8,174 +8,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --primary-color: #000a28;
-            --accent-color: #00e5ff;
-            --bg-body: #f4f7f9;
-        }
-        body {
-            font-family: 'Nunito Sans', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--primary-color);
-        }
-        .input-premium {
-            background-color: #ffffff;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            transition: all 0.2s;
-            outline: none;
-            font-weight: 700;
-        }
-        .input-premium:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.1);
-        }
-        .label-forte {
-            font-size: 0.7rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #475569;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .active-tab {
-            color: var(--accent-color);
-            border-bottom: 4px solid var(--accent-color);
-            font-weight: 900;
-        }
-        .card-project {
-            background: white;
-            border-radius: 32px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-        .card-project:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05);
-        }
-        .status-pill {
-            font-size: 0.65rem;
-            font-weight: 900;
-            padding: 4px 12px;
-            border-radius: 100px;
-            text-transform: uppercase;
-        }
+        :root { --primary-color: #000a28; --accent-color: #00e5ff; --bg-body: #f4f7f9; }
+        body { font-family: 'Nunito Sans', sans-serif; background-color: var(--bg-body); color: var(--primary-color); }
+        .input-premium { background-color: #ffffff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; transition: all 0.2s; outline: none; font-weight: 700; width: 100%; }
+        .input-premium:focus { border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.1); }
+        .label-forte { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; margin-bottom: 0.5rem; display: block; }
+        .active-tab { color: var(--accent-color); border-bottom: 4px solid var(--accent-color); font-weight: 900; }
+        .card-project { background: white; border-radius: 32px; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
+        .status-pill { font-size: 0.65rem; font-weight: 900; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; }
         .status-backlog { background-color: #e2e8f0; color: #475569; }
         .status-andamento { background-color: #fef3c7; color: #92400e; }
         .status-finalizado { background-color: #dcfce7; color: #166534; }
         .status-despriorizado { background-color: #fee2e2; color: #991b1b; }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .checkbox-item:hover { background: #f1f5f9; }
-
-        .kpi-card {
-            background: white;
-            padding: 1.25rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid #f1f5f9;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        #loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--primary-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            color: white;
-            transition: opacity 0.5s;
-        }
-
-        .btn-icon-add {
-            background: #f1f5f9;
-            color: #475569;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .btn-icon-add:hover {
-            background: var(--accent-color);
-            color: var(--primary-color);
-        }
-
-        .metrica-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 40px;
-            gap: 12px;
-            align-items: end;
-        }
-
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; }
-            .main-content { margin: 0; padding: 0; }
-        }
+        .kpi-card { background: white; padding: 1.25rem; border-radius: 1.5rem; border: 1px solid #f1f5f9; display: flex; flex-direction: column; justify-content: center; }
+        #loading-overlay { position: fixed; inset: 0; background: var(--primary-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: white; transition: opacity 0.5s; }
+        .tooltip-container { position: relative; display: inline-block; cursor: help; }
+        .tooltip-text { visibility: hidden; width: 200px; background-color: #334155; color: #fff; text-align: center; border-radius: 8px; padding: 10px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -100px; opacity: 0; transition: opacity 0.3s; font-size: 10px; font-weight: bold; text-transform: none; line-height: 1.4; }
+        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
     </style>
 </head>
-<body class="min-h-screen text-slate-800">
+<body>
 
     <div id="loading-overlay">
         <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="w-32 mb-8 invert" alt="Unico">
         <div class="w-10 h-10 border-4 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
     </div>
 
-    <!-- Modal Adicionar Item Dinâmico -->
-    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[11000] p-4">
-        <div class="bg-white w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl">
-            <h3 id="modal-title" class="text-xl font-black mb-4 uppercase tracking-tighter text-center text-slate-800">Adicionar Item</h3>
-            <input type="text" id="modal-input" class="w-full input-premium mb-6" placeholder="Digite o nome...">
-            <div class="flex gap-3">
-                <button id="modal-confirm" class="bg-slate-900 text-white font-bold py-3 px-6 rounded-2xl flex-1 transition hover:bg-slate-800 uppercase text-[10px] tracking-widest">Adicionar</button>
-                <button onclick="closeCustomModal()" class="bg-slate-100 text-slate-400 font-bold py-3 px-6 rounded-2xl flex-1 transition hover:bg-slate-200 uppercase text-[10px] tracking-widest">Sair</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Relatório -->
-    <div id="report-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[11000] p-4 text-slate-800">
-        <div class="bg-white w-full max-w-2xl p-10 rounded-[2.5rem] shadow-2xl relative text-slate-800">
-            <button onclick="closeReportModal()" class="absolute top-8 right-8 text-slate-300 hover:text-slate-900 transition text-2xl font-bold">×</button>
-            <div>
-                <span class="label-forte">Resumo de Status</span>
-                <h3 class="text-2xl font-black uppercase tracking-tighter mb-6">Relatório da Iniciativa</h3>
-                <div id="report-content" class="bg-slate-50 p-6 rounded-3xl border border-slate-100 mb-8 max-h-[40vh] overflow-y-auto">
-                    <pre id="report-text" class="text-sm font-medium whitespace-pre-wrap leading-relaxed text-slate-700"></pre>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button onclick="sendReportByEmail()" class="bg-slate-900 text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition hover:bg-slate-800 uppercase text-[10px] tracking-widest shadow-xl text-white">
-                        Enviar por E-mail
-                    </button>
-                    <button onclick="copyReportForSlack()" class="bg-[#4A154B] text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition hover:opacity-90 uppercase text-[10px] tracking-widest shadow-xl text-white">
-                        Copiar para Slack
-                    </button>
-                </div>
-                <p id="copy-success" class="text-center mt-4 text-[10px] font-black text-green-500 uppercase tracking-widest hidden text-green-600">Relatório copiado!</p>
-            </div>
-        </div>
-    </div>
-
-    <header class="bg-white border-b border-slate-100 sticky top-0 z-50 no-print">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center text-slate-800">
+    <header class="bg-white border-b border-slate-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <div class="flex items-center gap-6">
                 <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="h-8" alt="Unico Logo">
                 <div id="sync-indicator" class="hidden md:flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-100">
@@ -184,580 +44,251 @@
                 </div>
             </div>
             <nav class="flex gap-8 h-full items-center text-[11px] font-black uppercase tracking-widest text-slate-400">
-                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="h-full px-2 active-tab transition-colors">Dashboard</button>
-                <button onclick="switchTab('form')" id="tab-form" class="h-full px-2 hover:text-slate-900 transition-colors text-slate-800">Novo Projeto</button>
-                <button onclick="switchTab('list')" id="tab-list" class="h-full px-2 hover:text-slate-900 transition-colors text-slate-800">Projetos</button>
+                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="h-full px-2 active-tab">Dashboard</button>
+                <button onclick="switchTab('form')" id="tab-form" class="h-full px-2">Novo Projeto</button>
+                <button onclick="switchTab('list')" id="tab-list" class="h-full px-2">Lista Geral</button>
             </nav>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto p-6 mt-4 main-content text-slate-800">
+    <main class="max-w-7xl mx-auto p-6 mt-4">
         
-        <!-- VIEW DASHBOARD -->
-        <div id="view-dashboard" class="block no-print">
-            <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <h1 class="text-4xl font-black tracking-tighter uppercase leading-none">Estratégia & Operação</h1>
-                    <p class="text-slate-400 text-xs font-bold uppercase mt-2 tracking-widest">Visão macro de eficiência corporativa</p>
-                </div>
-                <div class="flex flex-wrap gap-2 text-slate-800">
-                    <select id="dash-filter-period" class="input-premium !py-2 !text-xs shadow-sm">
-                        <option value="all">Todo o Período</option>
-                        <option value="mes">Mensal (Este Mês)</option>
-                        <option value="trimestre">Trimestral (Este Trimestre)</option>
-                        <option value="semestre">Semestral (Este Semestre)</option>
-                        <option value="ano">Anual (Este Ano)</option>
-                    </select>
-                    <select id="dash-filter-area" class="input-premium !py-2 !text-xs shadow-sm">
-                        <option value="">Todas as Áreas Impactadas</option>
-                    </select>
-                </div>
+        <div id="view-dashboard" class="block">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-10">
+                <div class="kpi-card border-l-4 border-slate-900"><p class="label-forte">Total</p><h2 id="kpi-total" class="text-2xl font-black">0</h2></div>
+                <div class="kpi-card border-l-4 border-cyan-400"><p class="label-forte text-cyan-600">SLA</p><h2 id="kpi-sla" class="text-2xl font-black text-cyan-600">0%</h2></div>
+                <div class="kpi-card border-l-4 border-green-500"><p class="label-forte text-green-600">No Prazo</p><h2 id="kpi-concluidos-prazo" class="text-2xl font-black text-green-600">0</h2></div>
+                <div class="kpi-card border-l-4 border-red-500"><p class="label-forte text-red-600">Atraso</p><h2 id="kpi-concluidos-atraso" class="text-2xl font-black text-red-600">0</h2></div>
+                <div class="kpi-card border-l-4 border-amber-400"><p class="label-forte text-amber-500">Bloqueios</p><h2 id="kpi-blockers" class="text-2xl font-black text-amber-600">0</h2></div>
+                <div class="kpi-card border-l-4 border-pink-500"><p class="label-forte text-pink-600">Alta Prior.</p><h2 id="kpi-prioridade" class="text-2xl font-black text-pink-600">0</h2></div>
+                <div class="kpi-card border-l-4 border-indigo-500"><p class="label-forte text-indigo-600">Saúde</p><h2 id="kpi-saude" class="text-2xl font-black text-indigo-600">0%</h2></div>
             </div>
 
-            <!-- KPIs -->
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-12 text-center md:text-left text-slate-800">
-                <div class="kpi-card border-l-4 border-slate-900"><p class="label-forte !text-[9px]">Total Projetos</p><h2 id="kpi-total" class="text-2xl font-black">0</h2></div>
-                <div class="kpi-card border-l-4 border-cyan-400"><p class="label-forte !text-[9px] text-cyan-600">SLA Geral</p><h2 id="kpi-sla" class="text-2xl font-black text-cyan-600">0%</h2></div>
-                <div class="kpi-card border-l-4 border-green-500"><p class="label-forte !text-[9px] text-green-600">No Prazo</p><h2 id="kpi-concluidos-prazo" class="text-2xl font-black text-green-600">0</h2></div>
-                <div class="kpi-card border-l-4 border-red-500"><p class="label-forte !text-[9px] text-red-600">Com Atraso</p><h2 id="kpi-concluidos-atraso" class="text-2xl font-black text-red-600">0</h2></div>
-                <div class="kpi-card border-l-4 border-amber-400"><p class="label-forte !text-[9px] text-amber-500">Bloqueios</p><h2 id="kpi-blockers" class="text-2xl font-black text-amber-600">0</h2></div>
-                <div class="kpi-card border-l-4 border-pink-500"><p class="label-forte !text-[9px] text-pink-600">Prioridade</p><h2 id="kpi-prioridade" class="text-2xl font-black text-pink-600">0</h2></div>
-                <div class="kpi-card border-l-4 border-indigo-500"><p class="label-forte !text-[9px] text-indigo-600">Saúde</p><h2 id="kpi-saude" class="text-2xl font-black text-indigo-600">0%</h2></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm h-72"><canvas id="chartStatus"></canvas></div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm h-72"><canvas id="chartTime"></canvas></div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm h-72"><canvas id="chartFrente"></canvas></div>
             </div>
 
-            <!-- Gráficos -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 text-slate-800">
-                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center">
-                    <span class="label-forte mb-6 text-center">Status das Iniciativas</span>
-                    <div class="w-full h-56 mt-4"><canvas id="chartStatus"></canvas></div>
-                </div>
-                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center">
-                    <span class="label-forte mb-6 text-center text-slate-800">Esforço por Área</span>
-                    <div class="w-full h-56 mt-4"><canvas id="chartTime"></canvas></div>
-                </div>
-                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center">
-                    <span class="label-forte mb-6 text-center">Pilar Estratégico</span>
-                    <div class="w-full h-56 mt-4"><canvas id="chartFrente"></canvas></div>
-                </div>
+            <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm mb-12">
+                <span class="label-forte">Capacidade por Líder</span>
+                <div class="h-80 w-full"><canvas id="chartCapacidade"></canvas></div>
             </div>
 
-            <div class="mb-12">
-                <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm text-slate-800">
-                    <div class="flex justify-between items-center mb-8">
-                        <div><span class="label-forte">Gestão de Recursos</span><h3 class="text-2xl font-black uppercase tracking-tighter text-slate-800">Capacidade por Líder</h3></div>
-                    </div>
-                    <div class="w-full h-80"><canvas id="chartCapacidade"></canvas></div>
-                </div>
-            </div>
-
-            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-slate-800"></div>
+            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
         </div>
 
-        <!-- VIEW FORM (FICHA TÉCNICA) -->
-        <div id="view-form" class="hidden max-w-5xl mx-auto text-slate-800">
-            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border-t-[12px] border-cyan-400 print-card mb-12 text-slate-800">
-                <div class="flex justify-between items-start mb-10 text-slate-800">
-                    <div>
-                        <h2 id="form-title" class="text-3xl font-black uppercase tracking-tighter text-slate-800">Ficha Técnica</h2>
-                        <p class="text-slate-400 text-sm font-medium">Acompanhamento tático e detalhamento da iniciativa</p>
-                    </div>
-                    <button id="btn-print-project" onclick="window.print()" class="no-print hidden bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-3 hover:bg-slate-800 transition shadow-lg text-white">
-                        <span class="text-xs uppercase tracking-widest font-black text-white">Exportar PDF</span>
-                    </button>
-                </div>
-                
-                <form id="project-form" class="space-y-10 text-slate-800">
+        <div id="view-form" class="hidden">
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border-t-[12px] border-cyan-400">
+                <form id="project-form" class="space-y-8">
                     <input type="hidden" id="edit-id" value="">
-                    <input type="hidden" id="project-status-internal" value="Backlog">
                     
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div class="md:col-span-2">
-                            <label class="label-forte text-slate-800">Iniciativa / Projeto</label>
-                            <input type="text" id="iniciativa" required class="w-full input-premium text-lg uppercase" placeholder="EX: PROJETO DE EFICIÊNCIA">
+                            <label class="label-forte">Nome da Iniciativa</label>
+                            <input type="text" id="iniciativa" required class="input-premium uppercase" placeholder="Nome do Projeto">
                         </div>
                         <div>
-                            <label class="label-forte text-slate-800">Prioridade</label>
-                            <select id="prioridade" class="w-full input-premium font-bold">
+                            <label class="label-forte">Prioridade</label>
+                            <select id="prioridade" class="input-premium">
                                 <option value="Baixa">Baixa</option>
                                 <option value="Média">Média</option>
                                 <option value="Alta">Alta</option>
                             </select>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <label class="label-forte !mb-0 text-slate-800">Tamanho do Esforço</label>
-                                <div class="cursor-help text-slate-400 hover:text-cyan-400 transition" title="Rápido: Execução imediata. &#10;Intermediário: Exige apoio de outras áreas. &#10;Estruturante: Mudanças complexas.">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
-                            </div>
-                            <select id="esforco" required class="w-full input-premium font-bold">
+                            <label class="label-forte flex items-center gap-2">
+                                Esforço 
+                                <span class="tooltip-container text-cyan-500 font-black">ⓘ
+                                    <span class="tooltip-text">RÁPIDO: Execução rápida/individual.<br>INTERMEDIÁRIO: Envolve mais pessoas/áreas.<br>ESTRUTURANTE: Alta complexidade/Longo prazo.</span>
+                                </span>
+                            </label>
+                            <select id="esforco" required class="input-premium">
                                 <option value="Rápido">Rápido</option>
                                 <option value="Intermediário">Intermediário</option>
                                 <option value="Estruturante">Estruturante</option>
                             </select>
                         </div>
-                        <div>
-                            <div class="flex justify-between items-center mb-1 text-slate-800">
-                                <label class="label-forte !mb-0">Área Impactada</label>
-                                <button type="button" onclick="openAdderModal('area')" class="btn-icon-add">+</button>
-                            </div>
-                            <select id="time" required class="w-full input-premium">
-                                <option value="" disabled selected>Selecionar...</option>
-                            </select>
-                        </div>
-                        <div>
-                            <div class="flex justify-between items-center mb-1 text-slate-800">
-                                <label class="label-forte !mb-0">Frente de Trabalho</label>
-                                <button type="button" onclick="openAdderModal('frente')" class="btn-icon-add">+</button>
-                            </div>
-                            <select id="frente" class="w-full input-premium">
-                                <option value="" disabled selected>Selecionar...</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="label-forte text-slate-800">Status Atual</label>
-                            <select id="status" class="w-full input-premium font-black text-slate-900">
-                                <option value="Backlog">Backlog</option>
-                                <option value="Em Andamento">Em Andamento</option>
-                                <option value="Finalizado">Finalizado</option>
-                                <option value="Despriorizado">Despriorizado</option>
-                            </select>
-                        </div>
-                        
-                        <div class="md:col-span-2 bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm text-slate-800">
-                             <label class="label-forte mb-6 text-slate-500">Cronograma da Iniciativa</label>
-                             <div class="grid grid-cols-2 gap-6">
-                                <div><label class="label-forte !text-slate-600">Data Início</label><input type="date" id="data_criacao" required class="w-full input-premium text-sm font-bold border-slate-300"></div>
-                                <div><label class="label-forte !text-slate-600">Prazo Target</label><input type="date" id="prazo" required class="w-full input-premium text-sm font-bold border-slate-300"></div>
-                             </div>
-                             <div id="closure-dates" class="mt-8 pt-6 border-t border-slate-200 hidden">
-                                <div id="container-conclusao" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
-                                    <div>
-                                        <label class="label-forte !text-green-600">Data Conclusão Real <span class="text-red-500">*</span></label>
-                                        <input type="date" id="data_conclusao" class="w-full input-premium text-sm font-bold border-green-300 shadow-sm">
-                                    </div>
-                                    <div>
-                                        <label class="label-forte !text-green-600">Observações de Finalização</label>
-                                        <textarea id="comentario_conclusao" class="w-full input-premium text-xs h-11 border-green-200 shadow-sm" placeholder="Opcional..."></textarea>
-                                    </div>
-                                </div>
-                                <div id="container-cancelamento" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
-                                    <div>
-                                        <label class="label-forte !text-red-600">Data Despriorização <span class="text-red-500">*</span></label>
-                                        <input type="date" id="data_cancelamento" class="w-full input-premium text-sm font-bold border-red-300 shadow-sm">
-                                    </div>
-                                    <div>
-                                        <label class="label-forte !text-red-600">Motivo <span class="text-red-500">*</span></label>
-                                        <textarea id="comentario_cancelamento" class="w-full input-premium text-xs h-11 border-red-200 shadow-sm" placeholder="Obrigatório..."></textarea>
-                                    </div>
-                                </div>
-                             </div>
-                        </div>
+                    </div>
 
-                        <div class="md:col-span-2 text-slate-800">
-                             <label class="label-forte text-cyan-600">Expectativas de Ganho (KPIs)</label>
-                             <div class="bg-white p-6 rounded-3xl border-2 border-slate-200 shadow-sm text-slate-800">
-                                <div id="metricas-container" class="space-y-3 mb-4"></div>
-                                <button type="button" onclick="addMetricaInput()" class="text-[10px] font-black text-cyan-500 hover:text-cyan-700 uppercase tracking-widest">+ Adicionar Métrica</button>
-                             </div>
-                        </div>
-                        
-                        <div class="md:col-span-4 bg-white p-6 rounded-3xl border-2 border-slate-900 shadow-sm text-slate-800">
-                            <div class="flex justify-between items-center mb-4">
-                                <label class="label-forte !mb-0">Responsáveis Líderes (Seleção Múltipla)</label>
-                                <button type="button" onclick="openAdderModal('team')" class="btn-icon-add">+</button>
-                            </div>
-                            <div id="responsaveis-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-2"></div>
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div><label class="label-forte">Área</label><select id="time" class="input-premium" required></select></div>
+                        <div><label class="label-forte">Frente</label><select id="frente" class="input-premium" required></select></div>
+                        <div><label class="label-forte">Status Atual</label><select id="status" class="input-premium font-black" onchange="window.updateInternalStatus(this.value)"><option value="Backlog">Backlog</option><option value="Em Andamento">Em Andamento</option><option value="Finalizado">Finalizado</option><option value="Despriorizado">Despriorizado</option></select></div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div class="space-y-8">
-                            <div>
-                                <label class="label-forte text-slate-800">Descrição e Objetivo Estratégico</label>
-                                <textarea id="nota_inicial" rows="5" class="w-full input-premium text-sm leading-relaxed" placeholder="Propósito central da iniciativa..."></textarea>
-                            </div>
-                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm text-slate-800">
-                                <div class="flex justify-between items-center mb-4 text-slate-800">
-                                    <label class="label-forte !mb-0 !text-slate-600">Plano de Atividades (Tasks)</label>
-                                    <span id="task-counter" class="text-[9px] font-black bg-white px-2 py-1 rounded-md border border-slate-200">0 TASKS</span>
-                                </div>
-                                <div class="flex gap-2 mb-4 no-print">
-                                    <input type="text" id="task-input" placeholder="O que precisa ser feito?" class="flex-1 input-premium !py-2 !text-sm">
-                                    <button type="button" onclick="addTaskToList()" class="bg-slate-900 text-white px-4 rounded-xl font-bold transition hover:bg-slate-800 shadow-md">+</button>
-                                </div>
-                                <div id="tasks-container" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                            <label class="label-forte">Datas</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="text-[9px] font-black uppercase text-slate-400">Início</label><input type="date" id="data_criacao" class="input-premium !py-2"></div>
+                                <div><label class="text-[9px] font-black uppercase text-slate-400">Target</label><input type="date" id="prazo" class="input-premium !py-2"></div>
                             </div>
                         </div>
-                        <div class="space-y-8 text-slate-800">
-                            <div>
-                                <label class="label-forte text-red-500">🚫 Impedimentos e Bloqueios</label>
-                                <textarea id="impedimentos" rows="3" class="w-full input-premium !bg-red-50/30 !border-red-100 text-sm" placeholder="Algo travando o progresso?"></textarea>
-                            </div>
-                            <div id="notes-section" class="hidden">
-                                <label class="label-forte">Histórico de Evolução</label>
-                                <div id="notes-history-list" class="space-y-3 mb-4 max-h-56 overflow-y-auto pr-2 text-slate-800"></div>
-                                <div class="bg-cyan-50/40 p-5 rounded-2xl border border-cyan-100 no-print text-slate-800 text-slate-800">
-                                    <label class="label-forte !text-cyan-600">Nova Nota de Atualização</label>
-                                    <textarea id="new-milestone-note" rows="2" class="w-full input-premium !border-cyan-200 !text-sm" placeholder="Relate o avanço de hoje..."></textarea>
-                                </div>
-                            </div>
+                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                            <label class="label-forte">Responsáveis</label>
+                            <div id="responsaveis-grid" class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto pr-2"></div>
                         </div>
                     </div>
 
-                    <div id="status-actions" class="pt-10 flex flex-wrap gap-4 border-t border-slate-100 no-print">
-                        <button type="submit" id="btn-submit" class="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black hover:bg-slate-800 shadow-xl transition flex-1 uppercase tracking-widest text-xs text-white">Salvar Alterações</button>
-                        <button type="button" id="btn-report" onclick="generateProjectReport()" class="hidden bg-cyan-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-cyan-600 transition uppercase tracking-widest text-xs shadow-lg text-white">Gerar Report</button>
-                        <button type="button" id="btn-finish" onclick="prepareStatusChange('Finalizado')" class="hidden bg-green-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-green-600 transition uppercase tracking-widest text-xs shadow-lg text-white">Finalizar Projeto</button>
-                        <button type="button" id="btn-cancel" onclick="prepareStatusChange('Despriorizado')" class="hidden bg-red-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-red-600 transition uppercase tracking-widest text-xs shadow-lg text-white">Despriorizar</button>
-                        <button type="button" onclick="resetForm(); switchTab('dashboard');" class="bg-white text-slate-400 border border-slate-200 px-8 py-5 rounded-2xl font-bold transition text-xs uppercase tracking-widest text-slate-800">Voltar</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <textarea id="nota_inicial" class="input-premium h-32" placeholder="Descrição da iniciativa..."></textarea>
+                        <textarea id="impedimentos" class="input-premium h-32 border-red-100 bg-red-50/20" placeholder="Houve bloqueios?"></textarea>
+                    </div>
+
+                    <div id="closure-dates" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50 rounded-3xl border border-slate-200">
+                        <div id="container-conclusao">
+                            <label class="label-forte text-green-600">Data Conclusão</label>
+                            <input type="date" id="data_conclusao" class="input-premium">
+                            <textarea id="comentario_conclusao" class="input-premium mt-2 h-16" placeholder="Notas finais..."></textarea>
+                        </div>
+                        <div id="container-cancelamento">
+                            <label class="label-forte text-red-600">Data Despriorização</label>
+                            <input type="date" id="data_cancelamento" class="input-premium">
+                            <textarea id="comentario_cancelamento" class="input-premium mt-2 h-16" placeholder="Motivo..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 pt-10 border-t">
+                        <button type="submit" id="btn-submit" class="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-widest flex-1">Salvar Iniciativa</button>
+                        <button type="button" onclick="switchTab('dashboard')" class="bg-white border px-10 py-5 rounded-2xl font-black uppercase text-xs text-slate-400">Cancelar</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- LISTA GERAL -->
-        <div id="view-list" class="hidden no-print text-slate-800">
-            <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 text-slate-800">
-                <div>
-                    <h1 class="text-4xl font-black uppercase tracking-tighter leading-none text-slate-800">Controle de Projetos</h1>
-                    <p class="text-slate-400 text-xs font-black uppercase tracking-widest mt-2">Visão detalhada do cronograma e equipe</p>
-                </div>
-                <div class="flex flex-wrap gap-2 text-slate-800">
-                    <select id="list-filter-area" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Área Impactada</option></select>
-                    <select id="list-filter-frente" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Frente Trabalho</option></select>
-                    <select id="list-filter-status" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Status</option></select>
-                    <select id="list-filter-leader" class="input-premium !py-2 !text-[10px]" onchange="refreshUI()"><option value="">Líder</option></select>
-                    <button onclick="clearListFilters()" class="text-[9px] font-black text-slate-300 hover:text-red-500 uppercase px-2 text-slate-800">Limpar</button>
-                </div>
-            </div>
-            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden text-slate-800">
-                <table class="w-full text-left text-slate-800">
-                    <thead class="bg-slate-50 border-b border-slate-100 text-slate-400 uppercase text-[9px] font-black tracking-widest">
-                        <tr><th class="p-6">Prioridade</th><th class="p-6">Iniciativa</th><th class="p-6">Início</th><th class="p-6">Prazo Target</th><th class="p-6">Dias p/ Finalizar</th><th class="p-6">Responsáveis</th><th class="p-6 text-center">Status</th><th class="p-6 text-right">Ações</th></tr>
+        <div id="view-list" class="hidden">
+            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b text-[9px] font-black uppercase text-slate-400 tracking-widest">
+                        <tr><th class="p-6">Prioridade</th><th class="p-6">Iniciativa</th><th class="p-6">Área</th><th class="p-6">Status</th><th class="p-6 text-right">Ações</th></tr>
                     </thead>
-                    <tbody id="detailed-table-body" class="divide-y divide-slate-50 text-slate-800"></tbody>
+                    <tbody id="detailed-table-body" class="divide-y"></tbody>
                 </table>
             </div>
         </div>
+
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global Config
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'unico-eficiencia-2026';
-        
+        const appId = 'hub-unico-2026';
+
         let projects = [];
-        let dynamicTeam = [];
-        let dynamicAreas = [];
-        let dynamicFrentes = [];
         let charts = {};
-        let currentUser = null;
-        let currentTasks = [];
         const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Rodrigo Prinz De Paiva", "Simone Thomé de Andrade"];
-        const defaultAreas = ["Análise", "CX", "Mesa", "Onboarding", "Comunicação"];
+        const defaultAreas = ["Análise", "CX", "Dados", "Processos", "Planejamento", "Comunicação"];
+        const defaultFrentes = ["Performance", "Reestruturação", "Automação", "Simplificação"];
 
-        // Autenticação com Fallback
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) { 
-                console.error("Auth Error:", error);
-                await signInAnonymously(auth);
-            }
-        }
+        // Funções de Proteção
+        const safeSetText = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
+        const safeSetValue = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
 
+        // Inicialização
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user;
-                const ind = document.getElementById('sync-indicator');
-                if(ind) ind.classList.remove('hidden');
-                setupDynamicListeners();
+                document.getElementById('sync-indicator').classList.remove('hidden');
+                setupLists();
                 setupRealtimeProjects();
             }
         });
 
-        const setupDynamicListeners = () => {
-            if (!currentUser) return;
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'team'), (snap) => {
-                dynamicTeam = snap.docs.map(doc => doc.data().name);
-                renderTeamCheckboxes();
-                updateLeaderFilters();
-                refreshUI();
-            }, err => console.error("Team Snap Error:", err));
+        const setupLists = () => {
+            const timeSel = document.getElementById('time');
+            const frenteSel = document.getElementById('frente');
+            const teamGrid = document.getElementById('responsaveis-grid');
 
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'areas'), (snap) => {
-                dynamicAreas = snap.docs.map(doc => doc.data().name);
-                updateDropdown('time', dynamicAreas, defaultAreas);
-                updateDropdown('dash-filter-area', dynamicAreas, defaultAreas, "Todas as Áreas Impactadas");
-                updateDropdown('list-filter-area', dynamicAreas, defaultAreas, "Área Impactada");
-            }, err => console.error("Areas Snap Error:", err));
-
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'frentes'), (snap) => {
-                dynamicFrentes = snap.docs.map(doc => doc.data().name);
-                const defFrentes = ["Performance", "Reestruturação", "Automação", "Simplificação"];
-                updateDropdown('frente', dynamicFrentes, defFrentes);
-                updateDropdown('list-filter-frente', dynamicFrentes, defFrentes, "Frente Trabalho");
-            }, err => console.error("Frentes Snap Error:", err));
-        };
-
-        const updateDropdown = (elementId, dynamicList, defaults, firstOptionText) => {
-            const select = document.getElementById(elementId);
-            if(!select) return;
-            const currentVal = select.value;
-            const fullList = Array.from(new Set([...defaults, ...dynamicList])).sort();
-            select.innerHTML = firstOptionText ? `<option value="">${firstOptionText}</option>` : '<option value="" disabled selected>Selecionar...</option>';
-            fullList.forEach(item => { select.innerHTML += `<option value="${item}">${item}</option>`; });
-            if (currentVal && fullList.includes(currentVal)) select.value = currentVal;
-        };
-
-        const updateLeaderFilters = () => {
-            const select = document.getElementById('list-filter-leader');
-            if(!select) return;
-            const currentVal = select.value;
-            const fullTeam = Array.from(new Set([...defaultTeam, ...dynamicTeam])).sort();
-            select.innerHTML = '<option value="">Líder</option>';
-            fullTeam.forEach(name => { select.innerHTML += `<option value="${name}">${name}</option>`; });
-            if (currentVal) select.value = currentVal;
+            if(timeSel) timeSel.innerHTML = defaultAreas.map(a => `<option value="${a}">${a}</option>`).join('');
+            if(frenteSel) frenteSel.innerHTML = defaultFrentes.map(f => `<option value="${f}">${f}</option>`).join('');
+            if(teamGrid) teamGrid.innerHTML = defaultTeam.map(name => `<label class="flex items-center gap-2 text-[10px] font-bold"><input type="checkbox" name="resp" value="${name}" class="w-3 h-3"> ${name}</label>`).join('');
         };
 
         const setupRealtimeProjects = () => {
-            if (!currentUser) return;
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), (snapshot) => {
                 projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                projects.sort((a, b) => (a.data_criacao || "") > (b.data_criacao || "") ? 1 : -1);
-                const overlay = document.getElementById('loading-overlay');
-                if(overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 500); }
+                document.getElementById('loading-overlay').style.display = 'none';
                 refreshUI();
-            }, err => console.error("Projects Snap Error:", err));
-        };
-
-        // PROTEÇÃO DE DOM
-        const safeSetText = (id, text) => { const el = document.getElementById(id); if(el) el.innerText = text; };
-        const safeSetValue = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-
-        window.openAdderModal = (target) => {
-            window.currentModalTarget = target;
-            const titleMap = { area: 'Nova Área Impactada', frente: 'Nova Frente de Trabalho', team: 'Novo Líder' };
-            document.getElementById('modal-title').innerText = titleMap[target];
-            document.getElementById('modal-input').value = '';
-            document.getElementById('custom-modal').classList.remove('hidden');
-            document.getElementById('custom-modal').classList.add('flex');
-        };
-        window.closeCustomModal = () => document.getElementById('custom-modal').classList.add('hidden');
-        document.getElementById('modal-confirm').onclick = async () => {
-            const val = document.getElementById('modal-input').value.trim();
-            if(!val || !currentUser) return;
-            const collectionName = window.currentModalTarget === 'team' ? 'team' : window.currentModalTarget === 'area' ? 'areas' : 'frentes';
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', collectionName), { name: val });
-            closeCustomModal();
-        };
-
-        window.addMetricaInput = (label = '', meta = '', real = '') => {
-            const container = document.getElementById('metricas-container');
-            if(!container) return;
-            const div = document.createElement('div');
-            div.className = 'metrica-row mb-4 animate-in fade-in slide-in-from-left-2 duration-300';
-            div.innerHTML = `
-                <div><label class="label-forte !text-[9px]">KPI</label><input type="text" class="metrica-label input-premium !py-1.5 !text-[10px] w-full uppercase" value="${label}"></div>
-                <div><label class="label-forte !text-[9px]">Meta</label><input type="text" class="metrica-meta input-premium !py-1.5 !text-[10px] w-full" value="${meta}"></div>
-                <div><label class="label-forte !text-[9px]">Real</label><input type="text" class="metrica-real input-premium !py-1.5 !text-[10px] w-full" value="${real}"></div>
-                <button type="button" onclick="this.parentElement.remove()" class="text-red-300 hover:text-red-500 pb-2 font-black text-xl">×</button>`;
-            container.appendChild(div);
-        };
-
-        window.addTaskToList = () => {
-            const input = document.getElementById('task-input');
-            const val = input ? input.value.trim() : "";
-            if (!val) return;
-            currentTasks.push({ id: Date.now(), text: val, completed: false });
-            if(input) input.value = "";
-            renderTasksList();
-        };
-        window.toggleTask = (id) => { currentTasks = currentTasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t); renderTasksList(); };
-        window.removeTask = (id) => { currentTasks = currentTasks.filter(t => t.id !== id); renderTasksList(); };
-
-        function renderTasksList() {
-            const container = document.getElementById('tasks-container');
-            const counter = document.getElementById('task-counter');
-            if(!container) return; 
-            container.innerHTML = '';
-            if(counter) counter.innerText = `${currentTasks.length} TASKS`;
-            if(currentTasks.length === 0) {
-                container.innerHTML = '<p class="text-[11px] text-slate-400 italic text-center py-4">Nenhuma tarefa definida.</p>';
-                return;
-            }
-            currentTasks.forEach(task => {
-                const div = document.createElement('div');
-                div.className = "flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl mb-2 text-slate-800 shadow-sm";
-                div.innerHTML = `
-                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})" class="w-4 h-4 rounded border-slate-300 text-cyan-500">
-                    <span class="flex-1 text-[13px] font-bold ${task.completed ? 'line-through text-slate-300' : 'text-slate-700'}">${task.text}</span>
-                    <button type="button" onclick="removeTask(${task.id})" class="text-red-300 hover:text-red-500 px-2 font-black text-xl">×</button>`;
-                container.appendChild(div);
             });
-        }
-
-        const isProjectInPeriod = (projDate, period) => {
-            if (!projDate || period === 'all') return true;
-            const date = new Date(projDate);
-            const now = new Date();
-            if (period === 'ano') return date.getFullYear() === now.getFullYear();
-            if (period === 'mes') return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
-            if (period === 'trimestre') return date.getFullYear() === now.getFullYear() && Math.floor(date.getMonth()/3) === Math.floor(now.getMonth()/3);
-            if (period === 'semestre') return date.getFullYear() === now.getFullYear() && (date.getMonth() < 6) === (now.getMonth() < 6);
-            return true;
         };
 
         window.refreshUI = () => {
-            const activeTab = document.querySelector('.active-tab')?.id.split('-')[1] || 'dashboard';
-            if (activeTab === 'dashboard') {
-                const area = document.getElementById('dash-filter-area')?.value || "";
-                const period = document.getElementById('dash-filter-period')?.value || 'all';
-                const filtered = projects.filter(p => (!area || p.time === area) && isProjectInPeriod(p.data_criacao, period));
-                updateKPIs(filtered); renderDashboard(filtered); updateCharts(filtered); renderCapacidadeChart(filtered);
-            } else if (activeTab === 'list') {
-                const area = document.getElementById('list-filter-area')?.value || "";
-                const frente = document.getElementById('list-filter-frente')?.value || "";
-                const status = document.getElementById('list-filter-status')?.value || "";
-                const leader = document.getElementById('list-filter-leader')?.value || "";
-                const filtered = projects.filter(p => (!area || p.time === area) && (!frente || p.frente === frente) && (!status || p.status === status) && (!leader || (Array.isArray(p.responsavel) && p.responsavel.includes(leader))));
-                renderDetailedList(filtered);
-            }
+            updateKPIs(projects);
+            renderDashboard(projects);
+            updateCharts(projects);
+            renderList(projects);
         };
 
         const updateKPIs = (data) => {
-            const finished = data.filter(p => p.status === 'Finalizado');
-            const onTime = finished.filter(p => p.data_conclusao && p.prazo && new Date(p.data_conclusao) <= new Date(p.prazo));
             safeSetText('kpi-total', data.length);
-            safeSetText('kpi-concluidos-prazo', onTime.length);
-            safeSetText('kpi-concluidos-atraso', finished.length - onTime.length);
-            safeSetText('kpi-sla', (finished.length ? Math.round((onTime.length/finished.length)*100) : 0) + '%');
+            safeSetText('kpi-prioridade', data.filter(p => p.prioridade === 'Alta').length);
             safeSetText('kpi-blockers', data.filter(p => p.impedimentos?.trim()).length);
-            safeSetText('kpi-prioridade', data.filter(p => p.prioridade?.includes('Alta')).length);
+            const finished = data.filter(p => p.status === 'Finalizado');
+            safeSetText('kpi-concluidos-prazo', finished.length);
             const saude = data.length ? Math.round(((data.length - data.filter(p => p.impedimentos?.trim()).length)/data.length)*100) : 100;
             safeSetText('kpi-saude', saude + '%');
         };
 
         window.renderDashboard = (data) => {
             const grid = document.getElementById('projects-grid');
-            if(!grid) return; grid.innerHTML = '';
-            data.forEach((p) => {
-                const slug = p.status?.toLowerCase().replace(/\s/g, '') || 'backlog';
-                let sla = (p.status === 'Finalizado' && p.data_conclusao && p.prazo) ? `<span class="ml-2 px-2 py-0.5 rounded text-[8px] font-black uppercase ${new Date(p.data_conclusao) <= new Date(p.prazo) ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}">${new Date(p.data_conclusao) <= new Date(p.prazo) ? 'No Prazo' : 'Atrasado'}</span>` : "";
-                let closure = p.status === 'Finalizado' && p.comentario_conclusao ? `<div class="mt-2 p-2 bg-green-50 border border-green-100 rounded-lg text-[9px] italic text-green-700 truncate">Descrição: ${p.comentario_conclusao}</div>` : (p.status === 'Despriorizado' && p.comentario_cancelamento ? `<div class="mt-2 p-2 bg-red-50 border border-red-100 rounded-lg text-[9px] italic text-red-700 truncate">Motivo: ${p.comentario_cancelamento}</div>` : '');
-                let metrics = p.metricas?.length ? `<div class="bg-slate-50 p-3 rounded-xl mt-3 border border-slate-100"><p class="text-[8px] font-black uppercase text-slate-400 mb-2 text-slate-800">KPIs</p>${p.metricas.map(m => `<div class="flex justify-between items-center text-[10px] mb-1"><span>${m.label}</span><span class='text-slate-800'>🎯${m.meta} | ✅${m.real||'-'}</span></div>`).join('')}</div>` : "";
-                grid.innerHTML += `<div class="card-project p-8 flex flex-col h-full border-t-[12px] text-slate-800 shadow-sm" style="border-top-color: ${p.time === 'Análise' ? '#00e5ff' : '#000a28'}"><div class="flex justify-between items-start mb-6"><span class="text-[9px] font-black text-slate-300 uppercase">${p.time} | ${p.frente}</span><div class="flex items-center"><span class="status-pill status-${slug}">${p.status}</span>${sla}</div></div><h3 class="text-xl font-black mb-4 uppercase line-clamp-2 leading-tight">${p.iniciativa}</h3><div class="text-[11px] font-bold space-y-2 mb-6 border-l-2 border-slate-50 pl-4 text-slate-500"><p class="flex justify-between"><span>TARGET:</span> <span class="text-slate-900">${formatDate(p.prazo)}</span></p>${metrics}${closure}</div><div class="bg-slate-50 p-4 rounded-2xl flex-grow mb-6 shadow-inner text-[11px] text-slate-600 italic">"${p.notes?.length ? p.notes[p.notes.length-1].text : 'Iniciada.'}"</div><button onclick="editProjectByID('${p.id}')" class="bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-slate-800 transition">Ver Ficha Técnica</button></div>`;
-            });
+            if(!grid) return;
+            grid.innerHTML = data.map(p => `
+                <div class="card-project p-8 flex flex-col h-full border-t-[10px]" style="border-top-color: ${p.prioridade === 'Alta' ? '#fb7185' : '#00e5ff'}">
+                    <span class="text-[9px] font-black uppercase text-slate-300">${p.time} | ${p.esforco}</span>
+                    <h3 class="text-lg font-black mt-2 uppercase">${p.iniciativa}</h3>
+                    <div class="flex-grow mt-4 mb-6 text-[11px] text-slate-500 italic">"${p.nota_inicial || 'Sem descrição.'}"</div>
+                    <div class="flex justify-between items-center">
+                        <span class="status-pill status-${p.status?.toLowerCase().replace(/\s/g, '')}">${p.status}</span>
+                        <button onclick="editProjectByID('${p.id}')" class="text-cyan-500 font-black text-[10px] hover:underline">ABRIR FICHA</button>
+                    </div>
+                </div>
+            `).join('');
         };
 
-        window.renderCapacidadeChart = (data) => {
-            const canvas = document.getElementById('chartCapacidade'); if (!canvas) return; 
-            const id = 'chartCapacidade'; if (charts[id]) charts[id].destroy();
-            const leaders = Array.from(new Set([...defaultTeam, ...dynamicTeam])).sort();
-            const datasets = { 'Rápido': { label: 'Rápido', data: [], backgroundColor: '#00e5ff' }, 'Intermediário': { label: 'Intermediário', data: [], backgroundColor: '#fbbf24' }, 'Estruturante': { label: 'Estruturante', data: [], backgroundColor: '#000a28' } };
-            leaders.forEach(l => {
-                const lp = data.filter(p => Array.isArray(p.responsavel) && p.responsavel.includes(l));
-                datasets['Rápido'].data.push(lp.filter(p => p.esforco === 'Rápido').length);
-                datasets['Intermediário'].data.push(lp.filter(p => p.esforco === 'Intermediário').length);
-                datasets['Estruturante'].data.push(lp.filter(p => p.esforco === 'Estruturante').length);
-            });
-            charts[id] = new Chart(canvas.getContext('2d'), { type: 'bar', data: { labels: leaders.map(n => n.split(' ')[0]), datasets: Object.values(datasets) }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }, plugins: { legend: { display: false } } } });
-        };
+        window.editProjectByID = (id) => {
+            const p = projects.find(x => x.id === id);
+            if(p) {
+                safeSetValue('edit-id', p.id);
+                safeSetValue('iniciativa', p.iniciativa || "");
+                safeSetValue('prioridade', p.prioridade || "Baixa");
+                safeSetValue('esforco', p.esforco || "Rápido");
+                safeSetValue('time', p.time || "");
+                safeSetValue('frente', p.frente || "");
+                safeSetValue('status', p.status || "Backlog");
+                safeSetValue('nota_inicial', p.nota_inicial || "");
+                safeSetValue('impedimentos', p.impedimentos || "");
+                
+                document.querySelectorAll('input[name="resp"]').forEach(cb => {
+                    cb.checked = Array.isArray(p.responsavel) && p.responsavel.includes(cb.value);
+                });
 
-        window.renderDetailedList = (data) => {
-            const tbody = document.getElementById('detailed-table-body'); if(!tbody) return; tbody.innerHTML = '';
-            const today = new Date(); today.setHours(0,0,0,0);
-            data.forEach(p => {
-                let diffText = "-", diffColor = "text-slate-400";
-                if(p.status === 'Finalizado') { diffText = "Concluído"; diffColor = "text-green-500 font-black"; }
-                else if(p.prazo) {
-                    const diff = Math.ceil((new Date(p.prazo) - today)/(1000*60*60*24));
-                    diffText = diff > 0 ? diff+" dias" : (diff === 0 ? "Entrega Hoje" : "Atrasado ("+Math.abs(diff)+" d)");
-                    diffColor = diff < 0 ? "text-red-500 font-black" : (diff <= 5 ? "text-amber-500 font-black" : "text-slate-600 font-bold");
-                }
-                const resps = Array.isArray(p.responsavel) ? p.responsavel.slice(0,2).join(', ') : "";
-                tbody.innerHTML += `<tr class="hover:bg-slate-50 transition text-slate-800"><td class="p-6 font-black text-[10px] uppercase text-slate-400">${p.prioridade}</td><td class="p-6 font-black uppercase text-sm">${p.iniciativa}</td><td class="p-6 text-[11px] font-bold text-slate-500">${formatDate(p.data_criacao)}</td><td class="p-6 text-[11px] font-black">${formatDate(p.prazo)}</td><td class="p-6 text-[11px] ${diffColor}">${diffText}</td><td class="p-6 text-xs text-slate-700 font-bold">${resps}</td><td class="p-6 text-center"><span class="status-pill bg-slate-100 font-black">${p.status}</span></td><td class="p-6 text-right space-x-4"><button onclick="editProjectByID('${p.id}')" class="text-cyan-500 font-black text-[10px] uppercase hover:underline">Ficha Técnica</button></td></tr>`;
-            });
-        };
-
-        window.updateCharts = (data) => {
-            const countFn = (k) => data.reduce((a,v) => { a[v[k]||'N/A'] = (a[v[k]||'N/A']||0)+1; return a; }, {});
-            renderChart('chartStatus', 'pie', countFn('status'), ['#e2e8f0', '#fef3c7', '#dcfce7', '#fee2e2']);
-            
-            const areas = Array.from(new Set(data.map(p => p.time))).sort();
-            const effortData = {
-                labels: areas,
-                datasets: [
-                    { label: 'Rápido', data: areas.map(a => data.filter(p => p.time === a && p.esforco === 'Rápido').length), backgroundColor: '#00e5ff' },
-                    { label: 'Intermediário', data: areas.map(a => data.filter(p => p.time === a && p.esforco === 'Intermediário').length), backgroundColor: '#fbbf24' },
-                    { label: 'Estruturante', data: areas.map(a => data.filter(p => p.time === a && p.esforco === 'Estruturante').length), backgroundColor: '#000a28' }
-                ]
-            };
-            const idTime = 'chartTime'; if(charts[idTime]) charts[idTime].destroy();
-            const ctxTime = document.getElementById(idTime)?.getContext('2d');
-            if(ctxTime) charts[idTime] = new Chart(ctxTime, { type: 'bar', data: effortData, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } } });
-
-            renderChart('chartFrente', 'bar', countFn('frente'), ['#000a28', '#00e5ff', '#fbbf24', '#f8fafc']);
-        };
-
-        function renderChart(id, type, data, colors) {
-            if(charts[id]) charts[id].destroy();
-            const canvas = document.getElementById(id); if(!canvas) return;
-            charts[id] = new Chart(canvas.getContext('2d'), { type: type, data: { labels: Object.keys(data), datasets: [{ data: Object.values(data), backgroundColor: colors, borderWidth: 0, borderRadius: 12 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type === 'pie', position: 'bottom' } } } });
-        }
-
-        window.prepareStatusChange = (s) => {
-            safeSetValue('project-status-internal', s);
-            safeSetValue('status', s);
-            toggleConclusionField(s);
-            if(s === 'Finalizado') {
-                const el = document.getElementById('data_conclusao');
-                if(el && !el.value) el.value = new Date().toISOString().split('T')[0];
-            } else if (s === 'Despriorizado') {
-                const el = document.getElementById('data_cancelamento');
-                if(el && !el.value) el.value = new Date().toISOString().split('T')[0];
+                window.updateInternalStatus(p.status);
+                switchTab('form');
             }
-            document.getElementById('closure-dates')?.scrollIntoView({ behavior: 'smooth' });
         };
 
         window.updateInternalStatus = (v) => {
-            safeSetValue('project-status-internal', v);
-            toggleConclusionField(v);
+            const section = document.getElementById('closure-dates');
+            if(section) {
+                section.classList.toggle('hidden', v !== 'Finalizado' && v !== 'Despriorizado');
+                document.getElementById('container-conclusao')?.classList.toggle('hidden', v !== 'Finalizado');
+                document.getElementById('container-cancelamento')?.classList.toggle('hidden', v !== 'Despriorizado');
+            }
         };
 
         document.getElementById('project-form').addEventListener('submit', async (e) => {
-            e.preventDefault(); if(!currentUser) return;
+            e.preventDefault();
             const btn = document.getElementById('btn-submit');
-            const editId = document.getElementById('edit-id').value;
-            const currentStatus = document.getElementById('status').value;
+            btn.innerText = "Sincronizando...";
             
-            if(currentStatus === 'Finalizado' && !document.getElementById('data_conclusao')?.value) {
-                alert("Data de conclusão obrigatória."); return;
-            } else if(currentStatus === 'Despriorizado') {
-                if(!document.getElementById('data_cancelamento')?.value || !document.getElementById('comentario_cancelamento')?.value.trim()) {
-                    alert("Data e Motivo obrigatórios."); return;
-                }
-            }
-
-            btn.innerText = "Sincronizando..."; btn.disabled = true;
-            const leaders = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
-            const metricas = Array.from(document.querySelectorAll('.metrica-row')).map(row => ({
-                label: row.querySelector('.metrica-label').value.toUpperCase(),
-                meta: row.querySelector('.metrica-meta').value,
-                real: row.querySelector('.metrica-real').value
-            })).filter(m => m.label.trim());
+            const editId = document.getElementById('edit-id').value;
+            const resps = Array.from(document.querySelectorAll('input[name="resp"]:checked')).map(c => c.value);
 
             const data = {
                 iniciativa: document.getElementById('iniciativa').value.toUpperCase(),
@@ -765,164 +296,71 @@
                 esforco: document.getElementById('esforco').value,
                 time: document.getElementById('time').value,
                 frente: document.getElementById('frente').value,
-                status: currentStatus,
-                data_criacao: document.getElementById('data_criacao').value,
-                prazo: document.getElementById('prazo').value,
-                data_conclusao: document.getElementById('data_conclusao')?.value || null,
-                comentario_conclusao: document.getElementById('comentario_conclusao')?.value || "",
-                data_cancelamento: document.getElementById('data_cancelamento')?.value || null,
-                comentario_cancelamento: document.getElementById('comentario_cancelamento')?.value || "",
-                responsavel: leaders, metricas,
-                impedimentos: document.getElementById('impedimentos').value,
+                status: document.getElementById('status').value,
                 nota_inicial: document.getElementById('nota_inicial').value,
-                atividades: [...currentTasks]
+                impedimentos: document.getElementById('impedimentos').value,
+                responsavel: resps,
+                data_criacao: document.getElementById('data_criacao').value,
+                prazo: document.getElementById('prazo').value
             };
 
             try {
-                if (editId) {
-                    const existing = projects.find(p => p.id === editId);
-                    const notes = [...(existing?.notes || [])];
-                    const newNote = document.getElementById('new-milestone-note').value.trim();
-                    if (newNote) notes.push({ text: newNote, date: new Date().toLocaleDateString('pt-BR') });
-                    data.notes = notes;
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', editId), data);
-                } else {
-                    data.notes = [{ text: "Iniciada.", date: new Date().toLocaleDateString('pt-BR') }];
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
-                }
-                resetForm(); switchTab('dashboard');
-            } catch (err) { console.error("Save Error:", err); }
-            finally { btn.innerText = "Salvar Alterações"; btn.disabled = false; }
+                if(editId) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', editId), data);
+                else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
+                switchTab('dashboard');
+                document.getElementById('project-form').reset();
+            } catch(err) { console.error(err); }
+            finally { btn.innerText = "Salvar Iniciativa"; }
         });
 
-        window.generateProjectReport = () => {
-            const editId = document.getElementById('edit-id').value;
-            const p = projects.find(proj => proj.id === editId);
-            if(!p) return;
-            const leaders = p.responsavel.join(', ');
-            const report = `📢 *STATUS REPORT: ${p.iniciativa}*\n📌 *Status:* ${p.status}\n👥 *Líderes:* ${leaders}\n🎯 *Área:* ${p.time}\n🚀 *Evolução:* "${p.notes?.length ? p.notes[p.notes.length-1].text : 'Sem notas'}"`;
-            document.getElementById('report-text').innerText = report;
-            const modal = document.getElementById('report-modal');
-            if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        window.renderList = (data) => {
+            const body = document.getElementById('detailed-table-body');
+            if(body) body.innerHTML = data.map(p => `
+                <tr class="text-xs font-bold hover:bg-slate-50 transition">
+                    <td class="p-6 text-slate-400">${p.prioridade}</td>
+                    <td class="p-6 uppercase">${p.iniciativa}</td>
+                    <td class="p-6">${p.time}</td>
+                    <td class="p-6"><span class="status-pill status-${p.status?.toLowerCase().replace(/\s/g, '')}">${p.status}</span></td>
+                    <td class="p-6 text-right"><button onclick="editProjectByID('${p.id}')" class="text-cyan-500 hover:underline">EDITAR</button></td>
+                </tr>
+            `).join('');
         };
 
-        window.sendReportByEmail = () => {
-            const text = document.getElementById('report-text').innerText;
-            const init = document.getElementById('iniciativa').value;
-            window.location.href = `mailto:?subject=Status Report: ${init}&body=${encodeURIComponent(text)}`;
+        window.updateCharts = (data) => {
+            renderSimpleChart('chartStatus', 'pie', data, 'status', ['#e2e8f0', '#fef3c7', '#dcfce7', '#fee2e2']);
+            renderSimpleChart('chartFrente', 'bar', data, 'frente', ['#000a28', '#00e5ff', '#fbbf24', '#cbd5e1']);
+            renderCapacidade(data);
         };
 
-        window.copyReportForSlack = () => {
-            const text = document.getElementById('report-text').innerText;
-            const temp = document.createElement('textarea');
-            temp.value = text; document.body.appendChild(temp);
-            temp.select(); document.execCommand('copy');
-            document.body.removeChild(temp);
-            const msg = document.getElementById('copy-success');
-            if(msg) { msg.classList.remove('hidden'); setTimeout(() => msg.classList.add('hidden'), 2000); }
-        };
+        function renderSimpleChart(id, type, data, key, colors) {
+            if(charts[id]) charts[id].destroy();
+            const counts = data.reduce((acc, obj) => { acc[obj[key]] = (acc[obj[key]] || 0) + 1; return acc; }, {});
+            const ctx = document.getElementById(id)?.getContext('2d');
+            if(ctx) charts[id] = new Chart(ctx, { type: type, data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: colors }] }, options: { responsive: true, maintainAspectRatio: false } });
+        }
 
-        window.closeReportModal = () => document.getElementById('report-modal')?.classList.add('hidden');
+        function renderCapacidade(data) {
+            const id = 'chartCapacidade'; if(charts[id]) charts[id].destroy();
+            const datasets = [
+                { label: 'Rápido', data: defaultTeam.map(l => data.filter(p => p.responsavel?.includes(l) && p.esforco === 'Rápido').length), backgroundColor: '#00e5ff' },
+                { label: 'Estruturante', data: defaultTeam.map(l => data.filter(p => p.responsavel?.includes(l) && p.esforco === 'Estruturante').length), backgroundColor: '#000a28' }
+            ];
+            const ctx = document.getElementById(id)?.getContext('2d');
+            if(ctx) charts[id] = new Chart(ctx, { type: 'bar', data: { labels: defaultTeam.map(n => n.split(' ')[0]), datasets: datasets }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } } });
+        }
 
-        window.editProjectByID = (id) => { 
-            const p = projects.find(x => x.id === id); 
-            if(p) {
-                safeSetValue('edit-id', p.id);
-                safeSetValue('iniciativa', p.iniciativa || "");
-                safeSetValue('prioridade', p.prioridade || "Baixa");
-                safeSetValue('esforco', p.esforco || 'Rápido');
-                safeSetValue('time', p.time || "");
-                safeSetValue('frente', p.frente || "");
-                safeSetValue('status', p.status || "Backlog");
-                safeSetValue('project-status-internal', p.status || "Backlog");
-                safeSetValue('status-display', p.status || "Backlog");
-                safeSetValue('data_criacao', p.data_criacao || "");
-                safeSetValue('prazo', p.prazo || "");
-                safeSetValue('data_conclusao', p.data_conclusao || "");
-                safeSetValue('comentario_conclusao', p.comentario_conclusao || "");
-                safeSetValue('data_cancelamento', p.data_cancelamento || "");
-                safeSetValue('comentario_cancelamento', p.comentario_cancelamento || "");
-                safeSetValue('impedimentos', p.impedimentos || "");
-                safeSetValue('nota_inicial', p.nota_inicial || "");
-                
-                toggleConclusionField(p.status);
-                document.getElementById('btn-finish')?.classList.remove('hidden');
-                document.getElementById('btn-cancel')?.classList.remove('hidden');
-                document.getElementById('btn-report')?.classList.remove('hidden');
-                document.getElementById('btn-print-project')?.classList.remove('hidden');
-                
-                currentTasks = Array.isArray(p.atividades) ? [...p.atividades] : []; 
-                renderTasksList();
-                
-                const mContainer = document.getElementById('metricas-container');
-                if(mContainer) mContainer.innerHTML = '';
-                if(p.metricas?.length && mContainer) p.metricas.forEach(m => addMetricaInput(m.label, m.meta, m.real)); else addMetricaInput();
-                
-                document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => {
-                    cb.checked = Array.isArray(p.responsavel) && p.responsavel.includes(cb.value);
-                });
-                
-                const history = document.getElementById('notes-history-list');
-                if(history) {
-                    history.innerHTML = '';
-                    [...(p.notes || [])].reverse().forEach(n => {
-                        history.innerHTML += `<div class="p-4 bg-slate-50 rounded-2xl mb-2 border border-slate-100 shadow-sm text-slate-800"><span class="text-[8px] font-black text-cyan-500 uppercase">${n.date}</span><p class="text-xs font-bold mt-1">${n.text}</p></div>`;
-                    });
-                }
-                document.getElementById('notes-section')?.classList.remove('hidden');
-                switchTab('form');
+        window.switchTab = (t) => {
+            ['view-dashboard', 'view-form', 'view-list'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById('view-'+t).classList.remove('hidden');
+            ['tab-dashboard', 'tab-form', 'tab-list'].forEach(btn => document.getElementById(btn).classList.toggle('active-tab', btn==='tab-'+t));
+            if(t === 'form' && !document.getElementById('edit-id').value) {
+                document.getElementById('project-form').reset();
+                safeSetValue('data_criacao', new Date().toISOString().split('T')[0]);
+                safeSetValue('prazo', new Date().toISOString().split('T')[0]);
             }
         };
 
-        window.deleteProject = async (id) => { if(confirm('Eliminar permanentemente?')) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id)); };
-        
-        window.switchTab = (t) => { 
-            ['view-dashboard', 'view-form', 'view-list'].forEach(v => document.getElementById(v)?.classList.add('hidden')); 
-            document.getElementById('view-'+t)?.classList.remove('hidden'); 
-            ['tab-dashboard', 'tab-form', 'tab-list'].forEach(btn => document.getElementById(btn)?.classList.toggle('active-tab', btn==='tab-'+t)); 
-            if (t !== 'form') { document.getElementById('edit-id').value = ""; } 
-            refreshUI(); 
-        };
-
-        window.clearListFilters = () => { ['list-filter-area', 'list-filter-frente', 'list-filter-status', 'list-filter-leader'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; }); refreshUI(); };
-        
-        window.resetForm = () => { 
-            const form = document.getElementById('project-form'); if(form) form.reset();
-            safeSetValue('edit-id', "");
-            safeSetValue('status', "Backlog");
-            safeSetValue('project-status-internal', "Backlog");
-            safeSetValue('status-display', "Backlog");
-            document.getElementById('notes-section')?.classList.add('hidden');
-            document.getElementById('closure-dates')?.classList.add('hidden');
-            document.getElementById('btn-finish')?.classList.add('hidden');
-            document.getElementById('btn-cancel')?.classList.add('hidden');
-            document.getElementById('btn-report')?.classList.add('hidden');
-            const mContainer = document.getElementById('metricas-container');
-            if(mContainer) mContainer.innerHTML = '';
-            addMetricaInput();
-            currentTasks = [];
-            renderTasksList();
-            const today = new Date().toISOString().split('T')[0];
-            safeSetValue('data_criacao', today);
-            safeSetValue('prazo', today);
-        };
-
-        const renderTeamCheckboxes = () => { 
-            const container = document.getElementById('responsaveis-grid'); if(!container) return; 
-            const fullList = Array.from(new Set([...defaultTeam, ...dynamicTeam])).sort(); 
-            container.innerHTML = ''; 
-            fullList.forEach(name => { container.innerHTML += `<label class="checkbox-item text-xs font-bold text-slate-600"><input type="checkbox" name="responsavel_check" value="${name}" class="w-4 h-4 rounded border-slate-300 accent-cyan-500"><span>${name}</span></label>`; }); 
-        };
-
-        window.toggleConclusionField = (s) => { 
-            const section = document.getElementById('closure-dates'); 
-            if(section) section.classList.toggle('hidden', s !== 'Finalizado' && s !== 'Despriorizado'); 
-            document.getElementById('container-conclusao')?.classList.toggle('hidden', s !== 'Finalizado'); 
-            document.getElementById('container-cancelamento')?.classList.toggle('hidden', s !== 'Despriorizado'); 
-        };
-
-        const formatDate = (d) => d ? d.split('-').reverse().join('/') : '---';
-        initAuth();
+        signInAnonymously(auth).catch(console.error);
     </script>
 </body>
 </html>
