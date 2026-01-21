@@ -278,6 +278,11 @@
                     <select id="dash-filter-analista" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Analistas (Todos)</option></select>
                     <select id="dash-filter-area" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Áreas (Todas)</option></select>
                     <select id="dash-filter-frente" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Frentes (Todas)</option></select>
+                    <select id="dash-filter-classificacao" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
+                        <option value="">Classificação (Todas)</option>
+                        <option value="Eficiência Operacional">Eficiência Operacional</option>
+                        <option value="Rotina">Rotina</option>
+                    </select>
                 </div>
             </div>
 
@@ -321,7 +326,7 @@
         </div>
 
         <!-- VIEW LISTA -->
-        <div id="view-list" class="hidden no-print">
+        <div id="view-list" class="hidden no-print text-slate-800">
             <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 text-slate-800">
                 <div>
                     <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Projetos</h1>
@@ -337,6 +342,11 @@
                     </select>
                     <select id="list-filter-analista" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Analistas (Todos)</option></select>
                     <select id="list-filter-area" class="input-premium !py-2 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Todas as Áreas</option></select>
+                    <select id="list-filter-classificacao" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
+                        <option value="">Classificação (Todas)</option>
+                        <option value="Eficiência Operacional">Eficiência Operacional</option>
+                        <option value="Rotina">Rotina</option>
+                    </select>
                 </div>
             </div>
             <div class="bg-white rounded-[1.5rem] md:rounded-[2.25rem] border border-slate-100 shadow-sm overflow-hidden text-slate-800">
@@ -353,11 +363,11 @@
 
         <!-- VIEW ARQUIVO -->
         <div id="view-archive" class="hidden no-print text-slate-800">
-            <div class="mb-8">
-                <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900 text-slate-800">Arquivo</h1>
+            <div class="mb-8 text-slate-800">
+                <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Arquivo</h1>
                 <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest">Histórico de Conclusões e Despriorizações</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-800">
                 <div class="column-board">
                     <label class="label-forte text-emerald-600 mb-6">Finalizados</label>
                     <div id="grid-finalizado" class="space-y-6"></div>
@@ -371,7 +381,7 @@
 
         <!-- VIEW FORM -->
         <div id="view-form" class="hidden max-w-6xl mx-auto text-slate-800">
-            <div class="mb-6 md:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+            <div class="mb-6 md:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 text-slate-800">
                 <h2 id="form-title" class="text-2xl md:text-3xl font-black uppercase tracking-tighter text-slate-900">Ficha Técnica</h2>
                 <div class="flex gap-2 md:gap-4 no-print w-full sm:w-auto">
                     <button id="btn-concluir-quick" onclick="window.showFinishAction()" class="bg-emerald-500 text-white px-4 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-100 hover:scale-105 transition-all">Finalizar Projeto</button>
@@ -381,10 +391,9 @@
             
             <form id="project-form">
                 <input type="hidden" id="edit-id" value=""><input type="hidden" id="impedimento_tipo" value="nenhum">
-                
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-300 mb-6 pb-2 border-b border-slate-50">1. Identificação Geral</label>
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 text-slate-800">
                         <div class="md:col-span-8"><label class="label-forte">Nome da Iniciativa</label><input type="text" id="iniciativa" required class="input-premium uppercase"></div>
                         <div class="md:col-span-4"><label class="label-forte">Prioridade</label><select id="prioridade" class="input-premium font-bold"><option value="Baixa">Baixa</option><option value="Média">Média</option><option value="Alta">Alta</option></select></div>
                     </div>
@@ -392,10 +401,11 @@
 
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50">2. Definição Operacional</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6 text-slate-800">
                         <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Tipo</label><span class="btn-add-item" onclick="window.openAddModal('tipo_atividade')">+</span></div><select id="tipo_atividade" required class="input-premium font-bold"><option value="Incidente">Incidente</option><option value="Manutenção">Manutenção</option><option value="Melhoria" selected>Melhoria</option><option value="Projeto">Projeto</option></select></div>
                         <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Área</label><span class="btn-add-item" onclick="window.openAddModal('time')">+</span></div><select id="time" required class="input-premium"></select></div>
                         <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Frente</label><span class="btn-add-item" onclick="window.openAddModal('frente')">+</span></div><select id="frente" required class="input-premium"></select></div>
+                        <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0 text-cyan-600">Classificação</label></div><select id="classificacao" required class="input-premium font-black text-cyan-600"><option value="Eficiência Operacional">Eficiência Operacional</option><option value="Rotina">Rotina</option></select></div>
                         <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Esforço</label><span class="btn-add-item" onclick="window.openAddModal('esforco')">+</span></div><select id="esforco" required class="input-premium font-bold"><option value="Rápido">Rápido</option><option value="Intermediário">Intermediário</option><option value="Estruturante">Estruturante</option></select></div>
                         <div><label class="label-forte">Status Atual</label><select id="status" class="input-premium font-black text-slate-900" onchange="window.updateStatusUI(this.value)"><option value="Backlog">Backlog</option><option value="Em Andamento">Em Andamento</option><option value="Finalizado">Finalizado</option><option value="Despriorizado">Despriorizado</option></select></div>
                     </div>
@@ -413,7 +423,7 @@
                         </div>
                         <div id="deprioritize-box" class="mt-8 pt-8 border-t border-slate-100 hidden">
                             <label class="label-forte !text-red-600">Motivo da Despriorização / Cancelamento</label>
-                            <textarea id="justificativa_despriorizacao" rows="3" class="input-premium !bg-red-50/10 text-xs" placeholder="Descreva o motivo pelo qual este projeto foi parado..."></textarea>
+                            <textarea id="justificativa_despriorizacao" rows="3" class="input-premium !bg-red-50/10 text-xs" placeholder="Descreva o motivo..."></textarea>
                             <input type="hidden" id="data_despriorizacao">
                         </div>
                     </div>
@@ -436,16 +446,16 @@
                     <div class="form-section-box shadow-sm space-y-6 text-slate-800">
                         <div><label class="label-forte">Descrição detalhada</label><textarea id="nota_inicial" rows="4" class="input-premium text-xs leading-relaxed" placeholder="Resumo estratégico..."></textarea></div>
                         
-                        <div class="pt-6 border-t border-slate-50">
+                        <div class="pt-6 border-t border-slate-50 text-slate-800">
                             <label class="label-forte">Atividades / Tasks</label>
-                            <div id="tasks-list-container" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2 text-slate-800"></div>
+                            <div id="tasks-list-container" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2"></div>
                             <div class="flex gap-2">
                                 <input type="text" id="new-task-input" class="input-premium !text-xs" placeholder="Nova tarefa...">
                                 <button type="button" onclick="window.addTaskToProject()" class="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] uppercase hover:bg-slate-800 transition-all">Adicionar</button>
                             </div>
                         </div>
 
-                        <div class="pt-6 border-t border-slate-50">
+                        <div class="pt-6 border-t border-slate-50 text-slate-800">
                             <label class="label-forte">Log de Updates</label>
                             <div id="notes-history-list" class="space-y-3 max-h-56 overflow-y-auto mb-4 pr-3 text-[11px]"></div>
                             <div class="flex flex-col sm:flex-row gap-2">
@@ -591,11 +601,11 @@
                 const onTime = finished.filter(p => p.data_conclusao && p.prazo && new Date(p.data_conclusao) <= new Date(p.prazo)).length;
                 adherence = Math.round((onTime / finished.length) * 100);
             }
-            const totalEl = document.getElementById('kpi-total'); if(totalEl) totalEl.innerText = data.length;
-            const slaEl = document.getElementById('kpi-sla'); if(slaEl) slaEl.innerText = (finished.length ? Math.round((finished.filter(p => p.data_conclusao <= p.prazo).length/finished.length)*100) : 0) + '%';
-            const perfEl = document.getElementById('kpi-performance'); if(perfEl) perfEl.innerText = adherence + '%';
-            const riskEl = document.getElementById('kpi-riscos'); if(riskEl) riskEl.innerText = active.filter(p => p.impedimento_tipo === 'Risco').length;
-            const probEl = document.getElementById('kpi-problemas'); if(probEl) probEl.innerText = problemas;
+            document.getElementById('kpi-total').innerText = data.length;
+            document.getElementById('kpi-sla').innerText = (finished.length ? Math.round((finished.filter(p => p.data_conclusao <= p.prazo).length/finished.length)*100) : 0) + '%';
+            document.getElementById('kpi-performance').innerText = adherence + '%';
+            document.getElementById('kpi-riscos').innerText = active.filter(p => p.impedimento_tipo === 'Risco').length;
+            document.getElementById('kpi-problemas').innerText = problemas;
             const saude = problemas === 0 ? 100 : (problemas === 1 ? 50 : 0);
             const saEl = document.getElementById('kpi-saude');
             if(saEl) {
@@ -656,6 +666,7 @@
             let statsHtml = `
                 <p class="flex justify-between text-slate-800"><span>ESTIMADO:</span> <span class="text-slate-900 font-black">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></p>
                 <p class="flex justify-between text-slate-800"><span>DIAS EM ABERTO:</span> <span class="text-slate-900 font-black">${Math.max(0, openDays)} dias</span></p>
+                <p class="flex justify-between text-slate-800"><span>CLASSIFICAÇÃO:</span> <span class="text-cyan-600 font-black">${p.classificacao || '--'}</span></p>
             `;
 
             if(p.status === 'Finalizado') {
@@ -702,13 +713,20 @@
         window.refreshUI = () => {
             const today = new Date(); today.setHours(0,0,0,0);
             const activeTab = Array.from(document.querySelectorAll('nav button')).find(b => b.classList.contains('active-tab'))?.id.split('-')[1];
-            const filterMap = { 'dashboard': { s: 'search-dash', p: 'dash-filter-period', a: 'dash-filter-analista', r: 'dash-filter-area', f: 'dash-filter-frente' }, 'list': { s: 'search-list', p: 'list-filter-period', a: 'list-filter-analista', r: 'list-filter-area' }, 'archive': { s: 'search-dash', p: 'dash-filter-period', a: 'dash-filter-analista', r: 'dash-filter-area' } };
+            
+            const filterMap = { 
+                'dashboard': { s: 'search-dash', p: 'dash-filter-period', a: 'dash-filter-analista', r: 'dash-filter-area', f: 'dash-filter-frente', c: 'dash-filter-classificacao' }, 
+                'list': { s: 'search-list', p: 'list-filter-period', a: 'list-filter-analista', r: 'list-filter-area', c: 'list-filter-classificacao' }, 
+                'archive': { s: 'search-dash', p: 'dash-filter-period', a: 'dash-filter-analista', r: 'dash-filter-area', c: 'dash-filter-classificacao' } 
+            };
+            
             const f = filterMap[activeTab] || filterMap['dashboard'];
             const search = document.getElementById(f.s)?.value.toLowerCase() || '';
             const period = document.getElementById(f.p)?.value || 'all';
             const analyst = document.getElementById(f.a)?.value || '';
             const area = document.getElementById(f.r)?.value || '';
             const frente = f.f ? document.getElementById(f.f)?.value : '';
+            const classificacao = document.getElementById(f.c)?.value || '';
 
             const filtered = projects.filter(p => {
                 const matchSearch = (p.iniciativa || '').toLowerCase().includes(search);
@@ -716,7 +734,8 @@
                 const matchAnalyst = !analyst || (p.responsavel && p.responsavel.includes(analyst));
                 const matchArea = !area || p.time === area;
                 const matchFrente = !frente || p.frente === frente;
-                return matchSearch && matchPeriod && matchAnalyst && matchArea && matchFrente;
+                const matchClass = !classificacao || p.classificacao === classificacao;
+                return matchSearch && matchPeriod && matchAnalyst && matchArea && matchFrente && matchClass;
             });
 
             window.updateKPIs(filtered); window.updateCharts(filtered);
@@ -847,6 +866,7 @@
             document.getElementById('edit-id').value = p.id; document.getElementById('iniciativa').value = p.iniciativa || '';
             document.getElementById('tipo_atividade').value = p.tipo_atividade || 'Melhoria'; document.getElementById('prioridade').value = p.prioridade || 'Média';
             document.getElementById('time').value = p.time || ''; document.getElementById('frente').value = p.frente || '';
+            document.getElementById('classificacao').value = p.classificacao || 'Eficiência Operacional';
             document.getElementById('esforco').value = p.esforco || 'Intermediário'; document.getElementById('status').value = p.status || 'Backlog';
             document.getElementById('data_criacao').value = p.data_criacao || ''; document.getElementById('prazo').value = p.prazo || '';
             document.getElementById('impedimentos').value = p.impedimentos || ''; document.getElementById('nota_inicial').value = p.nota_inicial || '';
@@ -874,6 +894,7 @@
                 prioridade: document.getElementById('prioridade').value, 
                 time: document.getElementById('time').value,
                 frente: document.getElementById('frente').value, 
+                classificacao: document.getElementById('classificacao').value,
                 esforco: document.getElementById('esforco').value,
                 status: status, 
                 data_criacao: document.getElementById('data_criacao').value,
