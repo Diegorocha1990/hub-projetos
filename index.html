@@ -115,7 +115,6 @@
             text-transform: uppercase;
         }
         
-        /* Card Status Styling */
         .card-project {
             background: white;
             border-radius: 24px;
@@ -221,6 +220,14 @@
             background-color: var(--success-color);
             transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        .history-entry {
+            padding: 0.75rem;
+            background-color: #f8fafc;
+            border-radius: 1rem;
+            border: 1px solid #f1f5f9;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -239,7 +246,7 @@
             </div>
             <h3 class="text-xl md:text-2xl font-black mb-2 uppercase tracking-tighter text-slate-800">Excluir Iniciativa?</h3>
             <p class="text-slate-500 mb-8 font-medium text-sm">Os dados serão removidos permanentemente.</p>
-            <div class="flex flex-col sm:flex-row gap-3">
+            <div class="flex flex-col sm:flex-row gap-3 text-slate-800">
                 <button onclick="window.confirmDelete()" class="flex-1 bg-red-500 text-white py-3.5 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-red-600 transition-all">Confirmar</button>
                 <button onclick="window.closeDeleteModal()" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-200 transition-all">Cancelar</button>
             </div>
@@ -278,13 +285,13 @@
 
     <main class="max-w-7xl mx-auto p-4 md:p-8 mt-2 md:mt-4 text-slate-800">
         <!-- VIEW DASHBOARD -->
-        <div id="view-dashboard" class="block no-print text-slate-800">
-            <div class="mb-8 md:mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-6">
+        <div id="view-dashboard" class="block no-print">
+            <div class="mb-8 md:mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-6 text-slate-800">
                 <div>
                     <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Estratégia & Operação</h1>
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest">Painel de Decisões e Eficiência</p>
                 </div>
-                <div class="flex flex-wrap gap-2 md:gap-3 text-slate-800">
+                <div class="flex flex-wrap gap-2 md:gap-3">
                     <input type="text" id="search-dash" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Buscar projeto..." oninput="window.refreshUI()">
                     <select id="dash-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                         <option value="all">Todo o Período</option>
@@ -317,39 +324,39 @@
 
             <!-- GRÁFICOS (EM CIMA) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-8 md:mb-12">
-                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800"><span class="label-forte mb-2 md:mb-4 text-slate-800">Status</span><div class="w-full h-40 md:h-44"><canvas id="chartStatus"></canvas></div></div>
-                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800"><span class="label-forte mb-2 md:mb-4 text-slate-800">Área</span><div class="w-full h-40 md:h-44"><canvas id="chartTime"></canvas></div></div>
-                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800"><span class="label-forte mb-2 md:mb-4 text-slate-800">Frentes Ativas</span><div class="w-full h-40 md:h-44"><canvas id="chartFrente"></canvas></div></div>
-                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800"><span class="label-forte mb-2 md:mb-4 text-slate-800">Lead Time Médio</span><div class="w-full h-40 md:h-44"><canvas id="chartLeadTime"></canvas></div></div>
+                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800"><span class="label-forte mb-2 md:mb-4 text-slate-800 text-slate-800">Status</span><div class="w-full h-40 md:h-44"><canvas id="chartStatus"></canvas></div></div>
+                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800"><span class="label-forte mb-2 md:mb-4 text-slate-800 text-slate-800">Área</span><div class="w-full h-40 md:h-44"><canvas id="chartTime"></canvas></div></div>
+                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800"><span class="label-forte mb-2 md:mb-4 text-slate-800 text-slate-800">Frentes Ativas</span><div class="w-full h-40 md:h-44"><canvas id="chartFrente"></canvas></div></div>
+                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-slate-800"><span class="label-forte mb-2 md:mb-4 text-slate-800 text-slate-800">Lead Time Médio</span><div class="w-full h-40 md:h-44"><canvas id="chartLeadTime"></canvas></div></div>
             </div>
 
             <!-- QUADRO KANBAN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                <div class="column-board">
+                <div class="column-board text-slate-800">
                     <label class="label-forte text-slate-400 mb-6 flex justify-between items-center">
                         <span>Backlog</span>
                         <span id="count-backlog" class="bg-slate-200 text-slate-600 px-3 py-1 rounded-full text-[10px]">0</span>
                     </label>
-                    <div id="grid-backlog" class="space-y-6"></div>
+                    <div id="grid-backlog" class="space-y-6 text-slate-800"></div>
                 </div>
-                <div class="column-board">
+                <div class="column-board text-slate-800">
                     <label class="label-forte text-slate-400 mb-6 flex justify-between items-center">
                         <span>Em Andamento</span>
                         <span id="count-andamento" class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px]">0</span>
                     </label>
-                    <div id="grid-andamento" class="space-y-6"></div>
+                    <div id="grid-andamento" class="space-y-6 text-slate-800"></div>
                 </div>
             </div>
         </div>
 
         <!-- VIEW LISTA -->
-        <div id="view-list" class="hidden no-print">
-            <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 text-slate-800 text-slate-800">
+        <div id="view-list" class="hidden no-print text-slate-800">
+            <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 text-slate-800">
                 <div>
                     <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Projetos</h1>
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest">Controle e Listagem Geral</p>
                 </div>
-                <div class="flex flex-wrap gap-2 md:gap-3 text-slate-800 text-slate-800">
+                <div class="flex flex-wrap gap-2 md:gap-3 text-slate-800">
                     <input type="text" id="search-list" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Buscar projeto..." oninput="window.refreshUI()">
                     <select id="list-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                         <option value="all">Todo o Período</option>
@@ -366,7 +373,7 @@
                     </select>
                 </div>
             </div>
-            <div class="bg-white rounded-[1.5rem] md:rounded-[2.25rem] border border-slate-100 shadow-sm overflow-hidden text-slate-800 text-slate-800">
+            <div class="bg-white rounded-[1.5rem] md:rounded-[2.25rem] border border-slate-100 shadow-sm overflow-hidden text-slate-800">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left min-w-[1000px]">
                         <thead class="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -380,18 +387,18 @@
 
         <!-- VIEW ARQUIVO -->
         <div id="view-archive" class="hidden no-print text-slate-800">
-            <div class="mb-8 text-slate-800">
-                <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Arquivo</h1>
+            <div class="mb-8">
+                <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900 text-slate-800">Arquivo</h1>
                 <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest">Histórico de Conclusões e Despriorizações</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-800">
                 <div class="column-board text-slate-800">
                     <label class="label-forte text-emerald-600 mb-6">Finalizados</label>
-                    <div id="grid-finalizado" class="space-y-6"></div>
+                    <div id="grid-finalizado" class="space-y-6 text-slate-800"></div>
                 </div>
                 <div class="column-board text-slate-800">
                     <label class="label-forte text-red-600 mb-6">Despriorizados</label>
-                    <div id="grid-despriorizado" class="space-y-6"></div>
+                    <div id="grid-despriorizado" class="space-y-6 text-slate-800"></div>
                 </div>
             </div>
         </div>
@@ -428,14 +435,14 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 text-slate-800">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 text-slate-800 text-slate-800 text-slate-800">
                     <div class="form-section-box shadow-sm">
                         <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50">3. Cronograma</label>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div><label class="label-forte">Início</label><input type="date" id="data_criacao" required class="input-premium text-xs"></div>
                             <div><label class="label-forte">Prazo Estimado</label><input type="date" id="prazo" required class="input-premium text-xs"></div>
                         </div>
-                        <div id="closure-dates" class="mt-8 pt-8 border-t border-slate-100 hidden">
+                        <div id="closure-dates" class="mt-8 pt-8 border-t border-slate-100 hidden text-slate-800">
                             <label class="label-forte !text-emerald-600">Conclusão Realizada</label><input type="date" id="data_conclusao" class="input-premium text-xs border-emerald-100 bg-emerald-50/20 text-slate-900">
                         </div>
                         <div id="deprioritize-box" class="mt-8 pt-8 border-t border-slate-100 hidden">
@@ -459,11 +466,11 @@
                     <div id="responsaveis-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-3 gap-x-12 max-h-48 overflow-y-auto pr-2"></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 text-slate-800">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 text-slate-800 text-slate-800">
                     <div class="form-section-box shadow-sm space-y-6 text-slate-800 text-slate-800">
                         <div><label class="label-forte">Descrição detalhada</label><textarea id="nota_inicial" rows="4" class="input-premium text-xs leading-relaxed" placeholder="Resumo estratégico..."></textarea></div>
                         
-                        <div class="pt-6 border-t border-slate-50 text-slate-800">
+                        <div class="pt-6 border-t border-slate-50 text-slate-800 text-slate-800">
                             <label class="label-forte">Atividades / Tasks</label>
                             <div class="flex justify-between items-center mb-2">
                                 <span id="progress-percent" class="text-[10px] font-black text-emerald-600">PROGRESSO: 0%</span>
@@ -497,7 +504,7 @@
                             </div>
                             <textarea id="impedimentos" rows="4" class="input-premium !bg-white text-xs shadow-inner" placeholder="Gargalos atuais..."></textarea>
                         </div>
-                        <div class="form-section-box shadow-sm">
+                        <div class="form-section-box shadow-sm text-slate-800">
                             <label class="label-forte text-slate-800">Lições Aprendidas</label>
                             <div id="lessons-history-list" class="space-y-2 max-h-56 overflow-y-auto mb-4 pr-3 text-[11px]"></div>
                             <div class="flex flex-col sm:flex-row gap-2">
@@ -510,7 +517,7 @@
 
                 <div class="pt-10 flex flex-col sm:flex-row gap-4 border-t border-slate-100 no-print pb-10">
                     <button type="submit" class="bg-slate-900 text-white px-12 py-5 rounded-[1.5rem] font-black shadow-2xl flex-1 uppercase text-xs tracking-widest hover:bg-slate-800 transition-all hover:scale-[1.01]">Salvar</button>
-                    <button type="button" onclick="window.switchTab('dashboard');" class="bg-white text-slate-400 border border-slate-200 px-10 py-5 rounded-[1.5rem] font-bold text-xs uppercase hover:bg-slate-50 transition-all">Sair</button>
+                    <button type="button" onclick="window.switchTab('dashboard');" class="bg-white text-slate-400 border border-slate-200 px-10 py-5 rounded-[1.5rem] font-bold text-xs uppercase hover:bg-slate-50 transition-all text-slate-800">Sair</button>
                 </div>
             </form>
         </div>
@@ -684,7 +691,6 @@
             if(p.status === 'Finalizado') topColor = 'var(--color-finalizado)';
             if(p.status === 'Despriorizado') topColor = 'var(--color-despriorizado)';
 
-            // Progress Calc for Card
             const totalT = p.tasks ? p.tasks.length : 0;
             const completedT = p.tasks ? p.tasks.filter(t => t.completed).length : 0;
             const pCent = totalT > 0 ? Math.round((completedT / totalT) * 100) : 0;
@@ -693,12 +699,17 @@
                 <p class="flex justify-between text-slate-800"><span>ESTIMADO:</span> <span class="text-slate-900 font-black">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></p>
                 <p class="flex justify-between text-slate-800"><span>DIAS EM ABERTO:</span> <span class="text-slate-900 font-black">${Math.max(0, openDays)} dias</span></p>
                 <p class="flex justify-between text-slate-800"><span>CLASSIFICAÇÃO:</span> <span class="text-cyan-600 font-black">${p.classificacao || '--'}</span></p>
-                
-                <div class="mt-3">
-                    <div class="flex justify-between items-center mb-1"><span class="text-[8px] font-black text-slate-400">PROGRESSO</span><span class="text-[8px] font-black text-emerald-600">${pCent}%</span></div>
-                    <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden"><div class="bg-emerald-500 h-full transition-all duration-500" style="width: ${pCent}%"></div></div>
-                </div>
             `;
+
+            // BARRA DE PROGRESSO DINÂMICA (APENAS SE TIVER TASKS)
+            if(totalT > 0) {
+                statsHtml += `
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center mb-1"><span class="text-[8px] font-black text-slate-400">PROGRESSO</span><span class="text-[8px] font-black text-emerald-600">${pCent}%</span></div>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden"><div class="bg-emerald-500 h-full transition-all duration-500" style="width: ${pCent}%"></div></div>
+                    </div>
+                `;
+            }
 
             if(p.status === 'Finalizado') {
                 const conclusao = p.data_conclusao ? new Date(p.data_conclusao) : null;
@@ -744,13 +755,11 @@
         window.refreshUI = () => {
             const today = new Date(); today.setHours(0,0,0,0);
             const activeTab = Array.from(document.querySelectorAll('nav button')).find(b => b.classList.contains('active-tab'))?.id.split('-')[1];
-            
             const filterMap = { 
                 'dashboard': { s: 'search-dash', p: 'dash-filter-period', a: 'dash-filter-analista', r: 'dash-filter-area', f: 'dash-filter-frente', c: 'dash-filter-classificacao' }, 
                 'list': { s: 'search-list', p: 'list-filter-period', a: 'list-filter-analista', r: 'list-filter-area', c: 'list-filter-classificacao' }, 
                 'archive': { s: 'search-dash', p: 'dash-filter-period', a: 'dash-filter-analista', r: 'dash-filter-area', c: 'dash-filter-classificacao' } 
             };
-            
             const f = filterMap[activeTab] || filterMap['dashboard'];
             const search = document.getElementById(f.s)?.value.toLowerCase() || '';
             const period = document.getElementById(f.p)?.value || 'all';
@@ -804,11 +813,9 @@
 
         window.switchTab = (t) => {
             ['view-dashboard', 'view-form', 'view-list', 'view-archive'].forEach(v => {
-                const el = document.getElementById(v);
-                if(el) el.classList.add('hidden');
+                const el = document.getElementById(v); if(el) el.classList.add('hidden');
             });
-            const target = document.getElementById('view-'+t);
-            if(target) target.classList.remove('hidden');
+            const target = document.getElementById('view-'+t); if(target) target.classList.remove('hidden');
             document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`));
             if (t !== 'form') window.resetForm();
             window.refreshUI();
@@ -889,12 +896,10 @@
         };
         window.editHistoryItem = (type, index) => {
             if(type === 'note') {
-                const item = tempNotes[index];
-                const input = document.getElementById('new-milestone-note');
+                const item = tempNotes[index]; const input = document.getElementById('new-milestone-note');
                 if(input) { input.value = item.text; tempNotes.splice(index, 1); renderHistoryLists(); }
             } else if(type === 'lesson') {
-                const item = tempLessons[index];
-                const input = document.getElementById('new-lesson-note');
+                const item = tempLessons[index]; const input = document.getElementById('new-lesson-note');
                 if(input) { input.value = item.text; tempLessons.splice(index, 1); renderHistoryLists(); }
             }
         };
