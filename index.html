@@ -13,6 +13,12 @@
             --accent-color: #00e5ff;
             --success-color: #10b981;
             --bg-body: #f8fafc;
+            
+            /* Status Colors */
+            --color-backlog: #94a3b8;
+            --color-andamento: #fbbf24;
+            --color-finalizado: #10b981;
+            --color-despriorizado: #ef4444;
         }
         body {
             font-family: 'Nunito Sans', sans-serif;
@@ -24,7 +30,7 @@
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
-            padding: 0.75rem 1rem;
+            padding: 0.65rem 1rem;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
             font-weight: 600;
@@ -108,6 +114,20 @@
             border-radius: 100px;
             text-transform: uppercase;
         }
+        
+        /* Card Status Styling */
+        .card-project {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            border-top-width: 12px;
+        }
+        .card-project:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.08);
+        }
+
         .status-backlog { background-color: #f1f5f9; color: #475569; }
         .status-andamento { background-color: #fef3c7; color: #92400e; }
         .status-finalizado { background-color: #dcfce7; color: #166534; }
@@ -127,11 +147,6 @@
             cursor: pointer;
             transition: all 0.2s;
             margin-left: 8px;
-        }
-        .btn-add-item:hover { 
-            background: var(--accent-color); 
-            color: var(--primary-color);
-            transform: scale(1.1);
         }
 
         #loading-overlay {
@@ -166,18 +181,12 @@
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         }
 
-        .history-entry {
-            padding: 0.75rem;
-            background-color: #f8fafc;
-            border-radius: 1rem;
-            border: 1px solid #f1f5f9;
-            margin-bottom: 0.5rem;
-        }
-
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            .form-section-box { border: 1px solid #eee; break-inside: avoid; }
+        .column-board {
+            background: rgba(226, 232, 240, 0.3);
+            border-radius: 1.5rem;
+            padding: 1.25rem;
+            min-height: 400px;
+            height: fit-content;
         }
     </style>
 </head>
@@ -191,11 +200,11 @@
 
     <!-- MODAL DE EXCLUSÃO -->
     <div id="delete-modal" class="modal-overlay">
-        <div class="modal-content text-center">
+        <div class="modal-content text-center text-slate-800">
             <div class="w-16 h-16 md:w-20 md:h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
             </div>
-            <h3 class="text-xl md:text-2xl font-black mb-2 text-slate-900 uppercase tracking-tighter">Excluir Iniciativa?</h3>
+            <h3 class="text-xl md:text-2xl font-black mb-2 uppercase tracking-tighter">Excluir Iniciativa?</h3>
             <p class="text-slate-500 mb-8 font-medium text-sm">Os dados serão removidos permanentemente.</p>
             <div class="flex flex-col sm:flex-row gap-3">
                 <button onclick="window.confirmDelete()" class="flex-1 bg-red-500 text-white py-3.5 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-red-600 transition-all">Confirmar</button>
@@ -206,8 +215,8 @@
 
     <!-- MODAL ADICIONAR ITEM -->
     <div id="add-item-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 id="add-item-title" class="text-xl font-black mb-6 uppercase tracking-tighter text-slate-900">Adicionar Opção</h3>
+        <div class="modal-content text-slate-800">
+            <h3 id="add-item-title" class="text-xl font-black mb-6 uppercase tracking-tighter">Adicionar Opção</h3>
             <input type="text" id="new-item-input" class="input-premium mb-8" placeholder="Digite o novo nome...">
             <div class="flex gap-3">
                 <button onclick="window.processAddItem()" class="flex-1 bg-slate-900 text-white py-3.5 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-xl hover:bg-slate-800 transition-all">Adicionar</button>
@@ -228,7 +237,8 @@
             <nav class="flex gap-4 md:gap-10 h-full items-center text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-slate-400">
                 <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="h-full px-1 md:px-2 active-tab transition-all">Dash</button>
                 <button onclick="window.switchTab('form')" id="tab-form" class="h-full px-1 md:px-2 hover:text-slate-900 transition-all">Novo</button>
-                <button onclick="window.switchTab('list')" id="tab-list" class="h-full px-1 md:px-2 hover:text-slate-900 transition-all">Lista</button>
+                <button onclick="window.switchTab('list')" id="tab-list" class="h-full px-1 md:px-2 hover:text-slate-900 transition-all">Projetos</button>
+                <button onclick="window.switchTab('archive')" id="tab-archive" class="h-full px-1 md:px-2 hover:text-slate-900 transition-all">Arquivo</button>
             </nav>
         </div>
     </header>
@@ -242,6 +252,7 @@
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest">Painel de Decisões e Eficiência</p>
                 </div>
                 <div class="flex flex-wrap gap-2 md:gap-3">
+                    <input type="text" id="search-dash" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40" placeholder="Buscar projeto..." oninput="window.refreshUI()">
                     <select id="dash-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                         <option value="all">Todo o Período</option>
                         <option value="mes">Mensal</option>
@@ -266,7 +277,7 @@
 
             <div class="h-px bg-slate-200 w-full mb-8 md:mb-12 opacity-30 shadow-sm"></div>
 
-            <!-- GRÁFICOS -->
+            <!-- GRÁFICOS (EM CIMA) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-8 md:mb-12">
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-2 md:mb-4">Status</span><div class="w-full h-40 md:h-44"><canvas id="chartStatus"></canvas></div></div>
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-2 md:mb-4">Área</span><div class="w-full h-40 md:h-44"><canvas id="chartTime"></canvas></div></div>
@@ -274,17 +285,34 @@
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-2 md:mb-4">Lead Time Médio</span><div class="w-full h-40 md:h-44"><canvas id="chartLeadTime"></canvas></div></div>
             </div>
 
-            <div id="projects-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 text-slate-800"></div>
+            <!-- QUADRO KANBAN (EMBAIXO DOS GRÁFICOS) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="column-board">
+                    <label class="label-forte text-slate-400 mb-6 flex justify-between items-center">
+                        <span>Backlog</span>
+                        <span id="count-backlog" class="bg-slate-200 text-slate-600 px-3 py-1 rounded-full text-[10px]">0</span>
+                    </label>
+                    <div id="grid-backlog" class="space-y-6"></div>
+                </div>
+                <div class="column-board">
+                    <label class="label-forte text-slate-400 mb-6 flex justify-between items-center">
+                        <span>Em Andamento</span>
+                        <span id="count-andamento" class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px]">0</span>
+                    </label>
+                    <div id="grid-andamento" class="space-y-6"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- VIEW LISTA -->
+        <!-- VIEW LISTA (PROJETOS) -->
         <div id="view-list" class="hidden no-print text-slate-800">
             <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
-                    <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Gestão de Projetos</h1>
+                    <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Projetos</h1>
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest">Controle e Listagem Geral</p>
                 </div>
                 <div class="flex flex-wrap gap-2 md:gap-3">
+                    <input type="text" id="search-list" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40" placeholder="Buscar projeto..." oninput="window.refreshUI()">
                     <select id="list-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                         <option value="all">Todo o Período</option>
                         <option value="mes">Mensal</option>
@@ -307,6 +335,24 @@
             </div>
         </div>
 
+        <!-- VIEW ARQUIVO -->
+        <div id="view-archive" class="hidden no-print text-slate-800">
+            <div class="mb-8">
+                <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Arquivo</h1>
+                <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest">Histórico de Conclusões e Despriorizações</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="column-board">
+                    <label class="label-forte text-emerald-600 mb-6">Finalizados</label>
+                    <div id="grid-finalizado" class="space-y-6"></div>
+                </div>
+                <div class="column-board">
+                    <label class="label-forte text-red-600 mb-6">Despriorizados</label>
+                    <div id="grid-despriorizado" class="space-y-6"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- VIEW FORM -->
         <div id="view-form" class="hidden max-w-6xl mx-auto text-slate-800">
             <div class="mb-6 md:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
@@ -319,10 +365,9 @@
             
             <form id="project-form">
                 <input type="hidden" id="edit-id" value=""><input type="hidden" id="impedimento_tipo" value="nenhum">
-                
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-300 mb-6 pb-2 border-b border-slate-50">1. Identificação Geral</label>
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 text-slate-800">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10">
                         <div class="md:col-span-8"><label class="label-forte">Nome da Iniciativa</label><input type="text" id="iniciativa" required class="input-premium uppercase"></div>
                         <div class="md:col-span-4"><label class="label-forte">Prioridade</label><select id="prioridade" class="input-premium font-bold"><option value="Baixa">Baixa</option><option value="Média">Média</option><option value="Alta">Alta</option></select></div>
                     </div>
@@ -330,24 +375,12 @@
 
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50">2. Definição Operacional</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8 text-slate-800">
-                        <div>
-                            <div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Tipo</label><span class="btn-add-item" onclick="window.openAddModal('tipo_atividade')">+</span></div>
-                            <select id="tipo_atividade" required class="input-premium font-bold"><option value="Incidente">Incidente</option><option value="Manutenção">Manutenção</option><option value="Melhoria" selected>Melhoria</option><option value="Projeto">Projeto</option></select>
-                        </div>
-                        <div>
-                            <div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Área</label><span class="btn-add-item" onclick="window.openAddModal('time')">+</span></div>
-                            <select id="time" required class="input-premium"></select>
-                        </div>
-                        <div>
-                            <div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Frente</label><span class="btn-add-item" onclick="window.openAddModal('frente')">+</span></div>
-                            <select id="frente" required class="input-premium"></select>
-                        </div>
-                        <div>
-                            <div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Esforço</label><span class="btn-add-item" onclick="window.openAddModal('esforco')">+</span></div>
-                            <select id="esforco" required class="input-premium font-bold"><option value="Rápido">Rápido</option><option value="Intermediário">Intermediário</option><option value="Estruturante">Estruturante</option></select>
-                        </div>
-                        <div><label class="label-forte">Status</label><select id="status" class="input-premium font-black text-slate-900" onchange="window.updateStatusUI(this.value)"><option value="Backlog">Backlog</option><option value="Em Andamento">Em Andamento</option><option value="Finalizado">Finalizado</option><option value="Despriorizado">Despriorizado</option></select></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
+                        <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Tipo</label><span class="btn-add-item" onclick="window.openAddModal('tipo_atividade')">+</span></div><select id="tipo_atividade" required class="input-premium font-bold"><option value="Incidente">Incidente</option><option value="Manutenção">Manutenção</option><option value="Melhoria" selected>Melhoria</option><option value="Projeto">Projeto</option></select></div>
+                        <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Área</label><span class="btn-add-item" onclick="window.openAddModal('time')">+</span></div><select id="time" required class="input-premium"></select></div>
+                        <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Frente</label><span class="btn-add-item" onclick="window.openAddModal('frente')">+</span></div><select id="frente" required class="input-premium"></select></div>
+                        <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Esforço</label><span class="btn-add-item" onclick="window.openAddModal('esforco')">+</span></div><select id="esforco" required class="input-premium font-bold"><option value="Rápido">Rápido</option><option value="Intermediário">Intermediário</option><option value="Estruturante">Estruturante</option></select></div>
+                        <div><label class="label-forte">Status Atual</label><select id="status" class="input-premium font-black text-slate-900" onchange="window.updateStatusUI(this.value)"><option value="Backlog">Backlog</option><option value="Em Andamento">Em Andamento</option><option value="Finalizado">Finalizado</option><option value="Despriorizado">Despriorizado</option></select></div>
                     </div>
                 </div>
 
@@ -370,7 +403,7 @@
                 </div>
 
                 <div class="form-section-box shadow-sm text-slate-800">
-                    <div class="flex justify-between items-center mb-6 pb-2 border-b border-slate-50">
+                    <div class="flex justify-between items-center mb-8 pb-3 border-b border-slate-50">
                         <label class="label-forte text-slate-400 !mb-0">5. Analistas Responsáveis</label>
                         <span class="btn-add-item" onclick="window.openAddModal('analista')">+ Novo</span>
                     </div>
@@ -382,7 +415,7 @@
                         <div><label class="label-forte">Escopo Executivo</label><textarea id="nota_inicial" rows="4" class="input-premium text-xs leading-relaxed" placeholder="Resumo estratégico..."></textarea></div>
                         <div class="pt-6 border-t border-slate-50">
                             <label class="label-forte">Log de Updates</label>
-                            <div id="notes-history-list" class="space-y-2 max-h-56 overflow-y-auto mb-4 pr-3 text-[11px]"></div>
+                            <div id="notes-history-list" class="space-y-3 max-h-56 overflow-y-auto mb-4 pr-3 text-[11px]"></div>
                             <div class="flex flex-col sm:flex-row gap-2">
                                 <input type="text" id="new-milestone-note" class="input-premium !text-xs" placeholder="Evolução de hoje...">
                                 <button type="button" onclick="window.addItemToHistory('note')" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase hover:bg-slate-800 transition-all">Incluir</button>
@@ -401,7 +434,6 @@
                             </div>
                             <textarea id="impedimentos" rows="4" class="input-premium !bg-white text-xs shadow-inner" placeholder="Gargalos atuais..."></textarea>
                         </div>
-
                         <div class="form-section-box shadow-sm">
                             <label class="label-forte">Lições Aprendidas</label>
                             <div id="lessons-history-list" class="space-y-2 max-h-56 overflow-y-auto mb-4 pr-3 text-[11px]"></div>
@@ -495,7 +527,6 @@
             const date = new Date(dateStr); const now = new Date();
             if (period === 'mes') return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
             if (period === 'trimestre') return Math.floor(now.getMonth() / 3) === Math.floor(date.getMonth() / 3);
-            if (period === 'semestre') return Math.floor(now.getMonth() / 6) === Math.floor(date.getMonth() / 6);
             if (period === 'ano') return date.getFullYear() === now.getFullYear();
             return true;
         };
@@ -504,14 +535,12 @@
             const current = document.getElementById('impedimento_tipo').value;
             const newVal = current === tipo ? 'nenhum' : tipo;
             document.getElementById('impedimento_tipo').value = newVal;
-            
             const tr = document.getElementById('toggle-risco');
             const tp = document.getElementById('toggle-problema');
             if(tr && tp) {
                 tr.className = `toggle-btn ${newVal === 'Risco' ? 'active-risco' : 'inactive'}`;
                 tp.className = `toggle-btn ${newVal === 'Problema' ? 'active-problema' : 'inactive'}`;
             }
-            
             const container = document.getElementById('impedimento-container');
             if(container) {
                 if(newVal === 'Problema') container.className = "form-section-box !bg-red-50 !border-red-200 transition-colors";
@@ -522,17 +551,18 @@
 
         window.updateKPIs = (data) => {
             const finished = data.filter(p => p.status === 'Finalizado');
-            const problemas = data.filter(p => p.status !== 'Finalizado' && p.impedimento_tipo === 'Problema').length;
+            const active = data.filter(p => p.status !== 'Finalizado' && p.status !== 'Despriorizado');
+            const problemas = active.filter(p => p.impedimento_tipo === 'Problema').length;
             let adherence = 0;
             if (finished.length) {
                 const onTime = finished.filter(p => p.data_conclusao && p.prazo && new Date(p.data_conclusao) <= new Date(p.prazo)).length;
                 adherence = Math.round((onTime / finished.length) * 100);
             }
-            const totalEl = document.getElementById('kpi-total'); if(totalEl) totalEl.innerText = data.length;
-            const slaEl = document.getElementById('kpi-sla'); if(slaEl) slaEl.innerText = (finished.length ? Math.round((finished.filter(p => p.data_conclusao <= p.prazo).length/finished.length)*100) : 0) + '%';
-            const perfEl = document.getElementById('kpi-performance'); if(perfEl) perfEl.innerText = adherence + '%';
-            const riskEl = document.getElementById('kpi-riscos'); if(riskEl) riskEl.innerText = data.filter(p => p.status !== 'Finalizado' && p.impedimento_tipo === 'Risco').length;
-            const probEl = document.getElementById('kpi-problemas'); if(probEl) probEl.innerText = problemas;
+            document.getElementById('kpi-total').innerText = data.length;
+            document.getElementById('kpi-sla').innerText = (finished.length ? Math.round((finished.filter(p => p.data_conclusao <= p.prazo).length/finished.length)*100) : 0) + '%';
+            document.getElementById('kpi-performance').innerText = adherence + '%';
+            document.getElementById('kpi-riscos').innerText = active.filter(p => p.impedimento_tipo === 'Risco').length;
+            document.getElementById('kpi-problemas').innerText = problemas;
             const saude = problemas === 0 ? 100 : (problemas === 1 ? 50 : 0);
             const saEl = document.getElementById('kpi-saude');
             if(saEl) {
@@ -543,8 +573,7 @@
 
         window.updateCharts = (data) => {
             const sCounts = data.reduce((a,v) => { a[v.status] = (a[v.status]||0)+1; return a; }, {});
-            window.renderChart('chartStatus', 'pie', sCounts, ['#e2e8f0', '#fef3c7', '#dcfce7', '#fee2e2']);
-            
+            window.renderChart('chartStatus', 'pie', sCounts, ['#f1f5f9', '#fef3c7', '#dcfce7', '#fee2e2']);
             const areasSet = Array.from(new Set(data.map(p => p.time))).sort();
             if(charts['chartTime']) charts['chartTime'].destroy();
             const ctxTime = document.getElementById('chartTime')?.getContext('2d');
@@ -555,7 +584,6 @@
                     ]}, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
                 });
             }
-
             const concluidos = data.filter(p => p.status === 'Finalizado' && p.data_criacao && p.data_conclusao);
             let cor = 0, ute = 0;
             if(concluidos.length) {
@@ -569,7 +597,6 @@
                     type: 'bar', data: { labels: ['Corridos', 'Úteis'], datasets: [{ data: [cor.toFixed(1), ute.toFixed(1)], backgroundColor: ['#64748b', '#00e5ff'], borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
                 });
             }
-
             const fCounts = data.reduce((a,v) => { a[v.frente||'N/A'] = (a[v.frente||'N/A']||0)+1; return a; }, {});
             window.renderChart('chartFrente', 'bar', fCounts, ['#000a28', '#00e5ff', '#fbbf24', '#f8fafc']);
         };
@@ -580,84 +607,89 @@
             charts[id] = new Chart(canvas.getContext('2d'), { type: type, data: { labels: Object.keys(data), datasets: [{ data: Object.values(data), backgroundColor: colors, borderWidth: 0, borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } } });
         };
 
+        const createProjectCard = (p, today) => {
+            const sS = (p.status || 'backlog').toLowerCase().replace(/\s/g, '');
+            const start = p.data_criacao ? new Date(p.data_criacao) : today;
+            const end = p.prazo ? new Date(p.prazo) : today;
+            const openDays = Math.floor((today - start) / 86400000);
+            const remainingDays = Math.ceil((end - today) / 86400000);
+            const isOverdue = today > end && p.status !== 'Finalizado';
+            
+            // Color Logic
+            let topColor = 'var(--color-backlog)';
+            if(p.status === 'Em Andamento') topColor = 'var(--color-andamento)';
+            if(p.status === 'Finalizado') topColor = 'var(--color-finalizado)';
+            if(p.status === 'Despriorizado') topColor = 'var(--color-despriorizado)';
+
+            return `
+                <div class="card-project p-6 flex flex-col h-full ${p.impedimento_tipo === 'Problema' ? 'border-2 border-red-500' : ''}" style="border-top-color: ${topColor}">
+                    <div class="flex justify-between items-start mb-4 md:mb-6"><span class="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">${p.tipo_atividade} | ${p.time}</span><span class="status-pill status-${sS}">${p.status}</span></div>
+                    <h3 class="text-lg md:text-xl font-black mb-4 uppercase leading-tight text-slate-800">${p.iniciativa}</h3>
+                    <div class="text-[10px] md:text-[11px] font-bold space-y-2 mb-6 text-slate-500">
+                        <p class="flex justify-between"><span>ESTIMADO:</span> <span class="text-slate-900 font-black">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></p>
+                        <p class="flex justify-between"><span>DIAS EM ABERTO:</span> <span class="text-slate-900 font-black">${Math.max(0, openDays)} dias</span></p>
+                        <p class="flex justify-between items-center">
+                            <span>STATUS PRAZO:</span> 
+                            <span class="${isOverdue ? 'text-red-600' : 'text-slate-900'} font-black flex items-center gap-1.5">
+                                ${isOverdue ? '<span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span> EM ATRASO' : (remainingDays + ' DIAS RESTANTES')}
+                            </span>
+                        </p>
+                    </div>
+                    <button onclick="window.editProjectByID('${p.id}')" class="bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition mt-auto shadow-lg shadow-slate-200">Gerenciar</button>
+                </div>`;
+        };
+
         window.refreshUI = () => {
-            const isDash = document.getElementById('view-dashboard').classList.contains('hidden') === false;
-            const period = document.getElementById(isDash ? 'dash-filter-period' : 'list-filter-period')?.value || 'all';
-            const analyst = document.getElementById(isDash ? 'dash-filter-analista' : 'list-filter-analista')?.value || '';
-            const area = document.getElementById(isDash ? 'dash-filter-area' : 'list-filter-area')?.value || '';
-            const frente = document.getElementById('dash-filter-frente')?.value || '';
+            const today = new Date(); today.setHours(0,0,0,0);
+            const activeTab = Array.from(document.querySelectorAll('nav button')).find(b => b.classList.contains('active-tab'))?.id.split('-')[1];
+            const filterMap = { 'dashboard': { s: 'search-dash', p: 'dash-filter-period', a: 'dash-filter-analista', r: 'dash-filter-area', f: 'dash-filter-frente' }, 'list': { s: 'search-list', p: 'list-filter-period', a: 'list-filter-analista', r: 'list-filter-area' }, 'archive': { s: 'search-dash', p: 'dash-filter-period', a: 'dash-filter-analista', r: 'dash-filter-area' } };
+            const f = filterMap[activeTab] || filterMap['dashboard'];
+            const search = document.getElementById(f.s)?.value.toLowerCase() || '';
+            const period = document.getElementById(f.p)?.value || 'all';
+            const analyst = document.getElementById(f.a)?.value || '';
+            const area = document.getElementById(f.r)?.value || '';
+            const frente = f.f ? document.getElementById(f.f)?.value : '';
 
             const filtered = projects.filter(p => {
-                let inPeriod = isProjectInPeriod(p.data_criacao, period);
+                const matchSearch = (p.iniciativa || '').toLowerCase().includes(search);
+                const matchPeriod = isProjectInPeriod(p.data_criacao, period);
                 const matchAnalyst = !analyst || (p.responsavel && p.responsavel.includes(analyst));
                 const matchArea = !area || p.time === area;
                 const matchFrente = !frente || p.frente === frente;
-                return inPeriod && matchAnalyst && matchArea && (isDash ? matchFrente : true);
+                return matchSearch && matchPeriod && matchAnalyst && matchArea && matchFrente;
             });
 
             window.updateKPIs(filtered); window.updateCharts(filtered);
             
-            const grid = document.getElementById('projects-grid'); if(grid) {
-                grid.innerHTML = '';
-                const today = new Date(); today.setHours(0,0,0,0);
-
-                filtered.filter(p => p.status !== 'Finalizado' && p.status !== 'Despriorizado').forEach(p => {
-                    const sS = (p.status || 'backlog').toLowerCase().replace(/\s/g, '');
-                    
-                    // Lógica de Contagem de Dias
-                    const start = p.data_criacao ? new Date(p.data_criacao) : today;
-                    const end = p.prazo ? new Date(p.prazo) : today;
-                    
-                    const openDays = Math.floor((today - start) / 86400000);
-                    const remainingDays = Math.ceil((end - today) / 86400000);
-                    const isOverdue = today > end;
-
-                    grid.innerHTML += `
-                        <div class="card-project p-6 md:p-8 flex flex-col h-full border-t-[10px] md:border-t-[12px] ${p.impedimento_tipo === 'Problema' ? 'border-2 border-red-500' : ''}" style="border-top-color: ${p.impedimento_tipo === 'Problema' ? '#ef4444' : '#000a28'}">
-                            <div class="flex justify-between items-start mb-4 md:mb-6"><span class="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">${p.tipo_atividade} | ${p.time}</span><span class="status-pill status-${sS}">${p.status}</span></div>
-                            <h3 class="text-lg md:text-xl font-black mb-4 uppercase leading-tight text-slate-800">${p.iniciativa}</h3>
-                            
-                            <div class="text-[10px] md:text-[11px] font-bold space-y-2 mb-6 text-slate-500">
-                                <p class="flex justify-between"><span>ESTIMADO:</span> <span class="text-slate-900 font-black">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></p>
-                                <p class="flex justify-between"><span>DIAS EM ABERTO:</span> <span class="text-slate-900 font-black">${Math.max(0, openDays)} dias</span></p>
-                                <p class="flex justify-between items-center">
-                                    <span>STATUS PRAZO:</span> 
-                                    <span class="${isOverdue ? 'text-red-600' : 'text-slate-900'} font-black flex items-center gap-1.5">
-                                        ${isOverdue ? '<span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span> EM ATRASO' : (remainingDays + ' DIAS RESTANTES')}
-                                    </span>
-                                </p>
-                            </div>
-                            
-                            <button onclick="window.editProjectByID('${p.id}')" class="bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition mt-auto shadow-lg shadow-slate-200">Gerenciar</button>
-                        </div>`;
-                });
+            if(activeTab === 'dashboard') {
+                const backlogGrid = document.getElementById('grid-backlog'); const andamentoGrid = document.getElementById('grid-andamento');
+                backlogGrid.innerHTML = ''; andamentoGrid.innerHTML = '';
+                const backlogProjs = filtered.filter(p => p.status === 'Backlog');
+                const andamentoProjs = filtered.filter(p => p.status === 'Em Andamento');
+                document.getElementById('count-backlog').innerText = backlogProjs.length;
+                document.getElementById('count-andamento').innerText = andamentoProjs.length;
+                backlogProjs.forEach(p => backlogGrid.innerHTML += createProjectCard(p, today));
+                andamentoProjs.forEach(p => andamentoGrid.innerHTML += createProjectCard(p, today));
             }
-
-            const tbody = document.getElementById('detailed-table-body'); if(tbody) {
+            if(activeTab === 'archive') {
+                const finalizadoGrid = document.getElementById('grid-finalizado'); const despriorizadoGrid = document.getElementById('grid-despriorizado');
+                finalizadoGrid.innerHTML = ''; despriorizadoGrid.innerHTML = '';
+                filtered.filter(p => p.status === 'Finalizado').forEach(p => finalizadoGrid.innerHTML += createProjectCard(p, today));
+                filtered.filter(p => p.status === 'Despriorizado').forEach(p => despriorizadoGrid.innerHTML += createProjectCard(p, today));
+            }
+            const tbody = document.getElementById('detailed-table-body');
+            if(tbody) {
                 tbody.innerHTML = '';
                 filtered.forEach(p => {
                     const sS = (p.status || 'backlog').toLowerCase().replace(/\s/g, '');
                     const envolvidos = Array.isArray(p.responsavel) ? p.responsavel.join(', ') : (p.responsavel || '--');
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="p-6 md:p-8 uppercase text-slate-900">${p.iniciativa}</td>
-                            <td class="p-6 md:p-8 text-slate-500">${p.time}</td>
-                            <td class="p-6 md:p-8 text-slate-500">${envolvidos}</td>
-                            <td class="p-6 md:p-8 text-center text-slate-900 font-bold">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</td>
-                            <td class="p-6 md:p-8 text-center"><span class="status-pill status-${sS}">${p.status}</span></td>
-                            <td class="p-6 md:p-8 text-right flex items-center justify-end gap-3 md:gap-5">
-                                <button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 hover:scale-110 transition uppercase text-[10px] font-black">Editar</button>
-                                <button onclick="window.openDeleteModal('${p.id}')" class="text-red-300 hover:text-red-500 hover:scale-110 transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                </button>
-                            </td>
-                        </tr>`;
+                    tbody.innerHTML += `<tr><td class="p-6 md:p-8 uppercase text-slate-900">${p.iniciativa}</td><td class="p-6 md:p-8 text-slate-500">${p.time}</td><td class="p-6 md:p-8 text-slate-500">${envolvidos}</td><td class="p-6 md:p-8 text-center text-slate-900 font-bold">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</td><td class="p-6 md:p-8 text-center"><span class="status-pill status-${sS}">${p.status}</span></td><td class="p-6 md:p-8 text-right flex items-center justify-end gap-3 md:gap-5"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 hover:scale-110 transition uppercase text-[10px] font-black">Editar</button><button onclick="window.openDeleteModal('${p.id}')" class="text-red-300 hover:text-red-500 hover:scale-110 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
                 });
             }
         };
 
         window.switchTab = (t) => {
-            ['view-dashboard', 'view-form', 'view-list'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            ['view-dashboard', 'view-form', 'view-list', 'view-archive'].forEach(v => document.getElementById(v).classList.add('hidden'));
             document.getElementById('view-'+t).classList.remove('hidden');
             document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`));
             if (t !== 'form') window.resetForm();
@@ -669,8 +701,7 @@
         };
 
         window.showFinishAction = () => {
-            document.getElementById('status').value = 'Finalizado'; 
-            window.updateStatusUI('Finalizado');
+            document.getElementById('status').value = 'Finalizado'; window.updateStatusUI('Finalizado');
             document.getElementById('data_conclusao').value = new Date().toISOString().split('T')[0];
             document.getElementById('project-form').scrollIntoView({ behavior: 'smooth' });
         };
