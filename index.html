@@ -384,7 +384,7 @@
                 
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-300 mb-6 pb-2 border-b border-slate-50">1. Identificação Geral</label>
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 text-slate-800">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10">
                         <div class="md:col-span-8"><label class="label-forte">Nome da Iniciativa</label><input type="text" id="iniciativa" required class="input-premium uppercase"></div>
                         <div class="md:col-span-4"><label class="label-forte">Prioridade</label><select id="prioridade" class="input-premium font-bold"><option value="Baixa">Baixa</option><option value="Média">Média</option><option value="Alta">Alta</option></select></div>
                     </div>
@@ -392,7 +392,7 @@
 
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50">2. Definição Operacional</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8 text-slate-800">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
                         <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Tipo</label><span class="btn-add-item" onclick="window.openAddModal('tipo_atividade')">+</span></div><select id="tipo_atividade" required class="input-premium font-bold"><option value="Incidente">Incidente</option><option value="Manutenção">Manutenção</option><option value="Melhoria" selected>Melhoria</option><option value="Projeto">Projeto</option></select></div>
                         <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Área</label><span class="btn-add-item" onclick="window.openAddModal('time')">+</span></div><select id="time" required class="input-premium"></select></div>
                         <div><div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Frente</label><span class="btn-add-item" onclick="window.openAddModal('frente')">+</span></div><select id="frente" required class="input-premium"></select></div>
@@ -411,10 +411,15 @@
                         <div id="closure-dates" class="mt-8 pt-8 border-t border-slate-100 hidden">
                             <label class="label-forte !text-emerald-600">Conclusão Realizada</label><input type="date" id="data_conclusao" class="input-premium text-xs border-emerald-100 bg-emerald-50/20 text-slate-900">
                         </div>
+                        <div id="deprioritize-box" class="mt-8 pt-8 border-t border-slate-100 hidden">
+                            <label class="label-forte !text-red-600">Motivo da Despriorização / Cancelamento</label>
+                            <textarea id="justificativa_despriorizacao" rows="3" class="input-premium !bg-red-50/10 text-xs" placeholder="Descreva o motivo pelo qual este projeto foi parado..."></textarea>
+                            <input type="hidden" id="data_despriorizacao">
+                        </div>
                     </div>
-                    <div class="form-section-box shadow-sm">
+                    <div class="form-section-box shadow-sm text-slate-800">
                         <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50">4. KPIs Estratégicos</label>
-                        <div id="metricas-container" class="space-y-4 mb-6"></div>
+                        <div id="metricas-container" class="space-y-4 mb-6 text-slate-800"></div>
                         <button type="button" onclick="window.addMetricaInput()" class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">+ Adicionar</button>
                     </div>
                 </div>
@@ -428,12 +433,12 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 text-slate-800">
-                    <div class="form-section-box shadow-sm space-y-6">
+                    <div class="form-section-box shadow-sm space-y-6 text-slate-800">
                         <div><label class="label-forte">Descrição detalhada</label><textarea id="nota_inicial" rows="4" class="input-premium text-xs leading-relaxed" placeholder="Resumo estratégico..."></textarea></div>
                         
                         <div class="pt-6 border-t border-slate-50">
                             <label class="label-forte">Atividades / Tasks</label>
-                            <div id="tasks-list-container" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2"></div>
+                            <div id="tasks-list-container" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2 text-slate-800"></div>
                             <div class="flex gap-2">
                                 <input type="text" id="new-task-input" class="input-premium !text-xs" placeholder="Nova tarefa...">
                                 <button type="button" onclick="window.addTaskToProject()" class="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] uppercase hover:bg-slate-800 transition-all">Adicionar</button>
@@ -586,11 +591,11 @@
                 const onTime = finished.filter(p => p.data_conclusao && p.prazo && new Date(p.data_conclusao) <= new Date(p.prazo)).length;
                 adherence = Math.round((onTime / finished.length) * 100);
             }
-            document.getElementById('kpi-total').innerText = data.length;
-            document.getElementById('kpi-sla').innerText = (finished.length ? Math.round((finished.filter(p => p.data_conclusao <= p.prazo).length/finished.length)*100) : 0) + '%';
-            document.getElementById('kpi-performance').innerText = adherence + '%';
-            document.getElementById('kpi-riscos').innerText = active.filter(p => p.impedimento_tipo === 'Risco').length;
-            document.getElementById('kpi-problemas').innerText = problemas;
+            const totalEl = document.getElementById('kpi-total'); if(totalEl) totalEl.innerText = data.length;
+            const slaEl = document.getElementById('kpi-sla'); if(slaEl) slaEl.innerText = (finished.length ? Math.round((finished.filter(p => p.data_conclusao <= p.prazo).length/finished.length)*100) : 0) + '%';
+            const perfEl = document.getElementById('kpi-performance'); if(perfEl) perfEl.innerText = adherence + '%';
+            const riskEl = document.getElementById('kpi-riscos'); if(riskEl) riskEl.innerText = active.filter(p => p.impedimento_tipo === 'Risco').length;
+            const probEl = document.getElementById('kpi-problemas'); if(probEl) probEl.innerText = problemas;
             const saude = problemas === 0 ? 100 : (problemas === 1 ? 50 : 0);
             const saEl = document.getElementById('kpi-saude');
             if(saEl) {
@@ -648,20 +653,48 @@
             if(p.status === 'Finalizado') topColor = 'var(--color-finalizado)';
             if(p.status === 'Despriorizado') topColor = 'var(--color-despriorizado)';
 
+            let statsHtml = `
+                <p class="flex justify-between text-slate-800"><span>ESTIMADO:</span> <span class="text-slate-900 font-black">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></p>
+                <p class="flex justify-between text-slate-800"><span>DIAS EM ABERTO:</span> <span class="text-slate-900 font-black">${Math.max(0, openDays)} dias</span></p>
+            `;
+
+            if(p.status === 'Finalizado') {
+                const conclusao = p.data_conclusao ? new Date(p.data_conclusao) : null;
+                const estimado = p.prazo ? new Date(p.prazo) : null;
+                let perfTxt = ""; let perfClass = "";
+                if(conclusao && estimado) {
+                    if(conclusao > estimado) { perfTxt = "FINALIZADO COM ATRASO"; perfClass = "text-red-600"; }
+                    else { perfTxt = "FINALIZADO NO PRAZO"; perfClass = "text-emerald-600"; }
+                }
+                statsHtml += `
+                    <p class="flex justify-between text-slate-800"><span>CONCLUSÃO:</span> <span class="text-slate-900 font-black">${p.data_conclusao ? p.data_conclusao.split('-').reverse().join('/') : '--'}</span></p>
+                    <p class="text-center font-black mt-2 ${perfClass} text-[9px] uppercase tracking-widest border border-current rounded-lg p-1">${perfTxt}</p>
+                `;
+            } else {
+                statsHtml += `
+                    <p class="flex justify-between items-center text-slate-800">
+                        <span>STATUS PRAZO:</span> 
+                        <span class="${isOverdue ? 'text-red-600' : 'text-slate-900'} font-black flex items-center gap-1.5">
+                            ${isOverdue ? '<span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span> EM ATRASO' : (remainingDays + ' DIAS RESTANTES')}
+                        </span>
+                    </p>
+                `;
+            }
+
+            if(p.status === 'Despriorizado') {
+                statsHtml += `
+                    <div class="mt-2 p-2 bg-red-50 rounded-lg border border-red-100">
+                        <span class="text-[8px] font-black text-red-400 uppercase">MOTIVO (${p.data_despriorizacao ? p.data_despriorizacao.split('-').reverse().join('/') : '--'}):</span>
+                        <p class="text-red-700 italic font-medium text-[10px] leading-tight">${p.justificativa_despriorizacao || 'Justificativa não informada'}</p>
+                    </div>
+                `;
+            }
+
             return `
                 <div class="card-project p-6 flex flex-col h-full ${p.impedimento_tipo === 'Problema' ? 'border-2 border-red-500' : ''}" style="border-top-color: ${topColor}">
                     <div class="flex justify-between items-start mb-4 md:mb-6 text-slate-800"><span class="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">${p.tipo_atividade} | ${p.time}</span><span class="status-pill status-${sS}">${p.status}</span></div>
                     <h3 class="text-lg md:text-xl font-black mb-4 uppercase leading-tight text-slate-800">${p.iniciativa}</h3>
-                    <div class="text-[10px] md:text-[11px] font-bold space-y-2 mb-6 text-slate-500">
-                        <p class="flex justify-between text-slate-800"><span>ESTIMADO:</span> <span class="text-slate-900 font-black">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></p>
-                        <p class="flex justify-between text-slate-800"><span>DIAS EM ABERTO:</span> <span class="text-slate-900 font-black">${Math.max(0, openDays)} dias</span></p>
-                        <p class="flex justify-between items-center text-slate-800">
-                            <span>STATUS PRAZO:</span> 
-                            <span class="${isOverdue ? 'text-red-600' : 'text-slate-900'} font-black flex items-center gap-1.5">
-                                ${isOverdue ? '<span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span> EM ATRASO' : (remainingDays + ' DIAS RESTANTES')}
-                            </span>
-                        </p>
-                    </div>
+                    <div class="text-[10px] md:text-[11px] font-bold space-y-2 mb-6 text-slate-500">${statsHtml}</div>
                     <button onclick="window.editProjectByID('${p.id}')" class="bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition mt-auto shadow-lg shadow-slate-200">Gerenciar</button>
                 </div>`;
         };
@@ -690,19 +723,23 @@
             
             if(activeTab === 'dashboard') {
                 const backlogGrid = document.getElementById('grid-backlog'); const andamentoGrid = document.getElementById('grid-andamento');
-                backlogGrid.innerHTML = ''; andamentoGrid.innerHTML = '';
-                const backlogProjs = filtered.filter(p => p.status === 'Backlog');
-                const andamentoProjs = filtered.filter(p => p.status === 'Em Andamento');
-                document.getElementById('count-backlog').innerText = backlogProjs.length;
-                document.getElementById('count-andamento').innerText = andamentoProjs.length;
-                backlogProjs.forEach(p => backlogGrid.innerHTML += createProjectCard(p, today));
-                andamentoProjs.forEach(p => andamentoGrid.innerHTML += createProjectCard(p, today));
+                if(backlogGrid && andamentoGrid) {
+                    backlogGrid.innerHTML = ''; andamentoGrid.innerHTML = '';
+                    const backlogProjs = filtered.filter(p => p.status === 'Backlog');
+                    const andamentoProjs = filtered.filter(p => p.status === 'Em Andamento');
+                    document.getElementById('count-backlog').innerText = backlogProjs.length;
+                    document.getElementById('count-andamento').innerText = andamentoProjs.length;
+                    backlogProjs.forEach(p => backlogGrid.innerHTML += createProjectCard(p, today));
+                    andamentoProjs.forEach(p => andamentoGrid.innerHTML += createProjectCard(p, today));
+                }
             }
             if(activeTab === 'archive') {
                 const finalizadoGrid = document.getElementById('grid-finalizado'); const despriorizadoGrid = document.getElementById('grid-despriorizado');
-                finalizadoGrid.innerHTML = ''; despriorizadoGrid.innerHTML = '';
-                filtered.filter(p => p.status === 'Finalizado').forEach(p => finalizadoGrid.innerHTML += createProjectCard(p, today));
-                filtered.filter(p => p.status === 'Despriorizado').forEach(p => despriorizadoGrid.innerHTML += createProjectCard(p, today));
+                if(finalizadoGrid && despriorizadoGrid) {
+                    finalizadoGrid.innerHTML = ''; despriorizadoGrid.innerHTML = '';
+                    filtered.filter(p => p.status === 'Finalizado').forEach(p => finalizadoGrid.innerHTML += createProjectCard(p, today));
+                    filtered.filter(p => p.status === 'Despriorizado').forEach(p => despriorizadoGrid.innerHTML += createProjectCard(p, today));
+                }
             }
             const tbody = document.getElementById('detailed-table-body');
             if(tbody) {
@@ -710,14 +747,18 @@
                 filtered.forEach(p => {
                     const sS = (p.status || 'backlog').toLowerCase().replace(/\s/g, '');
                     const envolvidos = Array.isArray(p.responsavel) ? p.responsavel.join(', ') : (p.responsavel || '--');
-                    tbody.innerHTML += `<tr><td class="p-6 md:p-8 uppercase text-slate-900">${p.iniciativa}</td><td class="p-6 md:p-8 text-slate-500">${p.time}</td><td class="p-6 md:p-8 text-slate-500">${envolvidos}</td><td class="p-6 md:p-8 text-center text-slate-900 font-bold">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</td><td class="p-6 md:p-8 text-center"><span class="status-pill status-${sS}">${p.status}</span></td><td class="p-6 md:p-8 text-right flex items-center justify-end gap-3 md:gap-5"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 hover:scale-110 transition uppercase text-[10px] font-black">Editar</button><button onclick="window.openDeleteModal('${p.id}')" class="text-red-300 hover:text-red-500 hover:scale-110 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
+                    tbody.innerHTML += `<tr><td class="p-6 md:p-8 uppercase text-slate-900 font-bold">${p.iniciativa}</td><td class="p-6 md:p-8 text-slate-500">${p.time}</td><td class="p-6 md:p-8 text-slate-500">${envolvidos}</td><td class="p-6 md:p-8 text-center text-slate-900 font-bold">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</td><td class="p-6 md:p-8 text-center"><span class="status-pill status-${sS}">${p.status}</span></td><td class="p-6 md:p-8 text-right flex items-center justify-end gap-3 md:gap-5"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 hover:scale-110 transition uppercase text-[10px] font-black">Editar</button><button onclick="window.openDeleteModal('${p.id}')" class="text-red-300 hover:text-red-500 hover:scale-110 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
                 });
             }
         };
 
         window.switchTab = (t) => {
-            ['view-dashboard', 'view-form', 'view-list', 'view-archive'].forEach(v => document.getElementById(v).classList.add('hidden'));
-            document.getElementById('view-'+t).classList.remove('hidden');
+            ['view-dashboard', 'view-form', 'view-list', 'view-archive'].forEach(v => {
+                const el = document.getElementById(v);
+                if(el) el.classList.add('hidden');
+            });
+            const target = document.getElementById('view-'+t);
+            if(target) target.classList.remove('hidden');
             document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`));
             if (t !== 'form') window.resetForm();
             window.refreshUI();
@@ -725,6 +766,7 @@
 
         window.updateStatusUI = (v) => {
             const clo = document.getElementById('closure-dates'); if(clo) clo.classList.toggle('hidden', v !== 'Finalizado');
+            const dep = document.getElementById('deprioritize-box'); if(dep) dep.classList.toggle('hidden', v !== 'Despriorizado');
         };
 
         window.showFinishAction = () => {
@@ -762,39 +804,16 @@
             container.appendChild(div);
         };
 
-        // --- GESTÃO DE TASKS ---
         window.addTaskToProject = () => {
-            const input = document.getElementById('new-task-input');
-            const val = input.value.trim();
-            if(!val) return;
-            tempTasks.push({ id: Date.now(), text: val, completed: false });
-            input.value = '';
-            renderTasksList();
+            const input = document.getElementById('new-task-input'); const val = input.value.trim();
+            if(!val) return; tempTasks.push({ id: Date.now(), text: val, completed: false }); input.value = ''; renderTasksList();
         };
-
-        window.toggleTaskStatus = (id) => {
-            tempTasks = tempTasks.map(t => t.id === id ? {...t, completed: !t.completed} : t);
-            renderTasksList();
-        };
-
-        window.removeTaskFromProject = (id) => {
-            tempTasks = tempTasks.filter(t => t.id !== id);
-            renderTasksList();
-        };
-
+        window.toggleTaskStatus = (id) => { tempTasks = tempTasks.map(t => t.id === id ? {...t, completed: !t.completed} : t); renderTasksList(); };
+        window.removeTaskFromProject = (id) => { tempTasks = tempTasks.filter(t => t.id !== id); renderTasksList(); };
         const renderTasksList = () => {
-            const container = document.getElementById('tasks-list-container');
-            if(!container) return;
-            container.innerHTML = '';
+            const container = document.getElementById('tasks-list-container'); if(!container) return; container.innerHTML = '';
             tempTasks.forEach(t => {
-                container.innerHTML += `
-                    <div class="task-item">
-                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskStatus(${t.id})">
-                        <span class="flex-1 text-xs font-bold ${t.completed ? 'line-through text-slate-300' : 'text-slate-700'}">${t.text}</span>
-                        <button type="button" onclick="window.removeTaskFromProject(${t.id})" class="text-red-300 hover:text-red-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-                    </div>`;
+                container.innerHTML += `<div class="task-item"><input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskStatus(${t.id})"><span class="flex-1 text-xs font-bold ${t.completed ? 'line-through text-slate-300' : 'text-slate-700'}">${t.text}</span><button type="button" onclick="window.removeTaskFromProject(${t.id})" class="text-red-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>`;
             });
         };
 
@@ -808,17 +827,18 @@
                 if(!val) return; tempLessons.unshift({ date: dateStr, text: val }); input.value = ''; renderHistoryLists();
             }
         };
-
         const renderHistoryLists = () => {
             const nList = document.getElementById('notes-history-list'); const lList = document.getElementById('lessons-history-list');
-            if(nList) { nList.innerHTML = ''; tempNotes.forEach(n => { nList.innerHTML += `<div class="history-entry text-slate-800"><span class="text-cyan-500 font-black text-[9px] uppercase tracking-widest">${n.date}</span><p class="mt-1 font-semibold text-xs">${n.text}</p></div>`; }); }
-            if(lList) { lList.innerHTML = ''; tempLessons.forEach(l => { lList.innerHTML += `<div class="history-entry text-slate-800"><span class="text-emerald-500 font-black text-[9px] uppercase tracking-widest">${l.date}</span><p class="mt-1 font-semibold text-xs">${l.text}</p></div>`; }); }
+            if(nList) { nList.innerHTML = ''; tempNotes.forEach(n => { nList.innerHTML += `<div class="history-entry"><span class="text-cyan-500 font-black text-[9px] uppercase tracking-widest">${n.date}</span><p class="mt-1 font-semibold text-slate-700 text-xs">${n.text}</p></div>`; }); }
+            if(lList) { lList.innerHTML = ''; tempLessons.forEach(l => { lList.innerHTML += `<div class="history-entry"><span class="text-emerald-500 font-black text-[9px] uppercase tracking-widest">${l.date}</span><p class="mt-1 font-semibold text-slate-700 text-xs">${l.text}</p></div>`; }); }
         };
 
         window.resetForm = () => {
             document.getElementById('project-form').reset(); document.getElementById('edit-id').value = '';
             document.getElementById('metricas-container').innerHTML = ''; document.getElementById('notes-history-list').innerHTML = '';
-            tempNotes = []; tempLessons = []; tempTasks = []; renderHistoryLists(); renderTasksList(); window.addMetricaInput(); window.setImpedimentoTipo('nenhum');
+            document.getElementById('btn-concluir-quick').classList.add('hidden');
+            tempNotes = []; tempLessons = []; tempTasks = []; renderHistoryLists(); renderTasksList(); 
+            window.addMetricaInput(); window.setImpedimentoTipo('nenhum'); window.updateStatusUI('Backlog');
         };
 
         window.editProjectByID = (id) => {
@@ -831,6 +851,8 @@
             document.getElementById('data_criacao').value = p.data_criacao || ''; document.getElementById('prazo').value = p.prazo || '';
             document.getElementById('impedimentos').value = p.impedimentos || ''; document.getElementById('nota_inicial').value = p.nota_inicial || '';
             document.getElementById('data_conclusao').value = p.data_conclusao || '';
+            document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
+            document.getElementById('data_despriorizacao').value = p.data_despriorizacao || '';
             tempNotes = p.notes || []; tempLessons = p.lessons || []; tempTasks = p.tasks || [];
             renderHistoryLists(); renderTasksList();
             window.setImpedimentoTipo(p.impedimento_tipo || 'nenhum'); window.updateStatusUI(p.status);
@@ -844,14 +866,25 @@
         document.getElementById('project-form').onsubmit = async (e) => {
             e.preventDefault(); if (!user) return;
             const id = document.getElementById('edit-id').value;
+            const status = document.getElementById('status').value;
+            
             const data = {
-                iniciativa: document.getElementById('iniciativa').value, tipo_atividade: document.getElementById('tipo_atividade').value,
-                prioridade: document.getElementById('prioridade').value, time: document.getElementById('time').value,
-                frente: document.getElementById('frente').value, esforco: document.getElementById('esforco').value,
-                status: document.getElementById('status').value, data_criacao: document.getElementById('data_criacao').value,
-                prazo: document.getElementById('prazo').value, impedimentos: document.getElementById('impedimentos').value,
-                impedimento_tipo: document.getElementById('impedimento_tipo').value, nota_inicial: document.getElementById('nota_inicial').value,
-                data_conclusao: document.getElementById('data_conclusao').value, notes: tempNotes, lessons: tempLessons, tasks: tempTasks,
+                iniciativa: document.getElementById('iniciativa').value, 
+                tipo_atividade: document.getElementById('tipo_atividade').value,
+                prioridade: document.getElementById('prioridade').value, 
+                time: document.getElementById('time').value,
+                frente: document.getElementById('frente').value, 
+                esforco: document.getElementById('esforco').value,
+                status: status, 
+                data_criacao: document.getElementById('data_criacao').value,
+                prazo: document.getElementById('prazo').value, 
+                impedimentos: document.getElementById('impedimentos').value,
+                impedimento_tipo: document.getElementById('impedimento_tipo').value, 
+                nota_inicial: document.getElementById('nota_inicial').value,
+                data_conclusao: status === 'Finalizado' ? document.getElementById('data_conclusao').value : "",
+                justificativa_despriorizacao: status === 'Despriorizado' ? document.getElementById('justificativa_despriorizacao').value : "",
+                data_despriorizacao: status === 'Despriorizado' ? (document.getElementById('data_despriorizacao').value || new Date().toISOString().split('T')[0]) : "",
+                notes: tempNotes, lessons: tempLessons, tasks: tempTasks,
                 responsavel: Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value),
                 metricas: Array.from(document.querySelectorAll('#metricas-container > div')).map(row => ({
                     label: row.querySelector('.metrica-label').value, meta: row.querySelector('.metrica-meta').value, real: row.querySelector('.metrica-real').value
