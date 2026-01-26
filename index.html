@@ -18,14 +18,6 @@
             --color-andamento: #fbbf24;
             --color-finalizado: #10b981;
             --color-despriorizado: #ef4444;
-            --u-azul: #00A5FF;
-            --u-rosa: #FF1A5C;
-            --u-purpura: #A35F9D;
-            --u-roxo: #8D7AD2;
-            --u-verde: #32B77E;
-            --u-azul-pay: #5C86C4;
-            --u-azul-escuro: #070047;
-            --u-cinza: #333333;
         }
         body {
             font-family: 'Nunito Sans', sans-serif;
@@ -34,70 +26,22 @@
             -webkit-font-smoothing: antialiased;
         }
         .input-premium {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 0.65rem 1rem;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            outline: none;
-            font-weight: 600;
-            font-size: 0.85rem;
-            width: 100%;
+            background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 0.65rem 1rem; outline: none; font-weight: 600; font-size: 0.85rem; width: 100%;
         }
-        .input-premium:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.08);
-        }
-        .label-forte {
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #64748b;
-            margin-bottom: 0.6rem;
-            display: block;
-        }
-        .active-tab {
-            color: var(--primary-color);
-            border-bottom: 3px solid var(--accent-color);
-            font-weight: 900;
-        }
-        .kpi-card {
-            background: white;
-            padding: 1.5rem 1rem;
-            border-radius: 1.5rem;
-            border: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            text-align: center;
-            gap: 0.4rem;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-        }
-        .form-section-box {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 24px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-        @media (min-width: 768px) { .form-section-box { padding: 2.5rem; } }
-        
-        .card-project {
-            background: white;
-            border-radius: 1.5rem;
-            border: 1px solid #e2e8f0;
-            border-top-width: 8px;
-            transition: transform 0.2s;
-        }
-        .card-project:hover { transform: translateY(-3px); }
+        .active-tab { color: var(--primary-color); border-bottom: 3px solid var(--accent-color); font-weight: 900; }
+        .kpi-card { background: white; padding: 1.5rem 1rem; border-radius: 1.5rem; border: 1px solid #e2e8f0; text-align: center; }
+        .form-section-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .card-project { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; border-top-width: 8px; transition: all 0.2s; }
         .status-pill { font-size: 0.6rem; font-weight: 900; padding: 3px 10px; border-radius: 100px; text-transform: uppercase; }
-
+        .progress-container { width: 100%; background-color: #e2e8f0; border-radius: 999px; height: 8px; overflow: hidden; margin-top: 10px; }
+        .progress-bar-fill { height: 100%; background-color: var(--success-color); transition: width 0.4s; }
         .column-board { background: rgba(226, 232, 240, 0.3); border-radius: 1.5rem; padding: 1.25rem; min-height: 400px; height: fit-content; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 10, 40, 0.5); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 10000; }
-        .modal-content { background: white; padding: 2rem; border-radius: 2rem; width: 90%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-
+        .modal-content { background: white; padding: 2rem; border-radius: 2rem; width: 90%; max-width: 450px; }
+        .toggle-btn { padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 2px solid transparent; cursor: pointer; }
+        .active-risco { background: #fef3c7; border-color: #fbbf24; color: #92400e; }
+        .active-problema { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
@@ -119,10 +63,10 @@
                 </div>
             </div>
             <nav class="flex gap-4 md:gap-10 h-full items-center text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="h-full px-1 md:px-2 active-tab transition-all">Dash</button>
-                <button onclick="window.switchTab('form')" id="tab-form" class="h-full px-1 md:px-2 hover:text-slate-900 transition-all">Novo</button>
-                <button onclick="window.switchTab('list')" id="tab-list" class="h-full px-1 md:px-2 hover:text-slate-900 transition-all">Projetos</button>
-                <button onclick="window.switchTab('archive')" id="tab-archive" class="h-full px-1 md:px-2 hover:text-slate-900 transition-all">Arquivo</button>
+                <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="h-full px-1 md:px-2 active-tab">Dash</button>
+                <button onclick="window.switchTab('form')" id="tab-form" class="h-full px-1 md:px-2 hover:text-slate-900">Novo</button>
+                <button onclick="window.switchTab('list')" id="tab-list" class="h-full px-1 md:px-2 hover:text-slate-900">Projetos</button>
+                <button onclick="window.switchTab('archive')" id="tab-archive" class="h-full px-1 md:px-2 hover:text-slate-900">Arquivo</button>
             </nav>
         </div>
     </header>
@@ -139,19 +83,20 @@
                     <input type="text" id="search-dashboard" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Buscar projeto..." oninput="window.refreshUI()">
                     <select id="dash-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="all">Todo o Período</option><option value="mes">Mensal</option></select>
                     <select id="dash-filter-analista" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Analistas (Todos)</option></select>
-                    <select id="dash-filter-area" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Áreas (Todas)</option></select>
                 </div>
             </div>
 
+            <!-- KPIs -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6 mb-8 md:mb-12">
-                <div class="kpi-card"><p class="label-forte !mb-0 text-[9px] text-slate-400">Total</p><h2 id="kpi-total" class="text-2xl font-black">0</h2></div>
-                <div class="kpi-card"><p class="label-forte !mb-0 text-cyan-500">SLA Geral</p><h2 id="kpi-sla" class="text-2xl font-black">0%</h2></div>
-                <div class="kpi-card"><p class="label-forte !mb-0 text-green-500">Aderência</p><h2 id="kpi-performance" class="text-2xl font-black">0%</h2></div>
+                <div class="kpi-card"><p class="label-forte !mb-0 text-[9px] text-slate-400">Total</p><h2 id="kpi-total" class="text-2xl md:text-3xl font-black text-slate-900">0</h2></div>
+                <div class="kpi-card"><p class="label-forte !mb-0 text-cyan-500">SLA Geral</p><h2 id="kpi-sla" class="text-2xl md:text-3xl font-black text-cyan-500">0%</h2></div>
+                <div class="kpi-card"><p class="label-forte !mb-0 text-green-500">Aderência</p><h2 id="kpi-performance" class="text-2xl md:text-3xl font-black text-green-500">0%</h2></div>
                 <div class="kpi-card"><p class="label-forte !mb-0 text-blue-500">Riscos</p><h2 id="kpi-riscos" class="text-xl font-black">0</h2></div>
                 <div class="kpi-card"><p class="label-forte !mb-0 text-red-500">Problemas</p><h2 id="kpi-problemas" class="text-xl font-black">0</h2></div>
                 <div class="kpi-card"><p class="label-forte !mb-0 text-indigo-500">Saúde</p><h2 id="kpi-saude" class="text-2xl font-black">100%</h2></div>
             </div>
 
+            <!-- KANBAN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="column-board">
                     <label class="label-forte">Backlog <span id="count-backlog" class="text-[10px] font-black ml-2 opacity-50">0</span></label>
@@ -166,20 +111,20 @@
 
         <!-- VIEW LISTA -->
         <div id="view-list" class="hidden no-print">
-            <h1 class="text-2xl font-black uppercase mb-8">Projetos</h1>
+            <h1 class="text-2xl font-black uppercase mb-8">Listagem Geral</h1>
             <div class="bg-white rounded-2xl border overflow-hidden">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-[10px] font-black uppercase">
+                    <thead class="bg-slate-50 border-b text-[10px] font-black uppercase text-slate-400">
                         <tr><th class="p-6">Iniciativa</th><th class="p-6">Área</th><th class="p-6">Prazo</th><th class="p-6 text-right">Ações</th></tr>
                     </thead>
-                    <tbody id="detailed-table-body" class="divide-y text-[12px] font-bold"></tbody>
+                    <tbody id="detailed-table-body" class="divide-y text-[12px] font-bold text-slate-700"></tbody>
                 </table>
             </div>
         </div>
 
         <!-- VIEW ARQUIVO -->
         <div id="view-archive" class="hidden no-print">
-            <h1 class="text-2xl font-black uppercase mb-8">Arquivo</h1>
+            <h1 class="text-2xl font-black uppercase mb-8">Arquivo Histórico</h1>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="column-board"><label class="label-forte text-emerald-600">Finalizados</label><div id="grid-finalizado" class="space-y-4"></div></div>
                 <div class="column-board"><label class="label-forte text-red-600">Despriorizados</label><div id="grid-despriorizado" class="space-y-4"></div></div>
@@ -188,34 +133,62 @@
 
         <!-- VIEW FORM -->
         <div id="view-form" class="hidden max-w-4xl mx-auto">
-            <h2 class="text-2xl font-black uppercase mb-8">Nova Iniciativa</h2>
+            <div class="mb-8 flex justify-between items-center">
+                <h2 class="text-2xl font-black uppercase">Ficha Técnica</h2>
+                <button type="button" onclick="window.showFinishAction()" class="bg-emerald-500 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase">Finalizar Projeto</button>
+            </div>
             <form id="project-form" class="space-y-6">
                 <input type="hidden" id="edit-id" value="">
+                <input type="hidden" id="status" value="Backlog">
+                
                 <div class="form-section-box">
                     <label class="label-forte">Identificação</label>
-                    <input type="text" id="iniciativa" required class="input-premium uppercase" placeholder="Nome do Projeto">
+                    <input type="text" id="iniciativa" required class="input-premium uppercase" placeholder="Nome da Iniciativa">
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div><label class="label-forte">Área</label><select id="time" required class="input-premium"></select></div>
                         <div><label class="label-forte">Prazo</label><input type="date" id="prazo" required class="input-premium"></div>
                     </div>
                 </div>
+
+                <div class="form-section-box">
+                    <label class="label-forte">KPIs Estratégicos</label>
+                    <div id="metricas-container" class="space-y-2"></div>
+                    <button type="button" onclick="window.addMetricaRow()" class="text-cyan-500 text-[10px] font-black mt-2">+ ADICIONAR KPI</button>
+                </div>
+
+                <div class="form-section-box">
+                    <label class="label-forte">Analistas Responsáveis</label>
+                    <div id="responsaveis-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+                </div>
+
                 <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-800 transition-all">Salvar Projeto</button>
             </form>
         </div>
     </main>
+
+    <!-- MODAL CONFIRMAÇÃO -->
+    <div id="finish-confirm-modal" class="modal-overlay">
+        <div class="modal-content text-center">
+            <h3 class="text-xl font-black mb-6 uppercase">Finalizar Projeto?</h3>
+            <div class="flex gap-4">
+                <button onclick="window.confirmFinalization()" class="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-black">SIM, CONCLUIR</button>
+                <button onclick="window.closeFinishModal()" class="flex-1 bg-slate-100 py-3 rounded-xl">CANCELAR</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- DEFINIÇÕES GLOBAIS SEGURAS ---
+        // --- GLOBAIS ---
         const defaultTeam = ["Cauan Pereira", "Diego Rocha", "Hudson Cortes", "Lucas Jantsch", "Luiz Ribeiro", "Michael Faria", "Otávio Oliveira", "Rodrigo Paiva", "Simone Andrade"];
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding", "Tecnologia"];
-        
-        let user = null, projects = [], charts = {};
-        
-        // --- FUNÇÕES DE INTERFACE ---
+
+        let user = null, projects = [], redirectTargetAfterSave = 'dashboard';
+
+        // --- INTERFACE UTILS ---
         window.hideOverlay = () => {
             const o = document.getElementById('loading-overlay');
             if (o) { o.style.opacity = '0'; setTimeout(() => o.style.display = 'none', 500); }
@@ -233,47 +206,115 @@
             if (target) target.classList.remove('hidden');
             const targetBtn = document.getElementById('tab-' + t);
             if (targetBtn) targetBtn.classList.add('active-tab');
+            if (t !== 'form') window.resetForm();
+            window.refreshUI();
         };
 
         window.refreshUI = () => {
             const today = new Date(); today.setHours(0,0,0,0);
             const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
+            const fG = document.getElementById('grid-finalizado'), dG = document.getElementById('grid-despriorizado');
+            const tbody = document.getElementById('detailed-table-body');
+
             if (bG) bG.innerHTML = ''; if (aG) aG.innerHTML = '';
+            if (fG) fG.innerHTML = ''; if (dG) dG.innerHTML = '';
+            if (tbody) tbody.innerHTML = '';
 
             projects.forEach(p => {
                 const card = createCard(p, today);
                 if (p.status === 'Backlog' && bG) bG.innerHTML += card;
-                if (p.status === 'Em Andamento' && aG) aG.innerHTML += card;
+                else if (p.status === 'Em Andamento' && aG) aG.innerHTML += card;
+                else if (p.status === 'Finalizado' && fG) fG.innerHTML += card;
+                else if (p.status === 'Despriorizado' && dG) dG.innerHTML += card;
+
+                if (tbody) tbody.innerHTML += `<tr><td class="p-6 uppercase">${p.iniciativa}</td><td class="p-6">${p.time}</td><td class="p-6">${p.prazo}</td><td class="p-6 text-right"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 font-black">EDITAR</button></td></tr>`;
             });
-            
-            if (document.getElementById('kpi-total')) document.getElementById('kpi-total').innerText = projects.length;
-            if (document.getElementById('count-backlog')) document.getElementById('count-backlog').innerText = projects.filter(p => p.status === 'Backlog').length;
-            if (document.getElementById('count-andamento')) document.getElementById('count-andamento').innerText = projects.filter(p => p.status === 'Em Andamento').length;
+
+            document.getElementById('kpi-total').innerText = projects.length;
+            document.getElementById('count-backlog').innerText = projects.filter(p=>p.status==='Backlog').length;
+            document.getElementById('count-andamento').innerText = projects.filter(p=>p.status==='Em Andamento').length;
         };
 
         const createCard = (p, today) => {
             const isLate = p.prazo && new Date(p.prazo) < today;
-            const topColor = p.status === 'Backlog' ? '#94a3b8' : '#fbbf24';
-            return `<div class="card-project p-5 flex flex-col" style="border-top-color: ${topColor}">
+            const isFinalized = p.status === 'Finalizado';
+            let labelHtml = '';
+            
+            if (isFinalized) {
+                const isConcludedInTime = p.data_conclusao && p.prazo && new Date(p.data_conclusao) <= new Date(p.prazo);
+                const color = isConcludedInTime ? '#32B77E' : '#FF1A5C';
+                const text = isConcludedInTime ? "concluído no prazo estimado" : "não concluído no prazo estimado";
+                labelHtml = `<div class="mt-3 p-1.5 rounded-lg text-center font-black text-[8px] text-white uppercase" style="background:${color}">${text}</div>`;
+            } else {
+                labelHtml = `<div class="mt-3 text-[10px] font-bold">STATUS: <span class="${isLate ? 'text-red-500 animate-pulse' : ''}">${isLate ? 'EM ATRASO' : 'NO PRAZO'}</span></div>`;
+            }
+
+            return `<div class="card-project p-5 flex flex-col" style="border-top-color: ${p.status === 'Backlog' ? '#94a3b8' : p.status === 'Em Andamento' ? '#fbbf24' : '#10b981'}">
                 <span class="text-[8px] font-black uppercase text-slate-400">${p.time || 'N/A'}</span>
-                <h3 class="text-sm font-black mt-1 mb-4 uppercase">${p.iniciativa}</h3>
+                <h3 class="text-sm font-black mt-1 mb-2 uppercase leading-tight">${p.iniciativa}</h3>
                 <div class="text-[10px] space-y-1">
                     <p class="flex justify-between"><span>PRAZO:</span> <b>${p.prazo?.split('-').reverse().join('/') || '--'}</b></p>
-                    <p class="flex justify-between ${isLate ? 'text-red-500' : ''}"><span>STATUS:</span> <b>${isLate ? 'EM ATRASO' : 'NO PRAZO'}</b></p>
                 </div>
+                ${labelHtml}
+                <button onclick="window.editProjectByID('${p.id}')" class="w-full bg-slate-900 text-white py-2 mt-4 rounded-lg font-black text-[9px] uppercase">Gerenciar</button>
             </div>`;
         };
 
-        // --- INICIALIZAÇÃO FIREBASE (REGRA 3) ---
-        const initSystem = async () => {
+        window.addMetricaRow = (l='', m='', r='') => {
+            const c = document.getElementById('metricas-container');
+            const d = document.createElement('div'); d.className = "flex gap-2";
+            d.innerHTML = `<input type="text" placeholder="KPI" class="input-premium !py-1 kpi-l" value="${l}"><input type="text" placeholder="Atual" class="input-premium !py-1 kpi-r" value="${r}"><input type="text" placeholder="Meta" class="input-premium !py-1 kpi-m" value="${m}">`;
+            c.appendChild(d);
+        };
+
+        window.showFinishAction = () => { document.getElementById('finish-confirm-modal').style.display = 'flex'; };
+        window.closeFinishModal = () => { document.getElementById('finish-confirm-modal').style.display = 'none'; };
+        window.confirmFinalization = () => {
+            document.getElementById('status').value = 'Finalizado';
+            redirectTargetAfterSave = 'archive';
+            document.getElementById('project-form').dispatchEvent(new Event('submit'));
+            window.closeFinishModal();
+        };
+
+        window.resetForm = () => { 
+            const f = document.getElementById('project-form'); if(f) f.reset();
+            document.getElementById('metricas-container').innerHTML = '';
+            document.getElementById('edit-id').value = '';
+            document.getElementById('status').value = 'Backlog';
+            window.addMetricaRow();
+            redirectTargetAfterSave = 'dashboard';
+        };
+
+        window.editProjectByID = (id) => {
+            const p = projects.find(x => x.id === id); if (!p) return;
+            window.switchTab('form');
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('iniciativa').value = p.iniciativa;
+            document.getElementById('time').value = p.time;
+            document.getElementById('prazo').value = p.prazo;
+            document.getElementById('status').value = p.status;
+            
+            const checks = document.getElementsByName('responsavel_check');
+            checks.forEach(c => c.checked = (p.responsavel || []).includes(c.value));
+        };
+
+        // --- FIREBASE CORE ---
+        const initFirebase = async () => {
             try {
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "", authDomain: "", projectId: "" };
+                // Forçar hide do overlay em 5s caso o Firebase falhe silenciosamente
+                const safety = setTimeout(window.hideOverlay, 5000);
+
+                const config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                    apiKey: "AIzaSyAU8nHiRzTwOkrfd8LY7N-YkJG_S7CE0Xs",
+                    authDomain: "painel-de-projeto.firebaseapp.com",
+                    projectId: "painel-de-projeto"
+                };
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'unico-eficiencia-2026';
-                const app = initializeApp(firebaseConfig);
+                const app = initializeApp(config);
                 const auth = getAuth(app);
                 const db = getFirestore(app);
 
-                // Autenticação obrigatória antes de qualquer consulta
+                // Regra 3: Auth ANTES de Queries
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
@@ -282,37 +323,65 @@
 
                 onAuthStateChanged(auth, (u) => {
                     user = u;
-                    if (user) {
-                        const projectsRef = collection(db, 'artifacts', appId, 'public', 'data', 'projects');
-                        onSnapshot(projectsRef, (snap) => {
+                    if (u) {
+                        // Regra 1: Strict Paths
+                        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'projects');
+                        onSnapshot(colRef, snap => {
                             projects = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                            clearTimeout(safety);
                             window.refreshUI();
                             window.hideOverlay();
                         }, (err) => {
-                            console.error("Firestore Permission Error:", err);
+                            console.error("Firestore Error:", err);
                             window.hideOverlay();
                         });
-                    } else {
-                        window.hideOverlay();
-                    }
+                    } else { window.hideOverlay(); }
                 });
 
+                document.getElementById('project-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    if (!user) return;
+                    const id = document.getElementById('edit-id').value;
+                    const resps = Array.from(document.getElementsByName('responsavel_check')).filter(c=>c.checked).map(c=>c.value);
+                    const metrics = Array.from(document.querySelectorAll('#metricas-container > div')).map(d=>({
+                        label: d.querySelector('.kpi-l').value, real: d.querySelector('.kpi-r').value, meta: d.querySelector('.kpi-m').value
+                    }));
+                    
+                    const data = {
+                        iniciativa: document.getElementById('iniciativa').value,
+                        time: document.getElementById('time').value,
+                        prazo: document.getElementById('prazo').value,
+                        status: document.getElementById('status').value,
+                        responsavel: resps,
+                        metricas: metrics,
+                        data_conclusao: document.getElementById('status').value === 'Finalizado' ? new Date().toISOString().split('T')[0] : ""
+                    };
+
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'projects');
+                    if (id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data);
+                    else await addDoc(colRef, data);
+                    
+                    window.switchTab(redirectTargetAfterSave);
+                };
+
             } catch (err) {
-                console.error("System Init Error:", err);
+                console.error("Critical Init Error:", err);
                 window.hideOverlay();
             }
         };
 
-        // --- SETUP INICIAL ---
         const setup = () => {
             try {
-                const timeSel = document.getElementById('time');
-                if (timeSel) defaultAreas.forEach(a => timeSel.add(new Option(a, a)));
-                initSystem();
-            } catch (e) {
-                console.error("Setup Logic Error:", e);
-                window.hideOverlay();
-            }
+                const t = document.getElementById('time');
+                if (t) defaultAreas.sort().forEach(a => t.add(new Option(a, a)));
+                const g = document.getElementById('responsaveis-grid');
+                if (g) defaultTeam.sort().forEach(n => {
+                    const l = document.createElement('label'); l.className = "flex items-center gap-2 text-[10px]";
+                    l.innerHTML = `<input type="checkbox" name="responsavel_check" value="${n}"> ${n}`;
+                    g.appendChild(l);
+                });
+                initFirebase();
+            } catch (e) { window.hideOverlay(); }
         };
 
         setup();
