@@ -624,7 +624,8 @@
             const activeTabElement = Array.from(document.querySelectorAll('nav button')).find(b => b.classList.contains('active-tab'));
             if (!activeTabElement) return;
             
-            const activeTab = activeTabElement.innerText.toLowerCase() === 'dash' ? 'dashboard' : activeTabElement.innerText.toLowerCase() === 'novo' ? 'form' : activeTabElement.innerText.toLowerCase() === 'projetos' ? 'list' : 'archive';
+            const tabName = activeTabElement.innerText.toLowerCase();
+            const activeTab = tabName === 'dash' ? 'dashboard' : tabName === 'novo' ? 'form' : tabName === 'projetos' ? 'list' : 'archive';
             const prefix = activeTab === 'dashboard' ? 'dash' : activeTab === 'list' ? 'list' : 'archive';
             
             const fAnalista = document.getElementById(`${prefix}-filter-analista`)?.value || '';
@@ -652,7 +653,7 @@
             
             if(activeTab === 'dashboard') {
                 const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
-                if(bG && aG) { bG.innerHTML = ''; aG.innerHTML = ''; filtered.filter(p => p.status === 'Backlog').forEach(p => bG.innerHTML += createProjectCard(p, today)); filtered.filter(p => p.status === 'Em Andamento').forEach(p => aG.innerHTML += createProjectCard(p, today)); document.getElementById('count-backlog').innerText = filtered.filter(p => p.status === 'Backlog').length; document.getElementById('count-andamento').innerText = filtered.filter(p => p.status === 'Em Andamento').length; }
+                if(bG && aG) { bG.innerHTML = ''; aG.innerHTML = ''; filtered.filter(p => p.status === 'Backlog').forEach(p => bG.innerHTML += createProjectCard(p, today)); filtered.filter(p => p.status === 'Em Andamento').forEach(p => aG.innerHTML += createProjectCard(p, today)); if(document.getElementById('count-backlog')) document.getElementById('count-backlog').innerText = filtered.filter(p => p.status === 'Backlog').length; if(document.getElementById('count-andamento')) document.getElementById('count-andamento').innerText = filtered.filter(p => p.status === 'Em Andamento').length; }
             }
             if(activeTab === 'archive') {
                 const fG = document.getElementById('grid-finalizado'), dG = document.getElementById('grid-despriorizado');
@@ -734,14 +735,16 @@
 
         window.discardAndExit = () => { 
             isFormDirty = false; 
-            document.getElementById('confirm-exit-modal').style.display = 'none'; 
+            const modal = document.getElementById('confirm-exit-modal');
+            if (modal) modal.style.display = 'none'; 
             if(pendingTab) window.switchTab(pendingTab); 
         };
 
         window.trySwitchTab = (tab) => { 
             if (isFormDirty) { 
                 pendingTab = tab; 
-                document.getElementById('confirm-exit-modal').style.display = 'flex'; 
+                const modal = document.getElementById('confirm-exit-modal');
+                if (modal) modal.style.display = 'flex'; 
             } else { 
                 window.switchTab(tab); 
             } 
@@ -757,8 +760,12 @@
             if (target) target.classList.remove('hidden');
 
             document.querySelectorAll('nav button').forEach(btn => {
-                btn.classList.remove('active-tab');
-                if (btn.id === `tab-${t}`) btn.classList.add('active-tab');
+                if (btn) {
+                    btn.classList.remove('active-tab');
+                    // Check button text as safety since IDs might be different
+                    const btnId = btn.id || '';
+                    if (btnId === `tab-${t}`) btn.classList.add('active-tab');
+                }
             });
 
             if (t !== 'form') window.resetForm();
@@ -842,33 +849,38 @@
                 isFormDirty = false; 
                 window.switchTab(redirectTargetAfterSave); 
             } catch (err) { 
-                console.error(err); 
+                console.error("Save Error:", err); 
                 window.hideOverlay();
             } 
         };
 
         const setup = () => {
-            const grid = document.getElementById('responsaveis-grid'); if(grid) grid.innerHTML = '';
-            defaultTeam.sort().forEach(n => { 
-                window.renderAnalistaCheckbox(n); 
-                ['dash', 'list', 'archive'].forEach(p => { 
-                    const el = document.getElementById(`${p}-filter-analista`); 
-                    if(el) el.add(new Option(n, n)); 
-                }); 
-            });
-            defaultAreas.sort().forEach(a => { 
-                ['time', 'dash-filter-area', 'list-filter-area', 'archive-filter-area'].forEach(id => { 
-                    const el = document.getElementById(id); 
-                    if(el) el.add(new Option(a, a)); 
-                }); 
-            });
-            defaultFrentes.sort().forEach(f => { 
-                ['frente', 'dash-filter-frente', 'list-filter-frente', 'archive-filter-frente'].forEach(id => { 
-                    const el = document.getElementById(id); 
-                    if(el) el.add(new Option(f, f)); 
-                }); 
-            });
-            window.addMetricaRow();
+            try {
+                const grid = document.getElementById('responsaveis-grid'); if(grid) grid.innerHTML = '';
+                defaultTeam.sort().forEach(n => { 
+                    window.renderAnalistaCheckbox(n); 
+                    ['dash', 'list', 'archive'].forEach(p => { 
+                        const el = document.getElementById(`${p}-filter-analista`); 
+                        if(el) el.add(new Option(n, n)); 
+                    }); 
+                });
+                defaultAreas.sort().forEach(a => { 
+                    ['time', 'dash-filter-area', 'list-filter-area', 'archive-filter-area'].forEach(id => { 
+                        const el = document.getElementById(id); 
+                        if(el) el.add(new Option(a, a)); 
+                    }); 
+                });
+                defaultFrentes.sort().forEach(f => { 
+                    ['frente', 'dash-filter-frente', 'list-filter-frente', 'archive-filter-frente'].forEach(id => { 
+                        const el = document.getElementById(id); 
+                        if(el) el.add(new Option(f, f)); 
+                    }); 
+                });
+                window.addMetricaRow();
+            } catch (err) {
+                console.error("Setup Error:", err);
+                window.hideOverlay();
+            }
         };
 
         onAuthStateChanged(auth, u => { 
