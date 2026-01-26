@@ -250,11 +250,12 @@
     <main class="max-w-7xl mx-auto p-4 md:p-8 mt-2 md:mt-4 text-slate-800">
         <!-- VIEW DASHBOARD -->
         <div id="view-dashboard" class="block no-print">
-            <div class="mb-8 md:mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-6 text-slate-900">
+            <div class="mb-8 md:mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-6">
                 <div>
-                    <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none">Estratégia & Operação</h1>
-                    <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest">Painel de Decisões e Eficiência</p>
+                    <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Estratégia & Operação</h1>
+                    <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest text-slate-400">Painel de Decisões e Eficiência</p>
                 </div>
+                <!-- FILTROS DASHBOARD -->
                 <div class="flex flex-wrap gap-2 md:gap-3 items-center">
                     <input type="text" id="search-dash" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Buscar projeto..." oninput="window.refreshUI()">
                     <select id="dash-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
@@ -318,15 +319,16 @@
 
         <!-- VIEW LISTA -->
         <div id="view-list" class="hidden no-print">
-            <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 text-slate-900">
+            <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
-                    <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none">Projetos</h1>
+                    <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Projetos</h1>
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest text-slate-400">Controle e Listagem Geral</p>
                 </div>
                 <div class="flex flex-wrap gap-2 md:gap-3 items-center">
                     <button onclick="window.exportToXLS()" class="bg-white border border-slate-200 px-5 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-50 shadow-sm">Exportar XLS</button>
                     <button onclick="window.exportPDF()" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-800 shadow-sm">Exportar PDF</button>
                     <input type="text" id="search-list" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Buscar projeto..." oninput="window.refreshUI()">
+                    <!-- REPLICA FILTROS LISTA -->
                     <select id="list-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                         <option value="all">Todo o Período</option><option value="mes">Mensal</option><option value="trimestre">Trimestral</option><option value="ano">Anual</option>
                     </select>
@@ -360,13 +362,14 @@
 
         <!-- VIEW ARQUIVO -->
         <div id="view-archive" class="hidden no-print">
-            <div class="mb-8 flex flex-col xl:flex-row xl:items-end justify-between gap-6 text-slate-900">
+            <div class="mb-8 flex flex-col xl:flex-row xl:items-end justify-between gap-6">
                 <div>
-                    <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none">Arquivo</h1>
+                    <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Arquivo</h1>
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 md:mt-3 tracking-widest text-slate-400">Histórico de Conclusões e Despriorizações</p>
                 </div>
                 <div class="flex flex-wrap gap-2 md:gap-3 items-center">
                     <input type="text" id="search-archive" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Pesquisar arquivo..." oninput="window.refreshUI()">
+                    <!-- REPLICA FILTROS ARQUIVO -->
                     <select id="archive-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                         <option value="all">Todo o Período</option><option value="mes">Mensal</option><option value="trimestre">Trimestral</option><option value="ano">Anual</option>
                     </select>
@@ -400,8 +403,8 @@
 
         <!-- VIEW FORM -->
         <div id="view-form" class="hidden max-w-6xl mx-auto">
-            <div class="mb-6 md:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 text-slate-900">
-                <h2 id="form-title" class="text-2xl md:text-3xl font-black uppercase tracking-tighter">Ficha Técnica</h2>
+            <div class="mb-6 md:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                <h2 id="form-title" class="text-2xl md:text-3xl font-black uppercase tracking-tighter text-slate-900">Ficha Técnica</h2>
                 <div class="flex gap-2 md:gap-4 no-print w-full sm:w-auto">
                     <button id="btn-concluir-quick" onclick="window.showFinishAction()" class="bg-emerald-500 text-white px-4 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-100 hover:scale-105 transition-all">Finalizar Projeto</button>
                     <button onclick="window.exportPDF()" class="bg-slate-900 text-white px-4 md:px-8 py-3 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg flex-1 sm:flex-none">Exportar PDF</button>
@@ -463,6 +466,7 @@
                             <textarea id="justificativa_despriorizacao" rows="3" class="input-premium !bg-red-50/10 text-xs text-slate-800" placeholder="Descreva o motivo..."></textarea>
                         </div>
                     </div>
+                    <!-- SECÇÃO DE KPIs ADICIONADA -->
                     <div class="form-section-box shadow-sm">
                         <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50 uppercase">4. KPIs Estratégicos</label>
                         <div id="metricas-container" class="space-y-3 mb-4"></div>
@@ -652,21 +656,11 @@
             const pCent = p.status === 'Finalizado' ? 100 : (totalT > 0 ? Math.round((completedT / totalT) * 100) : 0);
             let statsHtml = `<p class="flex justify-between"><span>ESTIMADO:</span> <span class="font-black text-slate-900">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></p><p class="flex justify-between"><span>ABERTO HÁ:</span> <span class="font-black text-slate-900">${Math.max(0, openDays)} dias</span></p><p class="flex justify-between text-cyan-600"><span>CLASSIFICAÇÃO:</span> <span class="font-black text-cyan-600">${p.classificacao || '--'}</span></p>`;
             statsHtml += `<div class="mt-3"><div class="flex justify-between items-center mb-1"><span class="text-[8px] font-black opacity-40">PROGRESSO</span><span class="text-[8px] font-black text-emerald-600">${pCent}%</span></div><div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div></div>`;
-            
-            // Lógica de Prazo Estimado vs Real para Finalizados
-            if(p.status === 'Finalizado') {
-                const conc = p.data_conclusao ? new Date(p.data_conclusao) : null;
-                const est = p.prazo ? new Date(p.prazo) : null;
-                const isLate = conc && est && conc > est;
-                const pTxt = isLate ? "não concluído no prazo estimado" : "concluído no prazo estimado";
-                const pColor = isLate ? "#FF1A5C" : "#32B77E";
-                statsHtml += `<p class="text-center font-black mt-3 text-[8px] border border-current rounded-lg p-1.5 uppercase tracking-tighter text-white" style="color: white; background: ${pColor}">${pTxt}</p>`;
-            }
-
             const hasProb = p.attention?.some(att => att.type === 'Problema');
             return `<div class="card-project p-6 flex flex-col h-full ${hasProb ? 'border-2 border-red-500' : ''}" style="border-top-color: ${topColor}"><div class="flex justify-between items-start mb-4 text-slate-800"><span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">${p.tipo_atividade} | ${p.time}</span><span class="status-pill status-${(p.status||'backlog').toLowerCase().replace(/\s/g, '')}">${p.status}</span></div><h3 class="text-lg font-black mb-4 uppercase leading-tight text-slate-900">${p.iniciativa}</h3><div class="text-[10px] space-y-2 mb-6 text-slate-500">${statsHtml}</div><button onclick="window.editProjectByID('${p.id}')" class="bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] hover:bg-slate-800 transition-all mt-auto shadow-lg shadow-slate-200">Gerenciar</button></div>`;
         }
 
+        // --- FUNÇÕES KPI ---
         window.addMetricaRow = function(label='', meta='', real='') {
             const container = document.getElementById('metricas-container');
             if(!container) return;
@@ -686,7 +680,7 @@
         window.renderTasksList = function() { const container = document.getElementById('tasks-list-container'); if(!container) return; container.innerHTML = ''; (tempTasks || []).forEach(t => { container.innerHTML += `<div class="task-item text-slate-800"><input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskStatus(${t.id})"><span class="flex-1 text-xs font-bold ${t.completed ? 'line-through text-slate-300' : 'text-slate-700'}">${t.text}</span><button type="button" onclick="window.removeTaskFromProject(${t.id})" class="text-red-500">×</button></div>`; }); window.updateTaskProgress(); };
         window.updateTaskProgress = function() { const total = (tempTasks || []).length; const completed = (tempTasks || []).filter(t => t.completed).length; const percent = total > 0 ? Math.round((completed / total) * 100) : 0; const bar = document.getElementById('task-progress-bar'); const txt = document.getElementById('progress-percent'); if(bar) bar.style.width = percent + '%'; if(txt) txt.innerText = `PROGRESSO: ${percent}%`; };
 
-        window.refreshUI = refreshUI; window.updateKPIs = updateKPIs; window.updateCharts = updateCharts; window.createProjectCard = createProjectCard; window.hideOverlay = hideOverlay; window.renderAnalistaCheckbox = renderAnalistaCheckbox; window.setDirty = setDirty;
+        window.refreshUI = refreshUI; window.updateKPIs = updateKPIs; window.updateCharts = updateCharts; window.hideOverlay = hideOverlay; window.renderAnalistaCheckbox = renderAnalistaCheckbox; window.setDirty = setDirty;
         window.saveAndExit = () => { const form = document.getElementById('project-form'); if (form) { const submitEvent = new Event('submit', { cancelable: true }); form.dispatchEvent(submitEvent); document.getElementById('confirm-exit-modal').style.display = 'none'; isFormDirty = false; if(pendingTab) window.switchTab(pendingTab); } };
         window.discardAndExit = () => { isFormDirty = false; document.getElementById('confirm-exit-modal').style.display = 'none'; if(pendingTab) window.switchTab(pendingTab); };
         window.trySwitchTab = (tab) => { if (isFormDirty) { pendingTab = tab; document.getElementById('confirm-exit-modal').style.display = 'flex'; } else { window.switchTab(tab); } };
