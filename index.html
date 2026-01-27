@@ -431,7 +431,7 @@
             <div class="mb-6 md:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <h2 id="form-title" class="text-2xl md:text-3xl font-black uppercase tracking-tighter text-slate-900">Ficha Técnica</h2>
                 <div class="flex gap-2 md:gap-4 no-print w-full sm:w-auto">
-                    <button id="btn-concluir-quick" onclick="window.showFinishAction()" class="bg-emerald-500 text-white px-4 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-100 hover:scale-105 transition-all">Finalizar Projeto</button>
+                    <button id="btn-concluir-quick" onclick="window.showFinishAction()" class="hidden bg-emerald-500 text-white px-4 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-100 hover:scale-105 transition-all">Finalizar Projeto</button>
                     <button onclick="window.exportPDF()" class="bg-slate-900 text-white px-4 md:px-8 py-3 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg flex-1 sm:flex-none">Exportar PDF</button>
                 </div>
             </div>
@@ -770,7 +770,7 @@
         window.saveAndExit = () => { const form = document.getElementById('project-form'); if (form) { const submitEvent = new Event('submit', { cancelable: true }); form.dispatchEvent(submitEvent); document.getElementById('confirm-exit-modal').style.display = 'none'; isFormDirty = false; if(pendingTab) window.switchTab(pendingTab); } };
         window.discardAndExit = () => { isFormDirty = false; document.getElementById('confirm-exit-modal').style.display = 'none'; if(pendingTab) window.switchTab(pendingTab); };
         window.trySwitchTab = (tab) => { if (isFormDirty) { pendingTab = tab; document.getElementById('confirm-exit-modal').style.display = 'flex'; } else { window.switchTab(tab); } };
-        window.switchTab = (t) => { ['view-dashboard', 'view-form', 'view-list', 'view-archive'].forEach(v => { const el = document.getElementById(v); if(el) el.classList.add('hidden'); }); const target = document.getElementById('view-'+t); if(target) target.classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`)); if (t !== 'form') resetForm(); refreshUI(); };
+        window.switchTab = (t) => { ['view-dashboard', 'view-form', 'view-list', 'view-archive'].forEach(v => { const el = document.getElementById(v); if(el) el.classList.add('hidden'); }); const target = document.getElementById('view-'+t); if(target) target.classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`)); if (t !== 'form') resetForm(); else if (!document.getElementById('edit-id').value) resetForm(); refreshUI(); };
         window.updateStatusUI = (v) => { const clo = document.getElementById('closure-dates'), dep = document.getElementById('deprioritize-box'); if(clo) clo.classList.toggle('hidden', v !== 'Finalizado'); if(dep) dep.classList.toggle('hidden', v !== 'Despriorizado'); };
         window.showFinishAction = () => { if(document.getElementById('finish-confirm-modal')) document.getElementById('finish-confirm-modal').style.display = 'flex'; };
         window.closeFinishModal = () => { if(document.getElementById('finish-confirm-modal')) document.getElementById('finish-confirm-modal').style.display = 'none'; };
@@ -837,7 +837,7 @@
             isFormDirty = false; 
         };
 
-        const initAuth = async () => { try { if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { try { await signInWithCustomToken(auth, __initial_auth_token); } catch(e) { await signInAnonymously(auth); } } else { await signInAnonymously(auth); } } catch(e) { window.hideOverlay(); } };
+        const initAuth = async () => { try { if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { try { await signInWithCustomToken(auth, __initial_auth_token); } catch(e) { await signInAnonymously(auth); } } else { await signInAnonymously(auth); } } catch (e) { window.hideOverlay(); } };
 
         document.getElementById('project-form').onsubmit = async (e) => { 
             e.preventDefault(); if (!user) return; 
