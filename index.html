@@ -434,8 +434,8 @@
                             <label class="label-forte !text-emerald-600">Conclusão Realizada</label><input type="date" id="data_conclusao" class="input-premium text-xs border-emerald-100 bg-emerald-50/20 text-slate-900">
                         </div>
                         <div id="deprioritize-box" class="mt-8 pt-8 border-t border-slate-100 hidden">
-                            <label class="label-forte !text-red-600">Motivo da Despriorização</label>
-                            <textarea id="justificativa_despriorizacao" rows="3" class="input-premium text-xs" placeholder="Descreva o motivo..."></textarea>
+                            <label class="label-forte !text-red-600">Motivo da Despriorização <span class="text-red-500 font-black">*</span></label>
+                            <textarea id="justificativa_despriorizacao" rows="3" class="input-premium text-xs" placeholder="Descreva o motivo pelo qual este projeto foi despriorizado..."></textarea>
                         </div>
                     </div>
 
@@ -572,7 +572,6 @@
             today.setHours(0,0,0,0);
             const activeTab = document.querySelector('.active-tab')?.id.split('-')[1];
             
-            // Prefixo dinâmico para os filtros com base na aba ativa (dash-, list-, archive-)
             const prefix = activeTab === 'dashboard' ? 'dash' : activeTab === 'list' ? 'list' : 'archive';
             
             const searchVal = document.getElementById(`${prefix}-search`)?.value.toLowerCase() || '';
@@ -601,7 +600,6 @@
                 return match;
             });
 
-            // KPIs (Baseado nos filtrados)
             const f = filtered.filter(p => p.status === 'Finalizado');
             let ris = 0, prob = 0;
             filtered.filter(p => p.status !== 'Finalizado' && p.status !== 'Despriorizado').forEach(p => {
@@ -678,7 +676,7 @@
             const start = p.data_criacao ? new Date(p.data_criacao) : today;
             const end = p.prazo ? new Date(p.prazo) : today;
             const openDays = Math.floor((today - start) / 86400000);
-            const isOverdue = today > end && p.status !== 'Finalizado';
+            const isOverdue = today > end && p.status !== 'Finalizado' && p.status !== 'Despriorizado';
             const topColor = getStatusColor(p.status);
             
             const totalTasks = p.tasks?.length || 0;
@@ -687,6 +685,16 @@
             
             const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || 'MESA');
             const tipoDisplay = p.estrutura || 'ANÁLISE';
+
+            let justificationHtml = '';
+            if (p.status === 'Despriorizado' && p.justificativa_despriorizacao) {
+                justificationHtml = `
+                    <div class="mt-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                        <span class="block text-[8px] font-black text-red-600 uppercase mb-1">Motivo:</span>
+                        <p class="text-[10px] text-red-800 font-semibold italic">${p.justificativa_despriorizacao}</p>
+                    </div>
+                `;
+            }
 
             return `
             <div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}">
@@ -703,8 +711,9 @@
                         <div class="flex justify-between items-center mb-1"><span>PROGRESSO</span><span class="text-emerald-500">${pCent}%</span></div>
                         <div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div>
                     </div>
-                    <div class="flex justify-between items-center pt-4"><span>STATUS:</span><span class="${isOverdue ? 'text-red-500 animate-pulse' : 'text-slate-900'} uppercase font-black">${isOverdue ? 'ATRASADO' : 'NO PRAZO'}</span></div>
+                    <div class="flex justify-between items-center pt-4"><span>STATUS:</span><span class="${isOverdue ? 'text-red-500 animate-pulse' : 'text-slate-900'} uppercase font-black">${isOverdue ? 'ATRASADO' : (p.status === 'Despriorizado' ? 'SUSPENSO' : 'NO PRAZO')}</span></div>
                 </div>
+                ${justificationHtml}
                 <button onclick="window.editProjectByID('${p.id}')" class="w-full bg-[#000a28] text-white py-3.5 rounded-xl font-black uppercase text-[10px] hover:bg-slate-800 transition-all mt-6 shadow-lg tracking-widest">GERENCIAR</button>
             </div>`;
         }
@@ -761,6 +770,7 @@
             document.querySelectorAll('input[name="area_check"]').forEach(cb => cb.checked = false);
             tempNotes = []; tempTasks = []; tempAttention = []; isFormDirty = false;
             window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
+            window.updateStatusUI('Backlog');
         }
 
         window.editProjectByID = (id) => {
@@ -775,6 +785,11 @@
             document.getElementById('prazo').value = p.prazo || '';
             document.getElementById('data_criacao').value = p.data_criacao || '';
             document.getElementById('nota_inicial').value = p.nota_inicial || '';
+            document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
+            document.getElementById('data_conclusao').value = p.data_conclusao || '';
+            
+            window.updateStatusUI(p.status);
+            
             tempNotes = p.notes || []; tempTasks = p.tasks || []; tempAttention = p.attention || [];
             window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
             const pAreas = Array.isArray(p.time) ? p.time : [p.time];
@@ -830,13 +845,26 @@
 
         document.getElementById('project-form').onsubmit = async (e) => {
             e.preventDefault(); if(!user) return;
+            
+            const status = document.getElementById('status').value;
+            const justificativa = document.getElementById('justificativa_despriorizacao').value.trim();
+            
+            if (status === 'Despriorizado' && !justificativa) {
+                const mod = document.createElement('div'); mod.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-[20000]";
+                mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center"><h3 class="font-black uppercase text-red-500 mb-4">Atenção</h3><p class="text-sm font-medium mb-6">Ao despriorizar uma iniciativa, é obrigatório preencher o motivo.</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">Preencher agora</button></div>`;
+                document.body.appendChild(mod);
+                return;
+            }
+
             const resps = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const areas = Array.from(document.querySelectorAll('input[name="area_check"]:checked')).map(cb => cb.value);
+            
             if(areas.length === 0) {
                 const mod = document.createElement('div'); mod.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-[20000]";
                 mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center"><h3 class="font-black uppercase text-red-500 mb-4">Erro</h3><p class="text-sm font-medium mb-6">Selecione pelo menos uma Área impactada.</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">Ok</button></div>`;
                 document.body.appendChild(mod); return;
             }
+            
             const id = document.getElementById('edit-id').value;
             const data = {
                 iniciativa: document.getElementById('iniciativa').value,
@@ -844,11 +872,13 @@
                 estrutura: document.getElementById('estrutura').value,
                 frente: document.getElementById('frente').value,
                 classificacao: document.getElementById('classificacao').value,
-                status: document.getElementById('status').value,
+                status: status,
                 prazo: document.getElementById('prazo').value,
                 data_criacao: document.getElementById('data_criacao').value,
                 nota_inicial: document.getElementById('nota_inicial').value,
                 responsavel: resps,
+                justificativa_despriorizacao: justificativa,
+                data_conclusao: document.getElementById('data_conclusao').value,
                 notes: tempNotes, tasks: tempTasks, attention: tempAttention
             };
             if(id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data);
@@ -857,8 +887,8 @@
         };
 
         window.exportToXLS = () => {
-            let csv = "Iniciativa,Areas,Estrutura,Responsáveis,Prazo,Status\n";
-            projects.forEach(p => { const areas = Array.isArray(p.time) ? p.time.join('; ') : p.time; csv += `"${p.iniciativa}","${areas}","${p.estrutura}","${p.responsavel?.join('; ')}","${p.prazo}","${p.status}"\n`; });
+            let csv = "Iniciativa,Areas,Estrutura,Responsáveis,Prazo,Status,Motivo Despriorização\n";
+            projects.forEach(p => { const areas = Array.isArray(p.time) ? p.time.join('; ') : p.time; csv += `"${p.iniciativa}","${areas}","${p.estrutura}","${p.responsavel?.join('; ')}","${p.prazo}","${p.status}","${p.justificativa_despriorizacao || ''}"\n`; });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "Projetos_Unico.csv"); link.click();
         };
