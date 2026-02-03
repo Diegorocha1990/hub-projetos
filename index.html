@@ -143,7 +143,6 @@
         .progress-container { width: 100%; background-color: #e2e8f0; border-radius: 999px; height: 8px; overflow: hidden; margin-top: 4px; }
         .progress-bar-fill { height: 100%; background-color: var(--success-color); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* CORREÇÃO DO TEXTO EM LINHA (PRE-WRAP) */
         .history-entry p { white-space: pre-wrap; word-wrap: break-word; }
         
         .history-entry { padding: 0.75rem; background-color: #f8fafc; border-radius: 1rem; border: 1px solid #f1f5f9; margin-bottom: 0.5rem; }
@@ -152,6 +151,15 @@
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 10, 40, 0.5); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 10000; }
         .modal-content { background: white; padding: 2rem; border-radius: 2rem; width: 90%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
         .count-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 900; min-width: 24px; text-align: center; }
+        
+        /* Planeamento Estilos */
+        .card-planning { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 1.25rem; box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); }
+        .cycle-card { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 1.5rem; position: relative; border-left: 8px solid #00e5ff; transition: all 0.2s; }
+        .cycle-card:hover { transform: translateX(5px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05); }
+        .kpi-row { display: grid; grid-template-cols: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .kpi-input-box { display: flex; flex-direction: column; }
+        .kpi-input-box label { font-size: 9px; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
+
         @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .form-section-box { border: 1px solid #eee; break-inside: avoid; } }
     </style>
 </head>
@@ -173,9 +181,10 @@
         </div>
     </div>
 
+    <!-- MODAL DE EXCLUSÃO (REATORADO PARA SER GENÉRICO) -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-content text-center text-slate-800">
-            <h3 class="text-xl md:text-2xl font-black mb-2 uppercase tracking-tighter text-slate-800">Excluir Iniciativa?</h3>
+            <h3 id="delete-modal-title" class="text-xl md:text-2xl font-black mb-2 uppercase tracking-tighter text-slate-800">Excluir Item?</h3>
             <p class="text-slate-500 mb-8 font-medium text-sm">A remoção será permanente.</p>
             <div class="flex flex-col sm:flex-row gap-3">
                 <button onclick="window.confirmDelete()" class="flex-1 bg-red-500 text-white py-3.5 rounded-2xl font-black uppercase text-[11px] hover:bg-red-600 transition-all">Confirmar</button>
@@ -195,6 +204,18 @@
         </div>
     </div>
 
+    <!-- NOVO MODAL PARA ADICIONAR ANO NO PLANEAMENTO -->
+    <div id="add-year-modal" class="modal-overlay">
+        <div class="modal-content text-center">
+            <h3 class="text-xl font-black mb-6 uppercase tracking-tighter text-slate-800">NOVO ANO</h3>
+            <input type="number" id="new-year-input" class="input-premium mb-8 text-center text-lg" placeholder="Ex: 2028">
+            <div class="flex gap-3">
+                <button onclick="window.addNewYearPlanning()" class="flex-1 bg-slate-900 text-white py-3.5 rounded-2xl font-black uppercase text-[11px] shadow-xl">ADICIONAR</button>
+                <button onclick="document.getElementById('add-year-modal').style.display='none'" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-2xl font-black uppercase text-[11px]">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
     <header class="bg-white border-b border-slate-100 sticky top-0 z-50 no-print">
         <div class="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-20 flex justify-between items-center">
             <div class="flex items-center gap-4 md:gap-8">
@@ -206,6 +227,7 @@
             </div>
             <nav class="flex gap-4 md:gap-10 h-full items-center text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-slate-400">
                 <button onclick="window.trySwitchTab('dashboard')" id="tab-dashboard" class="h-full px-1 md:px-2 active-tab">Dash</button>
+                <button onclick="window.trySwitchTab('planning')" id="tab-planning" class="h-full px-1 md:px-2 hover:text-slate-900">Planeamento</button>
                 <button onclick="window.trySwitchTab('form')" id="tab-form" class="h-full px-1 md:px-2 hover:text-slate-900">Novo</button>
                 <button onclick="window.trySwitchTab('list')" id="tab-list" class="h-full px-1 md:px-2 hover:text-slate-900">Projetos</button>
                 <button onclick="window.trySwitchTab('archive')" id="tab-archive" class="h-full px-1 md:px-2 hover:text-slate-900">Arquivo</button>
@@ -291,7 +313,92 @@
             </div>
         </div>
 
-        <!-- VIEW LIST (PROJETOS) COM FILTROS REPLICADOS -->
+        <!-- VIEW PLANEAMENTO -->
+        <div id="view-planning" class="hidden no-print">
+            <div class="mb-10">
+                <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Performance Operacional</h1>
+                <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 tracking-widest">Definição de metas e acompanhamento do realizado</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Inputs Left Column -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="form-section-box !mb-0">
+                        <div class="flex items-center gap-6 mb-8">
+                            <div class="flex-1">
+                                <label class="label-forte">Semestre</label>
+                                <select id="planning-semester" class="input-premium font-bold">
+                                    <option value="H1">H1 (Janeiro - Junho)</option>
+                                    <option value="H2">H2 (Julho - Dezembro)</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <label class="label-forte">Ano</label>
+                                <div class="flex gap-2">
+                                    <select id="planning-year" class="input-premium font-bold">
+                                        <option value="2026">2026</option>
+                                        <option value="2027">2027</option>
+                                    </select>
+                                    <button onclick="document.getElementById('add-year-modal').style.display='flex'" class="btn-add-item !w-10 !h-10 !rounded-xl !ml-0 text-lg">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KPI Group: Custo Analise -->
+                        <div class="mb-8 pb-6 border-b border-slate-50">
+                            <h4 class="label-forte !text-slate-900 !mb-4">Custo por Análise (R$)</h4>
+                            <div class="kpi-row">
+                                <div class="kpi-input-box"><label>Baseline</label><input type="number" step="0.01" id="plan-ca-b" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
+                                <div class="kpi-input-box"><label>Meta</label><input type="number" step="0.01" id="plan-ca-m" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
+                                <div class="kpi-input-box"><label>Real</label><input type="number" step="0.01" id="plan-ca-r" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
+                            </div>
+                        </div>
+
+                        <!-- KPI Group: Custo Chamado -->
+                        <div class="mb-8 pb-6 border-b border-slate-50">
+                            <h4 class="label-forte !text-slate-900 !mb-4">Custo por Chamado (R$)</h4>
+                            <div class="kpi-row">
+                                <div class="kpi-input-box"><label>Baseline</label><input type="number" step="0.01" id="plan-cc-b" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
+                                <div class="kpi-input-box"><label>Meta</label><input type="number" step="0.01" id="plan-cc-m" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
+                                <div class="kpi-input-box"><label>Real</label><input type="number" step="0.01" id="plan-cc-r" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
+                            </div>
+                        </div>
+
+                        <!-- KPI Group: Qualidade -->
+                        <div class="mb-8 pb-6 border-b border-slate-50">
+                            <h4 class="label-forte !text-slate-900 !mb-4">Qualidade Onboarding (%)</h4>
+                            <div class="kpi-row">
+                                <div class="kpi-input-box"><label>Baseline</label><input type="number" step="0.1" id="plan-qo-b" class="input-premium !py-2 !px-3" placeholder="0%"></div>
+                                <div class="kpi-input-box"><label>Meta</label><input type="number" step="0.1" id="plan-qo-m" class="input-premium !py-2 !px-3" placeholder="0%"></div>
+                                <div class="kpi-input-box"><label>Real</label><input type="number" step="0.1" id="plan-qo-r" class="input-premium !py-2 !px-3" placeholder="0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- KPI Group: SLA -->
+                        <div class="mb-10">
+                            <h4 class="label-forte !text-slate-900 !mb-4">SLA de Operação (%)</h4>
+                            <div class="kpi-row">
+                                <div class="kpi-input-box"><label>Baseline</label><input type="number" step="0.1" id="plan-sla-b" class="input-premium !py-2 !px-3" placeholder="0%"></div>
+                                <div class="kpi-input-box"><label>Meta</label><input type="number" step="0.1" id="plan-sla-m" class="input-premium !py-2 !px-3" placeholder="0%"></div>
+                                <div class="kpi-input-box"><label>Real</label><input type="number" step="0.1" id="plan-sla-r" class="input-premium !py-2 !px-3" placeholder="0%"></div>
+                            </div>
+                        </div>
+
+                        <button onclick="window.saveCyclePlanning()" id="btn-save-planning" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-[1.01] transition-all">Salvar Ciclo e Atualizar Resultados</button>
+                    </div>
+                </div>
+
+                <!-- Timeline Right Column -->
+                <div class="lg:col-span-7">
+                    <label class="label-forte text-slate-400 mb-6 uppercase tracking-widest">Linha do Tempo Estratégica</label>
+                    <div id="planning-timeline-list" class="space-y-6">
+                        <!-- Cards injetados via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW LIST -->
         <div id="view-list" class="hidden no-print">
             <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
@@ -328,7 +435,7 @@
             </div>
         </div>
 
-        <!-- VIEW ARQUIVO COM FILTROS REPLICADOS -->
+        <!-- VIEW ARQUIVO -->
         <div id="view-archive" class="hidden no-print">
             <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
@@ -504,7 +611,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const isGitHub = window.location.hostname === "timeprocessos.github.io";
         const firebaseConfig = isGitHub ? {
@@ -521,7 +628,7 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'unico-eficiencia-2026';
         
-        let projects = [], tempNotes = [], tempTasks = [], tempAttention = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, projectToDeleteId = null;
+        let projects = [], planningCycles = [], tempNotes = [], tempTasks = [], tempAttention = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, idToDelete = null, typeToDelete = null, editingCycleId = null;
 
         const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Rodrigo Prinz De Paiva", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
@@ -541,14 +648,187 @@
             user = u;
             if (u) {
                 document.getElementById('sync-indicator')?.classList.remove('hidden');
+                
+                // Snapshot Projetos
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), snap => {
                     projects = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     window.refreshUI();
                     document.getElementById('loading-overlay').style.display = 'none';
-                }, err => console.warn("Snapshot Erro:", err));
+                }, err => console.warn("Snapshot Erro Projetos:", err));
+
+                // Snapshot Planeamento
+                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), snap => {
+                    planningCycles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    window.renderPlanningTimeline();
+                }, err => console.warn("Snapshot Erro Planning:", err));
             }
         });
 
+        // NAVEGAÇÃO
+        window.switchTab = (t) => {
+            ['dashboard', 'form', 'list', 'archive', 'planning'].forEach(v => document.getElementById('view-'+v)?.classList.add('hidden'));
+            document.getElementById('view-'+t)?.classList.remove('hidden');
+            document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`));
+            if (t !== 'form' && t !== 'planning') resetForm();
+            window.refreshUI();
+        };
+
+        window.trySwitchTab = (tab) => { if (isFormDirty) document.getElementById('confirm-exit-modal').style.display = 'flex'; else window.switchTab(tab); };
+
+        // LOGICA PLANEAMENTO
+        window.addNewYearPlanning = () => {
+            const input = document.getElementById('new-year-input');
+            const val = input.value.trim();
+            if(!val) return;
+            const sel = document.getElementById('planning-year');
+            const opt = new Option(val, val, true, true);
+            sel.add(opt);
+            document.getElementById('add-year-modal').style.display = 'none';
+            input.value = '';
+        };
+
+        window.saveCyclePlanning = async () => {
+            if(!user) return;
+            const btn = document.getElementById('btn-save-planning');
+            btn.innerText = "A GUARDAR...";
+            btn.disabled = true;
+
+            const data = {
+                semester: document.getElementById('planning-semester').value,
+                year: document.getElementById('planning-year').value,
+                ca: { b: Number(document.getElementById('plan-ca-b').value), m: Number(document.getElementById('plan-ca-m').value), r: Number(document.getElementById('plan-ca-r').value) },
+                cc: { b: Number(document.getElementById('plan-cc-b').value), m: Number(document.getElementById('plan-cc-m').value), r: Number(document.getElementById('plan-cc-r').value) },
+                qo: { b: Number(document.getElementById('plan-qo-b').value), m: Number(document.getElementById('plan-qo-m').value), r: Number(document.getElementById('plan-qo-r').value) },
+                sla: { b: Number(document.getElementById('plan-sla-b').value), m: Number(document.getElementById('plan-sla-m').value), r: Number(document.getElementById('plan-sla-r').value) },
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                if(editingCycleId) {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'planning', editingCycleId), data);
+                } else {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), data);
+                }
+                editingCycleId = null;
+                btn.innerText = "SALVAR CICLO E ATUALIZAR RESULTADOS";
+                btn.disabled = false;
+                
+                // Show success modal
+                const mod = document.createElement('div'); mod.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-[20000]";
+                mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center"><div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">✓</div><h3 class="font-black uppercase text-slate-800 mb-2">PLANEAMENTO SALVO</h3><p class="text-sm font-medium text-slate-500 mb-6">Os parâmetros estratégicos foram atualizados com sucesso.</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">FECHAR</button></div>`;
+                document.body.appendChild(mod);
+                
+                // Limpar campos
+                ['ca','cc','qo','sla'].forEach(k => {
+                    document.getElementById(`plan-${k}-b`).value = '';
+                    document.getElementById(`plan-${k}-m`).value = '';
+                    document.getElementById(`plan-${k}-r`).value = '';
+                });
+            } catch(e) { 
+                console.error(e);
+                btn.disabled = false;
+            }
+        };
+
+        window.renderPlanningTimeline = () => {
+            const container = document.getElementById('planning-timeline-list');
+            if(!container) return;
+            container.innerHTML = '';
+
+            // Sort cycles by year and semester desc
+            const sorted = [...planningCycles].sort((a,b) => {
+                if(a.year !== b.year) return b.year - a.year;
+                return b.semester.localeCompare(a.semester);
+            });
+
+            sorted.forEach(c => {
+                const card = document.createElement('div');
+                card.className = "cycle-card";
+                
+                const getPerf = (val, meta, type) => {
+                    if(!val || val === 0) return { status: 'PENDENTE', color: 'bg-slate-100 text-slate-500', pct: 0, gap: 'Aguardando Real...' };
+                    let pct = 0;
+                    let isBatida = false;
+                    
+                    if(type === 'reducao') {
+                        isBatida = val <= meta;
+                        pct = isBatida ? (100 + ((meta - val) / meta * 100)) : (meta / val * 100);
+                    } else {
+                        isBatida = val >= meta;
+                        pct = (val / meta) * 100;
+                    }
+
+                    const status = isBatida ? 'BATIDA' : 'ABAIXO DO PLANEJADO';
+                    const color = isBatida ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600';
+                    const gapLabel = isBatida ? 'Meta Atingida!' : `Falta: ${Math.abs(meta - val).toFixed(2)}`;
+
+                    return { status, color, pct: Math.round(pct), gap: gapLabel };
+                };
+
+                const kpis = [
+                    { label: 'ANÁLISE', data: c.ca, type: 'reducao' },
+                    { label: 'CHAMADO', data: c.cc, type: 'reducao' },
+                    { label: 'QUALIDADE', data: c.qo, type: 'crescimento' },
+                    { label: 'SLA', data: c.sla, type: 'crescimento' }
+                ];
+
+                let kpiHtml = '';
+                kpis.forEach(k => {
+                    const p = getPerf(k.data.r, k.data.m, k.type);
+                    kpiHtml += `
+                        <div class="mb-4 last:mb-0">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${k.label}</span>
+                                <span class="text-[9px] font-black px-2 py-0.5 rounded-full ${p.color}">${p.status} (${p.pct}%)</span>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">B: ${k.data.b} → M: ${k.data.m}</span>
+                                <span class="text-slate-900">Real: ${k.data.r || '0'}</span>
+                            </div>
+                            <p class="text-[8px] font-bold mt-0.5 ${p.pct >= 100 ? 'text-emerald-500' : 'text-slate-400 italic'}">${p.gap}</p>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-6">
+                        <h3 class="text-xl font-black text-slate-900 uppercase">${c.year} - ${c.semester}</h3>
+                        <div class="flex gap-2">
+                             <button onclick="window.editCycle('${c.id}')" class="text-[8px] font-black px-3 py-1 bg-slate-100 rounded-lg hover:bg-cyan-100 hover:text-cyan-600 transition-all uppercase">EDITANDO</button>
+                             <button onclick="window.deleteCycle('${c.id}')" class="text-red-300 hover:text-red-500 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                             </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2">
+                        ${kpiHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        window.editCycle = (id) => {
+            const c = planningCycles.find(x => x.id === id);
+            if(!c) return;
+            editingCycleId = id;
+            document.getElementById('planning-semester').value = c.semester;
+            document.getElementById('planning-year').value = c.year;
+            
+            ['ca','cc','qo','sla'].forEach(k => {
+                document.getElementById(`plan-${k}-b`).value = c[k].b;
+                document.getElementById(`plan-${k}-m`).value = c[k].m;
+                document.getElementById(`plan-${k}-r`).value = c[k].r;
+            });
+            document.getElementById('view-planning').scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // CORREÇÃO DO BUG DE EXCLUSÃO DE CICLO
+        window.deleteCycle = (id) => {
+            window.openDeleteModal(id, 'planning');
+        };
+
+        // DASHBOARD & PROJETOS LOGICA ORIGINAL (PRESERVADA)
         function renderChart(id, type, data, colors) { 
             if(charts[id]) charts[id].destroy(); 
             const canvas = document.getElementById(id); if(!canvas) return; 
@@ -571,7 +851,8 @@
             const today = new Date();
             today.setHours(0,0,0,0);
             const activeTab = document.querySelector('.active-tab')?.id.split('-')[1];
-            
+            if(activeTab === 'planning') return;
+
             const prefix = activeTab === 'dashboard' ? 'dash' : activeTab === 'list' ? 'list' : 'archive';
             
             const searchVal = document.getElementById(`${prefix}-search`)?.value.toLowerCase() || '';
@@ -647,7 +928,7 @@
                     tbody.innerHTML = '';
                     filtered.forEach(p => {
                         const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || '--');
-                        tbody.innerHTML += `<tr><td class="p-6 uppercase font-bold">${p.iniciativa}</td><td class="p-6">${areasDisplay}</td><td class="p-6 text-center">${p.responsavel?.join(', ') || '--'}</td><td class="p-6 text-center font-bold">${p.prazo?.split('-').reverse().join('/') || '--'}</td><td class="p-6 text-center"><span class="status-pill" style="background: ${getStatusColor(p.status)}">${p.status}</span></td><td class="p-6 text-right flex items-center justify-end gap-3"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 uppercase text-[10px] font-black">Gerenciar</button><button onclick="window.openDeleteModal('${p.id}')" class="text-red-400 hover:text-red-600 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
+                        tbody.innerHTML += `<tr><td class="p-6 uppercase font-bold">${p.iniciativa}</td><td class="p-6">${areasDisplay}</td><td class="p-6 text-center">${p.responsavel?.join(', ') || '--'}</td><td class="p-6 text-center font-bold">${p.prazo?.split('-').reverse().join('/') || '--'}</td><td class="p-6 text-center"><span class="status-pill" style="background: ${getStatusColor(p.status)}">${p.status}</span></td><td class="p-6 text-right flex items-center justify-end gap-3"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 uppercase text-[10px] font-black">Gerenciar</button><button onclick="window.openDeleteModal('${p.id}', 'projects')" class="text-red-400 hover:text-red-600 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
                     });
                 }
             }
@@ -664,13 +945,6 @@
                 document.getElementById('count-despriorizado-archive').innerText = filtered.filter(p => p.status === 'Despriorizado').length;
             }
         };
-
-        function getStatusColor(s) {
-            if(s === 'Backlog') return '#94a3b8';
-            if(s === 'Em Andamento') return '#fabd23';
-            if(s === 'Finalizado') return '#10b981';
-            return '#ef4444';
-        }
 
         function createProjectCard(p, today) {
             const start = p.data_criacao ? new Date(p.data_criacao) : today;
@@ -718,14 +992,6 @@
             </div>`;
         }
 
-        window.switchTab = (t) => {
-            ['dashboard', 'form', 'list', 'archive'].forEach(v => document.getElementById('view-'+v)?.classList.add('hidden'));
-            document.getElementById('view-'+t)?.classList.remove('hidden');
-            document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`));
-            if (t !== 'form') resetForm();
-            window.refreshUI();
-        };
-
         window.setDirty = () => { isFormDirty = true; };
 
         window.updateStatusUI = (v) => {
@@ -756,11 +1022,29 @@
             document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' });
         };
 
-        window.openDeleteModal = (id) => { projectToDeleteId = id; document.getElementById('delete-modal').style.display = 'flex'; };
-        window.closeDeleteModal = () => { projectToDeleteId = null; document.getElementById('delete-modal').style.display = 'none'; };
-        window.confirmDelete = async () => { if(projectToDeleteId && user) { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', projectToDeleteId)); window.closeDeleteModal(); } };
+        // REATORAÇÃO DAS FUNÇÕES DE MODAL PARA SUPORTAR TIPOS DIFERENTES
+        window.openDeleteModal = (id, type = 'projects') => { 
+            idToDelete = id; 
+            typeToDelete = type;
+            const titleEl = document.getElementById('delete-modal-title');
+            if(titleEl) titleEl.innerText = type === 'planning' ? 'Excluir Ciclo?' : 'Excluir Iniciativa?';
+            document.getElementById('delete-modal').style.display = 'flex'; 
+        };
 
-        window.trySwitchTab = (tab) => { if (isFormDirty) document.getElementById('confirm-exit-modal').style.display = 'flex'; else window.switchTab(tab); };
+        window.closeDeleteModal = () => { 
+            idToDelete = null; 
+            typeToDelete = null;
+            document.getElementById('delete-modal').style.display = 'none'; 
+        };
+
+        window.confirmDelete = async () => { 
+            if(idToDelete && typeToDelete && user) { 
+                const collectionPath = typeToDelete === 'planning' ? 'planning' : 'projects';
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionPath, idToDelete)); 
+                window.closeDeleteModal(); 
+            } 
+        };
+
         window.saveAndExit = () => { document.getElementById('project-form').requestSubmit(); isFormDirty = false; document.getElementById('confirm-exit-modal').style.display = 'none'; };
         window.discardAndExit = () => { isFormDirty = false; document.getElementById('confirm-exit-modal').style.display = 'none'; window.switchTab('dashboard'); };
 
@@ -921,7 +1205,7 @@
             const l = document.createElement('label'); l.className = "checkbox-item";
             l.innerHTML = `<input type="checkbox" name="area_check" value="${name}"><span>${name}</span>`;
             g.appendChild(l);
-            ['dash', 'list', 'archive'].forEach(p => {
+            ['dash', 'list', 'archive', 'planning'].forEach(p => {
                 const el = document.getElementById(`${p}-filter-area`);
                 if(el) el.add(new Option(name, name));
             });
@@ -933,7 +1217,7 @@
             defaultFrentes.forEach(f => {
                 const sel = document.getElementById('frente');
                 if(sel) sel.add(new Option(f, f));
-                ['dash', 'list', 'archive'].forEach(p => {
+                ['dash', 'list', 'archive', 'planning'].forEach(p => {
                     const el = document.getElementById(`${p}-filter-frente`);
                     if(el) el.add(new Option(f, f));
                 });
