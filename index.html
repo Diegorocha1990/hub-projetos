@@ -162,19 +162,25 @@
         .monthly-grid { display: grid; grid-template-cols: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.5rem; }
         @media (min-width: 640px) { .monthly-grid { grid-template-cols: repeat(6, 1fr); } }
 
-        @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .form-section-box { border: 1px solid #eee; break-inside: avoid; } }
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white !important; padding: 0; } 
+            .form-section-box { border: 1px solid #eee; break-inside: avoid; } 
+            main { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+            .active-tab { border-bottom: none !important; }
+        }
     </style>
 </head>
 <body class="min-h-screen">
     <!-- Overlay de Loading -->
-    <div id="loading-overlay" style="position: fixed; inset: 0; background: var(--primary-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: white; transition: opacity 0.5s, visibility 0.5s;">
+    <div id="loading-overlay" class="no-print" style="position: fixed; inset: 0; background: var(--primary-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: white; transition: opacity 0.5s, visibility 0.5s;">
         <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="w-24 md:w-32 mb-8 invert" alt="Unico">
         <div class="w-10 h-10 border-4 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
         <p class="mt-4 text-[10px] font-black uppercase tracking-widest text-slate-500">A conectar à estratégia...</p>
     </div>
 
     <!-- MODAIS -->
-    <div id="confirm-exit-modal" class="modal-overlay">
+    <div id="confirm-exit-modal" class="modal-overlay no-print">
         <div class="modal-content text-center text-slate-800">
             <h3 class="text-xl md:text-2xl font-black mb-2 uppercase tracking-tighter text-slate-800">Alterações não salvas</h3>
             <p class="text-slate-500 mb-8 font-medium text-sm">Deseja salvar o progresso antes de sair?</p>
@@ -185,7 +191,7 @@
         </div>
     </div>
 
-    <div id="delete-modal" class="modal-overlay">
+    <div id="delete-modal" class="modal-overlay no-print">
         <div class="modal-content text-center text-slate-800">
             <h3 id="delete-modal-title" class="text-xl md:text-2xl font-black mb-2 uppercase tracking-tighter text-slate-800">Excluir Item?</h3>
             <p class="text-slate-500 mb-8 font-medium text-sm">A remoção será permanente.</p>
@@ -196,7 +202,7 @@
         </div>
     </div>
 
-    <div id="add-item-modal" class="modal-overlay">
+    <div id="add-item-modal" class="modal-overlay no-print">
         <div class="modal-content">
             <h3 id="add-item-title" class="text-xl font-black mb-6 uppercase tracking-tighter text-slate-800">Adicionar Opção</h3>
             <input type="text" id="new-item-input" class="input-premium mb-8" placeholder="Digite o nome...">
@@ -207,7 +213,7 @@
         </div>
     </div>
 
-    <div id="add-year-modal" class="modal-overlay">
+    <div id="add-year-modal" class="modal-overlay no-print">
         <div class="modal-content text-center">
             <h3 class="text-xl font-black mb-6 uppercase tracking-tighter text-slate-800">NOVO ANO</h3>
             <input type="number" id="new-year-input" class="input-premium mb-8 text-center text-lg" placeholder="Ex: 2028">
@@ -218,7 +224,7 @@
         </div>
     </div>
 
-    <div id="add-indicator-modal" class="modal-overlay">
+    <div id="add-indicator-modal" class="modal-overlay no-print">
         <div class="modal-content text-center">
             <h3 class="text-xl font-black mb-6 uppercase tracking-tighter text-slate-800">Novo Indicador</h3>
             <input type="text" id="new-indicator-name" class="input-premium mb-4" placeholder="Nome do Indicador (ex: Tempo de Ocupação)">
@@ -255,13 +261,13 @@
 
     <main class="max-w-7xl mx-auto p-4 md:p-8 mt-2 md:mt-4">
         <!-- VIEW DASHBOARD -->
-        <div id="view-dashboard" class="block no-print">
+        <div id="view-dashboard" class="block">
             <div class="mb-8 md:mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-6">
                 <div>
                     <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Estratégia & Operação</h1>
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 tracking-widest">Painel de Decisões e Eficiência</p>
                 </div>
-                <div class="flex flex-wrap gap-2 md:gap-3 items-center">
+                <div class="flex flex-wrap gap-2 md:gap-3 items-center no-print">
                     <div class="flex flex-col gap-2">
                         <div class="flex flex-wrap gap-2">
                             <input type="text" id="dash-search" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Buscar projeto..." oninput="window.refreshUI()">
@@ -332,18 +338,18 @@
         </div>
 
         <!-- VIEW PLANEAMENTO -->
-        <div id="view-planning" class="hidden no-print">
+        <div id="view-planning" class="hidden">
             <div class="mb-10 flex justify-between items-start">
                 <div>
                     <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Performance Operacional</h1>
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 tracking-widest">Metas e acompanhamento mensal detalhado</p>
                 </div>
-                <button onclick="document.getElementById('add-indicator-modal').style.display='flex'" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-indigo-700 transition-all">+ Novo Indicador</button>
+                <button onclick="document.getElementById('add-indicator-modal').style.display='flex'" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-indigo-700 transition-all no-print">+ Novo Indicador</button>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <!-- Inputs Left Column -->
-                <div class="lg:col-span-6 space-y-6">
+                <div class="lg:col-span-6 space-y-6 no-print">
                     <div class="form-section-box !mb-0">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                             <div>
@@ -381,8 +387,8 @@
                 </div>
 
                 <!-- Timeline Right Column -->
-                <div class="lg:col-span-6">
-                    <label class="label-forte text-slate-400 mb-6 uppercase tracking-widest">Resultados Consolidados</label>
+                <div class="lg:col-span-6 print:!col-span-12">
+                    <label class="label-forte text-slate-400 mb-6 uppercase tracking-widest no-print">Resultados Consolidados</label>
                     <div id="planning-timeline-list" class="space-y-8">
                         <!-- Cards injetados via JS -->
                     </div>
@@ -391,13 +397,13 @@
         </div>
 
         <!-- VIEW LIST -->
-        <div id="view-list" class="hidden no-print">
+        <div id="view-list" class="hidden">
             <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Projetos</h1>
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 tracking-widest">Controle e Listagem Geral</p>
                 </div>
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-2 no-print">
                     <div class="flex flex-wrap gap-2">
                         <button onclick="window.exportToXLS()" class="bg-white border border-slate-200 px-5 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-50 shadow-sm h-[34px]">XLS</button>
                         <button onclick="window.exportPDF()" class="bg-slate-900 text-white px-5 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-800 shadow-sm h-[34px]">PDF</button>
@@ -415,7 +421,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left min-w-[1000px]">
                         <thead class="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            <tr><th class="p-6">Iniciativa</th><th class="p-6">Área</th><th class="p-6 text-center">Responsáveis</th><th class="p-6 text-center">Estimado</th><th class="p-6 text-center">Status</th><th class="p-6 text-right">Ações</th></tr>
+                            <tr><th class="p-6">Iniciativa</th><th class="p-6">Área</th><th class="p-6 text-center">Responsáveis</th><th class="p-6 text-center">Estimado</th><th class="p-6 text-center">Status</th><th class="p-6 text-right no-print">Ações</th></tr>
                         </thead>
                         <tbody id="detailed-table-body" class="divide-y divide-slate-100 text-[11px] md:text-[13px] font-bold text-slate-700"></tbody>
                     </table>
@@ -424,7 +430,7 @@
         </div>
 
         <!-- VIEW ARQUIVO -->
-        <div id="view-archive" class="hidden no-print">
+        <div id="view-archive" class="hidden">
             <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Arquivo</h1>
@@ -473,7 +479,6 @@
                     </div>
                 </div>
 
-                <!-- ... (Demais seções do formulário mantidas conforme original) ... -->
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50 uppercase">2. Definição Operacional</label>
                     <div class="flex flex-wrap items-start gap-4">
@@ -485,7 +490,7 @@
                             </select>
                         </div>
                         <div class="flex-1 min-w-[140px]">
-                            <div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Frente</label><span class="btn-add-item" onclick="window.openAddModal('frente')">+</span></div>
+                            <div class="flex justify-between items-center mb-1"><label class="label-forte !mb-0">Frente</label><span class="btn-add-item no-print" onclick="window.openAddModal('frente')">+</span></div>
                             <select id="frente" required class="input-premium"></select>
                         </div>
                         <div class="flex-[1.5] min-w-[200px]">
@@ -498,7 +503,7 @@
                     <div class="mt-8 pt-6 border-t border-slate-50">
                         <div class="flex justify-between items-center mb-4">
                             <label class="label-forte !mb-0">Áreas Impactadas <span class="text-red-500 font-black">*</span></label>
-                            <span class="btn-add-item" onclick="window.openAddModal('area_check')">+ Nova</span>
+                            <span class="btn-add-item no-print" onclick="window.openAddModal('area_check')">+ Nova</span>
                         </div>
                         <div id="areas-checkbox-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"></div>
                     </div>
@@ -527,7 +532,7 @@
                         </div>
                         <div class="progress-container"><div id="task-progress-bar" class="progress-bar-fill"></div></div>
                         <div id="tasks-list-container" class="space-y-2 my-4 max-h-48 overflow-y-auto"></div>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 no-print">
                             <input type="text" id="new-task-input" class="input-premium !text-xs" placeholder="Nova tarefa...">
                             <button type="button" onclick="window.addTaskToProject()" class="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] uppercase hover:bg-slate-800 transition-all h-[38px]">Incluir</button>
                         </div>
@@ -537,7 +542,7 @@
                 <div class="form-section-box shadow-sm">
                     <div class="flex justify-between items-center mb-8 pb-3 border-b border-slate-50">
                         <label class="label-forte text-slate-400 !mb-0">5. Analistas Responsáveis <span class="text-red-500 font-black">*</span></label>
-                        <span class="btn-add-item" onclick="window.openAddModal('analista')">+ Novo</span>
+                        <span class="btn-add-item no-print" onclick="window.openAddModal('analista')">+ Novo</span>
                     </div>
                     <div id="responsaveis-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-3 gap-x-12 max-h-56 overflow-y-auto pr-2"></div>
                 </div>
@@ -551,7 +556,7 @@
                         <div class="pt-6 border-t border-slate-50">
                             <label class="label-forte">Log de Updates</label>
                             <div id="notes-history-list" class="space-y-3 max-h-56 overflow-y-auto mb-4 pr-3 text-[11px]"></div>
-                            <div class="flex flex-col sm:flex-row gap-2">
+                            <div class="flex flex-col sm:flex-row gap-2 no-print">
                                 <textarea id="new-milestone-note" rows="3" class="input-premium !text-xs" placeholder="Evolução de hoje..."></textarea>
                                 <button type="button" onclick="window.addItemToHistory('note')" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase self-end h-[38px]">Incluir</button>
                             </div>
@@ -561,13 +566,13 @@
                     <div class="form-section-box shadow-sm !bg-slate-50">
                         <div class="flex justify-between items-center mb-4">
                             <label class="label-forte !mb-0">Atenção Executiva</label>
-                            <div class="flex gap-2">
+                            <div class="flex gap-2 no-print">
                                 <button type="button" id="toggle-list-risco" onclick="window.setAttentionType('Risco')" class="toggle-btn active-risco">Risco</button>
                                 <button type="button" id="toggle-list-problema" onclick="window.setAttentionType('Problema')" class="toggle-btn inactive">Problema</button>
                             </div>
                         </div>
                         <div id="attention-history-list" class="space-y-3 max-h-48 overflow-y-auto mb-4 pr-3 text-[11px]"></div>
-                        <div class="flex flex-col sm:flex-row gap-2">
+                        <div class="flex flex-col sm:flex-row gap-2 no-print">
                             <textarea id="new-attention-note" rows="3" class="input-premium !bg-white text-xs" placeholder="Novo alerta..."></textarea>
                             <button type="button" onclick="window.addItemToHistory('attention')" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase self-end h-[38px]">Incluir</button>
                         </div>
@@ -723,7 +728,6 @@
                 `;
                 container.appendChild(div);
 
-                // Adiciona listener para calcular média automática
                 labels.forEach(m => {
                     document.getElementById(`plan-mth-${ind.id}-${m}`).addEventListener('input', () => {
                         let sum = 0, count = 0;
@@ -814,7 +818,7 @@
                             <h3 class="text-2xl font-black text-slate-900">${c.year} <span class="text-cyan-400">${c.semester}</span></h3>
                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Responsável: ${c.registeredBy}</span>
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 no-print">
                             <button onclick="window.editCycle('${c.id}')" class="text-[9px] font-black px-4 py-2 bg-slate-100 rounded-xl hover:bg-cyan-50 hover:text-cyan-600 transition-all uppercase">Editar Dados</button>
                             <button onclick="window.deleteCycle('${c.id}')" class="text-red-200 hover:text-red-500 p-2 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                         </div>
@@ -823,7 +827,6 @@
                 `;
                 container.appendChild(card);
 
-                // Inicializa os gráficos após o card estar no DOM
                 Object.entries(c.kpis || {}).forEach(([id, k]) => {
                     const ctx = document.getElementById(`chart-${c.id}-${id}`).getContext('2d');
                     const months = Object.keys(k.monthly || {});
@@ -886,7 +889,7 @@
             document.getElementById('planning-semester').value = c.semester;
             document.getElementById('planning-year').value = c.year;
             document.getElementById('planning-responsible').value = c.registeredBy || '';
-            window.renderPlanningInputs(); // Recria os inputs conforme o semestre do ciclo
+            window.renderPlanningInputs();
 
             Object.entries(c.kpis || {}).forEach(([indId, val]) => {
                 if(document.getElementById(`plan-b-${indId}`)) document.getElementById(`plan-b-${indId}`).value = val.b;
@@ -901,7 +904,6 @@
             document.getElementById('view-planning').scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // --- Resto do Script (refreshUI, Charts Dash, etc) mantido 100% ---
         window.deleteCycle = (id) => { window.openDeleteModal(id, 'planning'); };
 
         function renderChart(id, type, data, colors) { 
@@ -973,7 +975,7 @@
                     tbody.innerHTML = '';
                     filtered.forEach(p => {
                         const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || '--');
-                        tbody.innerHTML += `<tr><td class="p-6 uppercase font-bold">${p.iniciativa}</td><td class="p-6">${areasDisplay}</td><td class="p-6 text-center">${p.responsavel?.join(', ') || '--'}</td><td class="p-6 text-center font-bold">${p.prazo?.split('-').reverse().join('/') || '--'}</td><td class="p-6 text-center"><span class="status-pill" style="background: ${getStatusColor(p.status)}">${p.status}</span></td><td class="p-6 text-right flex items-center justify-end gap-3"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 uppercase text-[10px] font-black">Gerenciar</button><button onclick="window.openDeleteModal('${p.id}', 'projects')" class="text-red-400 hover:text-red-600 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
+                        tbody.innerHTML += `<tr><td class="p-6 uppercase font-bold">${p.iniciativa}</td><td class="p-6">${areasDisplay}</td><td class="p-6 text-center">${p.responsavel?.join(', ') || '--'}</td><td class="p-6 text-center font-bold">${p.prazo?.split('-').reverse().join('/') || '--'}</td><td class="p-6 text-center"><span class="status-pill" style="background: ${getStatusColor(p.status)}">${p.status}</span></td><td class="p-6 text-right flex items-center justify-end gap-3 no-print"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 uppercase text-[10px] font-black">Gerenciar</button><button onclick="window.openDeleteModal('${p.id}', 'projects')" class="text-red-400 hover:text-red-600 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
                     });
                 }
             }
@@ -1005,7 +1007,7 @@
             const totalTasks = p.tasks?.length || 0, completedTasks = p.tasks?.filter(t => t.completed).length || 0;
             const pCent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
             const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || 'MESA');
-            return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}"><div class="flex justify-between items-start mb-6"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${p.estrutura || 'ANÁLISE'} | ${areasDisplay}</span><span class="status-pill text-white" style="background: ${topColor}">${p.status}</span></div><h3 class="text-[15px] font-black mb-6 uppercase leading-tight text-slate-900 min-h-[40px]">${p.iniciativa}</h3><div class="space-y-2 text-[10px] font-bold text-slate-400"><div class="flex justify-between items-center"><span>ESTIMADO:</span><span class="text-slate-900">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></div><div class="flex justify-between items-center"><span>ABERTO HÁ:</span><span class="text-slate-900">${Math.max(0, openDays)} dias</span></div><div class="pt-2"><div class="flex justify-between items-center mb-1"><span>PROGRESSO</span><span class="text-emerald-500">${pCent}%</span></div><div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div></div></div><button onclick="window.editProjectByID('${p.id}')" class="w-full bg-[#000a28] text-white py-3.5 rounded-xl font-black uppercase text-[10px] hover:bg-slate-800 transition-all mt-6 shadow-lg tracking-widest">GERENCIAR</button></div>`;
+            return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}"><div class="flex justify-between items-start mb-6"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${p.estrutura || 'ANÁLISE'} | ${areasDisplay}</span><span class="status-pill text-white" style="background: ${topColor}">${p.status}</span></div><h3 class="text-[15px] font-black mb-6 uppercase leading-tight text-slate-900 min-h-[40px]">${p.iniciativa}</h3><div class="space-y-2 text-[10px] font-bold text-slate-400"><div class="flex justify-between items-center"><span>ESTIMADO:</span><span class="text-slate-900">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></div><div class="flex justify-between items-center"><span>ABERTO HÁ:</span><span class="text-slate-900">${Math.max(0, openDays)} dias</span></div><div class="pt-2"><div class="flex justify-between items-center mb-1"><span>PROGRESSO</span><span class="text-emerald-500">${pCent}%</span></div><div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div></div></div><button onclick="window.editProjectByID('${p.id}')" class="w-full bg-[#000a28] text-white py-3.5 rounded-xl font-black uppercase text-[10px] hover:bg-slate-800 transition-all mt-6 shadow-lg tracking-widest no-print">GERENCIAR</button></div>`;
         }
 
         window.setDirty = () => { isFormDirty = true; };
@@ -1076,7 +1078,7 @@
 
         window.renderTasksList = () => {
             const container = document.getElementById('tasks-list-container'); if(!container) return; container.innerHTML = ''; 
-            tempTasks.forEach(t => { container.innerHTML += `<div class="task-item text-slate-800"><input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskStatus(${t.id})"><span class="flex-1 text-xs font-bold ${t.completed ? 'line-through text-slate-300' : 'text-slate-700'}">${t.text}</span><button type="button" onclick="window.removeTaskFromProject(${t.id})" class="text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>`; }); 
+            tempTasks.forEach(t => { container.innerHTML += `<div class="task-item text-slate-800"><input type="checkbox" class="no-print" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskStatus(${t.id})"><span class="flex-1 text-xs font-bold ${t.completed ? 'line-through text-slate-300' : 'text-slate-700'}">${t.text}</span><button type="button" onclick="window.removeTaskFromProject(${t.id})" class="text-red-500 no-print"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>`; }); 
             window.updateTaskProgress();
         };
         window.updateTaskProgress = function() {
@@ -1095,7 +1097,7 @@
             else { item.type = document.getElementById('impedimento_tipo_list').value; tempAttention.unshift(item); window.renderAttentionList(); }
             document.getElementById(inputId).value = ''; isFormDirty = true;
         };
-        window.renderAttentionList = () => { const l = document.getElementById('attention-history-list'); if(l) { l.innerHTML = ''; tempAttention.forEach((a, i) => { const color = a.type === 'Problema' ? 'border-red-500' : 'border-amber-500'; l.innerHTML += `<div class="history-entry border-l-4 ${color}"><div class="flex justify-between items-start"><span class="font-black text-[9px] uppercase">${a.type} | ${a.date}</span><button type="button" onclick="window.removeAttention(${i})" class="text-slate-300">✕</button></div><p class="mt-1 font-semibold text-xs">${a.text}</p></div>`; }); } };
+        window.renderAttentionList = () => { const l = document.getElementById('attention-history-list'); if(l) { l.innerHTML = ''; tempAttention.forEach((a, i) => { const color = a.type === 'Problema' ? 'border-red-500' : 'border-amber-500'; l.innerHTML += `<div class="history-entry border-l-4 ${color}"><div class="flex justify-between items-start"><span class="font-black text-[9px] uppercase">${a.type} | ${a.date}</span><button type="button" onclick="window.removeAttention(${i})" class="text-slate-300 no-print">✕</button></div><p class="mt-1 font-semibold text-xs">${a.text}</p></div>`; }); } };
         window.removeAttention = (i) => { tempAttention.splice(i, 1); window.renderAttentionList(); isFormDirty = true; };
         window.setAttentionType = (t) => { document.getElementById('impedimento_tipo_list').value = t; document.getElementById('toggle-list-risco').className = `toggle-btn ${t==='Risco'?'active-risco':'inactive'}`; document.getElementById('toggle-list-problema').className = `toggle-btn ${t==='Problema'?'active-problema':'inactive'}`; };
         
