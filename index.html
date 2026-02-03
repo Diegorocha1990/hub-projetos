@@ -152,7 +152,7 @@
         .modal-content { background: white; padding: 2rem; border-radius: 2rem; width: 90%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
         .count-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 900; min-width: 24px; text-align: center; }
         
-        /* Planeamento Estilos */
+        /* Planejamento Estilos */
         .card-planning { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 1.25rem; box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); }
         .cycle-card { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 1.5rem; position: relative; border-left: 8px solid #00e5ff; transition: all 0.2s; }
         .cycle-card:hover { transform: translateX(5px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05); }
@@ -251,7 +251,7 @@
             </div>
             <nav class="flex gap-4 md:gap-10 h-full items-center text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-slate-400">
                 <button onclick="window.trySwitchTab('dashboard')" id="tab-dashboard" class="h-full px-1 md:px-2 active-tab">Dash</button>
-                <button onclick="window.trySwitchTab('planning')" id="tab-planning" class="h-full px-1 md:px-2 hover:text-slate-900">Planeamento</button>
+                <button onclick="window.trySwitchTab('planning')" id="tab-planning" class="h-full px-1 md:px-2 hover:text-slate-900">Planejamento</button>
                 <button onclick="window.trySwitchTab('form')" id="tab-form" class="h-full px-1 md:px-2 hover:text-slate-900">Novo</button>
                 <button onclick="window.trySwitchTab('list')" id="tab-list" class="h-full px-1 md:px-2 hover:text-slate-900">Projetos</button>
                 <button onclick="window.trySwitchTab('archive')" id="tab-archive" class="h-full px-1 md:px-2 hover:text-slate-900">Arquivo</button>
@@ -337,7 +337,7 @@
             </div>
         </div>
 
-        <!-- VIEW PLANEAMENTO -->
+        <!-- VIEW PLANEJAMENTO -->
         <div id="view-planning" class="hidden">
             <div class="mb-10 flex justify-between items-start">
                 <div>
@@ -773,7 +773,7 @@
             else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), data);
             
             editingCycleId = null;
-            alertModal("SUCESSO", "Planeamento atualizado com sucesso.", "emerald");
+            alertModal("SUCESSO", "Planejamento atualizado com sucesso.", "emerald");
             window.renderPlanningInputs();
         };
 
@@ -1147,3 +1147,4 @@
     </script>
 </body>
 </html>
+
