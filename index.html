@@ -164,9 +164,11 @@
     </style>
 </head>
 <body class="min-h-screen">
-    <div id="loading-overlay" style="position: fixed; inset: 0; background: var(--primary-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: white; transition: opacity 0.5s;">
+    <!-- Overlay de Loading: agora com id e transition CSS -->
+    <div id="loading-overlay" style="position: fixed; inset: 0; background: var(--primary-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: white; transition: opacity 0.5s, visibility 0.5s;">
         <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="w-24 md:w-32 mb-8 invert" alt="Unico">
         <div class="w-10 h-10 border-4 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
+        <p class="mt-4 text-[10px] font-black uppercase tracking-widest text-slate-500">A conectar à estratégia...</p>
     </div>
 
     <!-- MODAIS -->
@@ -181,7 +183,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE EXCLUSÃO (REATORADO PARA SER GENÉRICO) -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-content text-center text-slate-800">
             <h3 id="delete-modal-title" class="text-xl md:text-2xl font-black mb-2 uppercase tracking-tighter text-slate-800">Excluir Item?</h3>
@@ -204,7 +205,6 @@
         </div>
     </div>
 
-    <!-- NOVO MODAL PARA ADICIONAR ANO NO PLANEAMENTO -->
     <div id="add-year-modal" class="modal-overlay">
         <div class="modal-content text-center">
             <h3 class="text-xl font-black mb-6 uppercase tracking-tighter text-slate-800">NOVO ANO</h3>
@@ -212,6 +212,22 @@
             <div class="flex gap-3">
                 <button onclick="window.addNewYearPlanning()" class="flex-1 bg-slate-900 text-white py-3.5 rounded-2xl font-black uppercase text-[11px] shadow-xl">ADICIONAR</button>
                 <button onclick="document.getElementById('add-year-modal').style.display='none'" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-2xl font-black uppercase text-[11px]">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-indicator-modal" class="modal-overlay">
+        <div class="modal-content text-center">
+            <h3 class="text-xl font-black mb-6 uppercase tracking-tighter text-slate-800">Novo Indicador</h3>
+            <input type="text" id="new-indicator-name" class="input-premium mb-4" placeholder="Nome do Indicador (ex: Tempo de Ocupação)">
+            <label class="label-forte text-left mb-2">Qual o objetivo?</label>
+            <select id="new-indicator-type" class="input-premium mb-8 font-bold">
+                <option value="reducao">Redução (Quanto menor, melhor)</option>
+                <option value="crescimento">Crescimento (Quanto maior, melhor)</option>
+            </select>
+            <div class="flex gap-3">
+                <button onclick="window.addNewIndicatorDefinition()" class="flex-1 bg-slate-900 text-white py-3.5 rounded-2xl font-black uppercase text-[11px] shadow-xl">ADICIONAR</button>
+                <button onclick="document.getElementById('add-indicator-modal').style.display='none'" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-2xl font-black uppercase text-[11px]">CANCELAR</button>
             </div>
         </div>
     </div>
@@ -315,24 +331,27 @@
 
         <!-- VIEW PLANEAMENTO -->
         <div id="view-planning" class="hidden no-print">
-            <div class="mb-10">
-                <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Performance Operacional</h1>
-                <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 tracking-widest">Definição de metas e acompanhamento do realizado</p>
+            <div class="mb-10 flex justify-between items-start">
+                <div>
+                    <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Performance Operacional</h1>
+                    <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 tracking-widest">Definição de metas e acompanhamento do realizado</p>
+                </div>
+                <button onclick="document.getElementById('add-indicator-modal').style.display='flex'" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-indigo-700 transition-all">+ Novo Indicador</button>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <!-- Inputs Left Column -->
                 <div class="lg:col-span-5 space-y-6">
                     <div class="form-section-box !mb-0">
-                        <div class="flex items-center gap-6 mb-8">
-                            <div class="flex-1">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div>
                                 <label class="label-forte">Semestre</label>
                                 <select id="planning-semester" class="input-premium font-bold">
                                     <option value="H1">H1 (Janeiro - Junho)</option>
                                     <option value="H2">H2 (Julho - Dezembro)</option>
                                 </select>
                             </div>
-                            <div class="flex-1">
+                            <div>
                                 <label class="label-forte">Ano</label>
                                 <div class="flex gap-2">
                                     <select id="planning-year" class="input-premium font-bold">
@@ -344,47 +363,19 @@
                             </div>
                         </div>
 
-                        <!-- KPI Group: Custo Analise -->
-                        <div class="mb-8 pb-6 border-b border-slate-50">
-                            <h4 class="label-forte !text-slate-900 !mb-4">Custo por Análise (R$)</h4>
-                            <div class="kpi-row">
-                                <div class="kpi-input-box"><label>Baseline</label><input type="number" step="0.01" id="plan-ca-b" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
-                                <div class="kpi-input-box"><label>Meta</label><input type="number" step="0.01" id="plan-ca-m" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
-                                <div class="kpi-input-box"><label>Real</label><input type="number" step="0.01" id="plan-ca-r" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
-                            </div>
+                        <!-- DINAMIC KPI GROUPS START HERE -->
+                        <div id="dynamic-kpi-inputs-container">
+                            <!-- Injetado via JS -->
                         </div>
 
-                        <!-- KPI Group: Custo Chamado -->
-                        <div class="mb-8 pb-6 border-b border-slate-50">
-                            <h4 class="label-forte !text-slate-900 !mb-4">Custo por Chamado (R$)</h4>
-                            <div class="kpi-row">
-                                <div class="kpi-input-box"><label>Baseline</label><input type="number" step="0.01" id="plan-cc-b" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
-                                <div class="kpi-input-box"><label>Meta</label><input type="number" step="0.01" id="plan-cc-m" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
-                                <div class="kpi-input-box"><label>Real</label><input type="number" step="0.01" id="plan-cc-r" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
-                            </div>
+                        <div class="mt-8 pt-8 border-t border-slate-100">
+                            <label class="label-forte text-indigo-600">Analista Responsável pelo Registro *</label>
+                            <select id="planning-responsible" class="input-premium font-black text-slate-900 mb-6">
+                                <option value="">Selecione o analista...</option>
+                            </select>
+                            
+                            <button onclick="window.saveCyclePlanning()" id="btn-save-planning" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-[1.01] transition-all">Salvar Ciclo e Atualizar Resultados</button>
                         </div>
-
-                        <!-- KPI Group: Qualidade -->
-                        <div class="mb-8 pb-6 border-b border-slate-50">
-                            <h4 class="label-forte !text-slate-900 !mb-4">Qualidade Onboarding (%)</h4>
-                            <div class="kpi-row">
-                                <div class="kpi-input-box"><label>Baseline</label><input type="number" step="0.1" id="plan-qo-b" class="input-premium !py-2 !px-3" placeholder="0%"></div>
-                                <div class="kpi-input-box"><label>Meta</label><input type="number" step="0.1" id="plan-qo-m" class="input-premium !py-2 !px-3" placeholder="0%"></div>
-                                <div class="kpi-input-box"><label>Real</label><input type="number" step="0.1" id="plan-qo-r" class="input-premium !py-2 !px-3" placeholder="0%"></div>
-                            </div>
-                        </div>
-
-                        <!-- KPI Group: SLA -->
-                        <div class="mb-10">
-                            <h4 class="label-forte !text-slate-900 !mb-4">SLA de Operação (%)</h4>
-                            <div class="kpi-row">
-                                <div class="kpi-input-box"><label>Baseline</label><input type="number" step="0.1" id="plan-sla-b" class="input-premium !py-2 !px-3" placeholder="0%"></div>
-                                <div class="kpi-input-box"><label>Meta</label><input type="number" step="0.1" id="plan-sla-m" class="input-premium !py-2 !px-3" placeholder="0%"></div>
-                                <div class="kpi-input-box"><label>Real</label><input type="number" step="0.1" id="plan-sla-r" class="input-premium !py-2 !px-3" placeholder="0%"></div>
-                            </div>
-                        </div>
-
-                        <button onclick="window.saveCyclePlanning()" id="btn-save-planning" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-[1.01] transition-all">Salvar Ciclo e Atualizar Resultados</button>
                     </div>
                 </div>
 
@@ -611,10 +602,12 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const isGitHub = window.location.hostname === "timeprocessos.github.io";
-        const firebaseConfig = isGitHub ? {
+        // Ajuste inteligente para GitHub Pages
+        const isGitHubHost = window.location.hostname.includes("github.io");
+        
+        const firebaseConfig = isGitHubHost ? {
             apiKey: "AIzaSyAU8nHiRzTwOkrfd8LY7N-YkJG_S7CE0Xs",
             authDomain: "painel-de-projeto.firebaseapp.com",
             projectId: "painel-de-projeto",
@@ -628,11 +621,24 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'unico-eficiencia-2026';
         
-        let projects = [], planningCycles = [], tempNotes = [], tempTasks = [], tempAttention = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, idToDelete = null, typeToDelete = null, editingCycleId = null;
+        let projects = [], planningCycles = [], indicatorDefinitions = [], tempNotes = [], tempTasks = [], tempAttention = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, idToDelete = null, typeToDelete = null, editingCycleId = null;
 
         const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Rodrigo Prinz De Paiva", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
         const defaultFrentes = ["Automação", "Performance", "Reestruturação", "Simplificação"].sort();
+
+        // Helper para esconder o loader
+        const hideLoader = () => {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.visibility = 'hidden';
+                setTimeout(() => overlay.style.display = 'none', 500);
+            }
+        };
+
+        // Temporizador de segurança (5 segundos)
+        setTimeout(hideLoader, 5000);
 
         const initAuth = async () => {
             try {
@@ -641,7 +647,10 @@
                 } else {
                     await signInAnonymously(auth);
                 }
-            } catch (e) { console.error("Auth Erro:", e); }
+            } catch (e) { 
+                console.error("Auth Erro:", e); 
+                hideLoader(); // Esconde se der erro de auth
+            }
         };
 
         onAuthStateChanged(auth, u => {
@@ -653,29 +662,57 @@
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), snap => {
                     projects = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     window.refreshUI();
-                    document.getElementById('loading-overlay').style.display = 'none';
-                }, err => console.warn("Snapshot Erro Projetos:", err));
+                    hideLoader(); // Esconde quando os dados chegam
+                }, err => {
+                    console.warn("Snapshot Erro Projetos:", err);
+                    hideLoader(); // Esconde mesmo com erro para não travar o user
+                });
+
+                // Snapshot Indicadores
+                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), snap => {
+                    indicatorDefinitions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    if(indicatorDefinitions.length === 0) populateInitialIndicators();
+                    window.renderPlanningInputs();
+                    window.renderPlanningTimeline();
+                }, err => console.warn("Erro indicadores:", err));
 
                 // Snapshot Planeamento
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), snap => {
                     planningCycles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     window.renderPlanningTimeline();
                 }, err => console.warn("Snapshot Erro Planning:", err));
+            } else {
+                // Se não houver usuário logado (ex: sem internet inicial)
+                setTimeout(() => { if(!user) hideLoader(); }, 2000);
             }
         });
 
-        // NAVEGAÇÃO
+        async function populateInitialIndicators() {
+            const initials = [
+                { name: "Custo por Análise (R$)", type: "reducao" },
+                { name: "Custo por Chamado (R$)", type: "reducao" },
+                { name: "Qualidade Onboarding (%)", type: "crescimento" },
+                { name: "SLA de Operação (%)", type: "crescimento" }
+            ];
+            for(const item of initials) {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), item);
+            }
+        }
+
         window.switchTab = (t) => {
             ['dashboard', 'form', 'list', 'archive', 'planning'].forEach(v => document.getElementById('view-'+v)?.classList.add('hidden'));
             document.getElementById('view-'+t)?.classList.remove('hidden');
             document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`));
             if (t !== 'form' && t !== 'planning') resetForm();
+            if (t === 'planning') {
+                window.renderPlanningInputs();
+                window.renderPlanningTimeline();
+            }
             window.refreshUI();
         };
 
         window.trySwitchTab = (tab) => { if (isFormDirty) document.getElementById('confirm-exit-modal').style.display = 'flex'; else window.switchTab(tab); };
 
-        // LOGICA PLANEAMENTO
         window.addNewYearPlanning = () => {
             const input = document.getElementById('new-year-input');
             const val = input.value.trim();
@@ -687,123 +724,106 @@
             input.value = '';
         };
 
+        window.addNewIndicatorDefinition = async () => {
+            const name = document.getElementById('new-indicator-name').value.trim();
+            const type = document.getElementById('new-indicator-type').value;
+            if(!name) return;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), { name, type });
+            document.getElementById('add-indicator-modal').style.display = 'none';
+            document.getElementById('new-indicator-name').value = '';
+        };
+
+        window.renderPlanningInputs = () => {
+            const container = document.getElementById('dynamic-kpi-inputs-container');
+            if(!container) return;
+            container.innerHTML = '';
+            indicatorDefinitions.forEach(ind => {
+                const div = document.createElement('div');
+                div.className = "mb-8 pb-6 border-b border-slate-50";
+                div.innerHTML = `
+                    <h4 class="label-forte !text-slate-900 !mb-4">${ind.name}</h4>
+                    <div class="kpi-row">
+                        <div class="kpi-input-box"><label>Baseline</label><input type="number" step="0.01" id="plan-b-${ind.id}" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
+                        <div class="kpi-input-box"><label>Meta</label><input type="number" step="0.01" id="plan-m-${ind.id}" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
+                        <div class="kpi-input-box"><label>Real</label><input type="number" step="0.01" id="plan-r-${ind.id}" class="input-premium !py-2 !px-3" placeholder="0,00"></div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        };
+
         window.saveCyclePlanning = async () => {
             if(!user) return;
+            const responsible = document.getElementById('planning-responsible').value;
+            if(!responsible) {
+                alertModal("Atenção", "Por favor, selecione o analista responsável antes de salvar.");
+                return;
+            }
             const btn = document.getElementById('btn-save-planning');
-            btn.innerText = "A GUARDAR...";
-            btn.disabled = true;
-
+            btn.innerText = "A GUARDAR..."; btn.disabled = true;
+            const kpiValues = {};
+            indicatorDefinitions.forEach(ind => {
+                kpiValues[ind.id] = {
+                    b: Number(document.getElementById(`plan-b-${ind.id}`).value) || 0,
+                    m: Number(document.getElementById(`plan-m-${ind.id}`).value) || 0,
+                    r: Number(document.getElementById(`plan-r-${ind.id}`).value) || 0,
+                    name: ind.name, type: ind.type
+                };
+            });
             const data = {
                 semester: document.getElementById('planning-semester').value,
                 year: document.getElementById('planning-year').value,
-                ca: { b: Number(document.getElementById('plan-ca-b').value), m: Number(document.getElementById('plan-ca-m').value), r: Number(document.getElementById('plan-ca-r').value) },
-                cc: { b: Number(document.getElementById('plan-cc-b').value), m: Number(document.getElementById('plan-cc-m').value), r: Number(document.getElementById('plan-cc-r').value) },
-                qo: { b: Number(document.getElementById('plan-qo-b').value), m: Number(document.getElementById('plan-qo-m').value), r: Number(document.getElementById('plan-qo-r').value) },
-                sla: { b: Number(document.getElementById('plan-sla-b').value), m: Number(document.getElementById('plan-sla-m').value), r: Number(document.getElementById('plan-sla-r').value) },
-                updatedAt: new Date().toISOString()
+                kpis: kpiValues, registeredBy: responsible, updatedAt: new Date().toISOString()
             };
-
             try {
-                if(editingCycleId) {
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'planning', editingCycleId), data);
-                } else {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), data);
-                }
+                if(editingCycleId) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'planning', editingCycleId), data);
+                else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), data);
                 editingCycleId = null;
-                btn.innerText = "SALVAR CICLO E ATUALIZAR RESULTADOS";
-                btn.disabled = false;
-                
-                // Show success modal
-                const mod = document.createElement('div'); mod.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-[20000]";
-                mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center"><div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">✓</div><h3 class="font-black uppercase text-slate-800 mb-2">PLANEAMENTO SALVO</h3><p class="text-sm font-medium text-slate-500 mb-6">Os parâmetros estratégicos foram atualizados com sucesso.</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">FECHAR</button></div>`;
-                document.body.appendChild(mod);
-                
-                // Limpar campos
-                ['ca','cc','qo','sla'].forEach(k => {
-                    document.getElementById(`plan-${k}-b`).value = '';
-                    document.getElementById(`plan-${k}-m`).value = '';
-                    document.getElementById(`plan-${k}-r`).value = '';
+                btn.innerText = "SALVAR CICLO E ATUALIZAR RESULTADOS"; btn.disabled = false;
+                alertModal("PLANEAMENTO SALVO", "Os parâmetros estratégicos foram atualizados com sucesso.", "emerald");
+                indicatorDefinitions.forEach(ind => {
+                    document.getElementById(`plan-b-${ind.id}`).value = '';
+                    document.getElementById(`plan-m-${ind.id}`).value = '';
+                    document.getElementById(`plan-r-${ind.id}`).value = '';
                 });
-            } catch(e) { 
-                console.error(e);
-                btn.disabled = false;
-            }
+                document.getElementById('planning-responsible').value = '';
+            } catch(e) { console.error(e); btn.disabled = false; }
         };
+
+        function alertModal(title, msg, color = "slate") {
+            const mod = document.createElement('div'); mod.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-[20000]";
+            const iconColor = color === "emerald" ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600";
+            mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center"><div class="w-12 h-12 ${iconColor} rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">${color === 'emerald' ? '✓' : '!'}</div><h3 class="font-black uppercase text-slate-800 mb-2">${title}</h3><p class="text-sm font-medium text-slate-500 mb-6">${msg}</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">FECHAR</button></div>`;
+            document.body.appendChild(mod);
+        }
 
         window.renderPlanningTimeline = () => {
             const container = document.getElementById('planning-timeline-list');
             if(!container) return;
             container.innerHTML = '';
-
-            // Sort cycles by year and semester desc
             const sorted = [...planningCycles].sort((a,b) => {
                 if(a.year !== b.year) return b.year - a.year;
                 return b.semester.localeCompare(a.semester);
             });
-
             sorted.forEach(c => {
                 const card = document.createElement('div');
                 card.className = "cycle-card";
-                
                 const getPerf = (val, meta, type) => {
                     if(!val || val === 0) return { status: 'PENDENTE', color: 'bg-slate-100 text-slate-500', pct: 0, gap: 'Aguardando Real...' };
-                    let pct = 0;
-                    let isBatida = false;
-                    
-                    if(type === 'reducao') {
-                        isBatida = val <= meta;
-                        pct = isBatida ? (100 + ((meta - val) / meta * 100)) : (meta / val * 100);
-                    } else {
-                        isBatida = val >= meta;
-                        pct = (val / meta) * 100;
-                    }
-
+                    let pct = 0, isBatida = false;
+                    if(type === 'reducao') { isBatida = val <= meta; pct = isBatida ? (100 + ((meta - val) / meta * 100)) : (meta / val * 100); }
+                    else { isBatida = val >= meta; pct = (val / meta) * 100; }
                     const status = isBatida ? 'BATIDA' : 'ABAIXO DO PLANEJADO';
                     const color = isBatida ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600';
                     const gapLabel = isBatida ? 'Meta Atingida!' : `Falta: ${Math.abs(meta - val).toFixed(2)}`;
-
                     return { status, color, pct: Math.round(pct), gap: gapLabel };
                 };
-
-                const kpis = [
-                    { label: 'ANÁLISE', data: c.ca, type: 'reducao' },
-                    { label: 'CHAMADO', data: c.cc, type: 'reducao' },
-                    { label: 'QUALIDADE', data: c.qo, type: 'crescimento' },
-                    { label: 'SLA', data: c.sla, type: 'crescimento' }
-                ];
-
                 let kpiHtml = '';
-                kpis.forEach(k => {
-                    const p = getPerf(k.data.r, k.data.m, k.type);
-                    kpiHtml += `
-                        <div class="mb-4 last:mb-0">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${k.label}</span>
-                                <span class="text-[9px] font-black px-2 py-0.5 rounded-full ${p.color}">${p.status} (${p.pct}%)</span>
-                            </div>
-                            <div class="flex justify-between text-[10px] font-bold">
-                                <span class="text-slate-400">B: ${k.data.b} → M: ${k.data.m}</span>
-                                <span class="text-slate-900">Real: ${k.data.r || '0'}</span>
-                            </div>
-                            <p class="text-[8px] font-bold mt-0.5 ${p.pct >= 100 ? 'text-emerald-500' : 'text-slate-400 italic'}">${p.gap}</p>
-                        </div>
-                    `;
+                Object.entries(c.kpis || {}).forEach(([id, k]) => {
+                    const p = getPerf(k.r, k.m, k.type);
+                    kpiHtml += `<div class="mb-4 last:mb-0"><div class="flex justify-between items-center mb-1"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${k.name}</span><span class="text-[9px] font-black px-2 py-0.5 rounded-full ${p.color}">${p.status} (${p.pct}%)</span></div><div class="flex justify-between text-[10px] font-bold"><span class="text-slate-400">B: ${k.b} → M: ${k.m}</span><span class="text-slate-900">Real: ${k.r || '0'}</span></div><p class="text-[8px] font-bold mt-0.5 ${p.pct >= 100 ? 'text-emerald-500' : 'text-slate-400 italic'}">${p.gap}</p></div>`;
                 });
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-6">
-                        <h3 class="text-xl font-black text-slate-900 uppercase">${c.year} - ${c.semester}</h3>
-                        <div class="flex gap-2">
-                             <button onclick="window.editCycle('${c.id}')" class="text-[8px] font-black px-3 py-1 bg-slate-100 rounded-lg hover:bg-cyan-100 hover:text-cyan-600 transition-all uppercase">EDITANDO</button>
-                             <button onclick="window.deleteCycle('${c.id}')" class="text-red-300 hover:text-red-500 transition-all">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                             </button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2">
-                        ${kpiHtml}
-                    </div>
-                `;
+                card.innerHTML = `<div class="flex justify-between items-start mb-4"><div><h3 class="text-xl font-black text-slate-900 uppercase">${c.year} - ${c.semester}</h3><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Registrado por: ${c.registeredBy || 'Sistema'}</span></div><div class="flex gap-2"><button onclick="window.editCycle('${c.id}')" class="text-[8px] font-black px-3 py-1 bg-slate-100 rounded-lg hover:bg-cyan-100 hover:text-cyan-600 transition-all uppercase">EDITAR</button><button onclick="window.deleteCycle('${c.id}')" class="text-red-300 hover:text-red-500 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2">${kpiHtml || '<p class="text-[10px] text-slate-300 italic">Sem indicadores.</p>'}</div>`;
                 container.appendChild(card);
             });
         };
@@ -814,21 +834,16 @@
             editingCycleId = id;
             document.getElementById('planning-semester').value = c.semester;
             document.getElementById('planning-year').value = c.year;
-            
-            ['ca','cc','qo','sla'].forEach(k => {
-                document.getElementById(`plan-${k}-b`).value = c[k].b;
-                document.getElementById(`plan-${k}-m`).value = c[k].m;
-                document.getElementById(`plan-${k}-r`).value = c[k].r;
+            document.getElementById('planning-responsible').value = c.registeredBy || '';
+            Object.entries(c.kpis || {}).forEach(([indId, val]) => {
+                const bEl = document.getElementById(`plan-b-${indId}`), mEl = document.getElementById(`plan-m-${indId}`), rEl = document.getElementById(`plan-r-${indId}`);
+                if(bEl) bEl.value = val.b; if(mEl) mEl.value = val.m; if(rEl) rEl.value = val.r;
             });
             document.getElementById('view-planning').scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // CORREÇÃO DO BUG DE EXCLUSÃO DE CICLO
-        window.deleteCycle = (id) => {
-            window.openDeleteModal(id, 'planning');
-        };
+        window.deleteCycle = (id) => { window.openDeleteModal(id, 'planning'); };
 
-        // DASHBOARD & PROJETOS LOGICA ORIGINAL (PRESERVADA)
         function renderChart(id, type, data, colors) { 
             if(charts[id]) charts[id].destroy(); 
             const canvas = document.getElementById(id); if(!canvas) return; 
@@ -836,25 +851,15 @@
                 type: type, 
                 data: { labels: Object.keys(data), datasets: [{ data: Object.values(data), backgroundColor: colors, borderWidth: 0 }] }, 
                 plugins: [ChartDataLabels],
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    scales: type === 'pie' ? {} : { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { display: false } } },
-                    plugins: { 
-                        legend: { display: type === 'pie', position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } },
-                        datalabels: { display: true, color: type === 'pie' ? '#fff' : '#070047', font: { weight: 'bold', size: 10 } }
-                    } 
-                } 
+                options: { responsive: true, maintainAspectRatio: false, scales: type === 'pie' ? {} : { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { display: false } } }, plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } }, datalabels: { display: true, color: type === 'pie' ? '#fff' : '#070047', font: { weight: 'bold', size: 10 } } } } 
             }); 
         }
 
         window.refreshUI = function() {
-            const today = new Date();
-            today.setHours(0,0,0,0);
+            const today = new Date(); today.setHours(0,0,0,0);
             const activeTab = document.querySelector('.active-tab')?.id.split('-')[1];
             if(activeTab === 'planning') return;
-
             const prefix = activeTab === 'dashboard' ? 'dash' : activeTab === 'list' ? 'list' : 'archive';
-            
             const searchVal = document.getElementById(`${prefix}-search`)?.value.toLowerCase() || '';
             const periodVal = document.getElementById(`${prefix}-filter-period`)?.value || 'all';
             const analistaVal = document.getElementById(`${prefix}-filter-analista`)?.value || '';
@@ -862,7 +867,6 @@
             const frenteVal = document.getElementById(`${prefix}-filter-frente`)?.value || '';
             const classVal = document.getElementById(`${prefix}-filter-classificacao`)?.value || '';
             const estruturaVal = document.getElementById(`${prefix}-filter-estrutura`)?.value || '';
-
             const filtered = projects.filter(p => {
                 let match = true;
                 if (searchVal && !p.iniciativa?.toLowerCase().includes(searchVal)) match = false;
@@ -872,45 +876,34 @@
                 if (classVal && p.classificacao !== classVal) match = false;
                 if (estruturaVal && p.estrutura !== estruturaVal) match = false;
                 if (periodVal !== 'all' && p.data_criacao) {
-                    const d = new Date(p.data_criacao);
-                    const n = new Date();
+                    const d = new Date(p.data_criacao), n = new Date();
                     if(periodVal === 'mes') match = match && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
                     if(periodVal === 'trimestre') match = match && Math.floor(n.getMonth() / 3) === Math.floor(d.getMonth() / 3);
                     if(periodVal === 'ano') match = match && d.getFullYear() === n.getFullYear();
                 }
                 return match;
             });
-
             const f = filtered.filter(p => p.status === 'Finalizado');
             let ris = 0, prob = 0;
             filtered.filter(p => p.status !== 'Finalizado' && p.status !== 'Despriorizado').forEach(p => {
                 if(p.attention?.some(att => att.type === 'Problema')) prob++;
                 else if(p.attention?.some(att => att.type === 'Risco')) ris++;
             });
-            
             if (activeTab === 'dashboard') {
                 document.getElementById('kpi-total').innerText = filtered.length;
                 document.getElementById('kpi-sla').innerText = (f.length ? Math.round((f.filter(p => p.data_conclusao <= p.prazo).length/f.length)*100) : 0) + '%';
                 document.getElementById('kpi-performance').innerText = (filtered.length ? Math.round((f.length/filtered.length)*100) : 0) + '%';
-                document.getElementById('kpi-riscos').innerText = ris;
-                document.getElementById('kpi-problemas').innerText = prob;
+                document.getElementById('kpi-riscos').innerText = ris; document.getElementById('kpi-problemas').innerText = prob;
                 const saude = prob > 0 ? (prob > 1 ? 0 : 50) : 100;
                 const saEl = document.getElementById('kpi-saude');
-                saEl.innerText = saude + '%';
-                saEl.className = `text-2xl md:text-3xl font-black ${saude === 100 ? 'text-green-500' : (saude === 50 ? 'text-amber-500' : 'text-red-500')}`;
-
+                saEl.innerText = saude + '%'; saEl.className = `text-2xl md:text-3xl font-black ${saude === 100 ? 'text-green-500' : (saude === 50 ? 'text-amber-500' : 'text-red-500')}`;
                 const paleta = ['#FF1A5C', '#00A5FF', '#A35F9D', '#8D7AD2', '#32B77E', '#5C86C4', '#070047', '#333333'];
                 renderChart('chartStatus', 'pie', filtered.reduce((a,v) => { a[v.status]=(a[v.status]||0)+1; return a; }, {}), paleta);
-                
                 const areaStats = {};
-                filtered.forEach(p => {
-                    const areas = Array.isArray(p.time) ? p.time : [p.time];
-                    areas.forEach(area => { if(area) areaStats[area] = (areaStats[area] || 0) + 1; });
-                });
+                filtered.forEach(p => { (Array.isArray(p.time) ? p.time : [p.time]).forEach(area => { if(area) areaStats[area] = (areaStats[area] || 0) + 1; }); });
                 renderChart('chartTime', 'bar', areaStats, paleta);
                 renderChart('chartFrente', 'bar', filtered.reduce((a,v) => { a[v.frente||'N/A']=(a[v.frente||'N/A']||0)+1; return a; }, {}), paleta);
                 renderChart('chartLeadTime', 'bar', { 'Médio': 10, 'Atual': 8 }, ['#00A5FF', '#FF1A5C']);
-
                 const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
                 if(bG) bG.innerHTML = ''; if(aG) aG.innerHTML = '';
                 filtered.forEach(p => {
@@ -921,7 +914,6 @@
                 document.getElementById('count-backlog').innerText = filtered.filter(p => p.status === 'Backlog').length;
                 document.getElementById('count-andamento').innerText = filtered.filter(p => p.status === 'Em Andamento').length;
             }
-
             if (activeTab === 'list') {
                 const tbody = document.getElementById('detailed-table-body');
                 if(tbody) {
@@ -932,7 +924,6 @@
                     });
                 }
             }
-
             if (activeTab === 'archive') {
                 const fG = document.getElementById('grid-finalizado'), dG = document.getElementById('grid-despriorizado');
                 if(fG) fG.innerHTML = ''; if(dG) dG.innerHTML = '';
@@ -946,97 +937,48 @@
             }
         };
 
+        function getStatusColor(s) {
+            if(s === 'Backlog') return '#94a3b8';
+            if(s === 'Em Andamento') return '#fabd23';
+            if(s === 'Finalizado') return '#10b981';
+            return '#ef4444';
+        }
+
         function createProjectCard(p, today) {
-            const start = p.data_criacao ? new Date(p.data_criacao) : today;
-            const end = p.prazo ? new Date(p.prazo) : today;
+            const start = p.data_criacao ? new Date(p.data_criacao) : today, end = p.prazo ? new Date(p.prazo) : today;
             const openDays = Math.floor((today - start) / 86400000);
             const isOverdue = today > end && p.status !== 'Finalizado' && p.status !== 'Despriorizado';
             const topColor = getStatusColor(p.status);
-            
-            const totalTasks = p.tasks?.length || 0;
-            const completedTasks = p.tasks?.filter(t => t.completed).length || 0;
+            const totalTasks = p.tasks?.length || 0, completedTasks = p.tasks?.filter(t => t.completed).length || 0;
             const pCent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-            
             const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || 'MESA');
             const tipoDisplay = p.estrutura || 'ANÁLISE';
-
-            let justificationHtml = '';
-            if (p.status === 'Despriorizado' && p.justificativa_despriorizacao) {
-                justificationHtml = `
-                    <div class="mt-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
-                        <span class="block text-[8px] font-black text-red-600 uppercase mb-1">Motivo:</span>
-                        <p class="text-[10px] text-red-800 font-semibold italic">${p.justificativa_despriorizacao}</p>
-                    </div>
-                `;
-            }
-
-            return `
-            <div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}">
-                <div class="flex justify-between items-start mb-6">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${tipoDisplay} | ${areasDisplay}</span>
-                    <span class="status-pill text-white" style="background: ${topColor}">${p.status}</span>
-                </div>
-                <h3 class="text-[15px] font-black mb-6 uppercase leading-tight text-slate-900 min-h-[40px]">${p.iniciativa}</h3>
-                <div class="space-y-2 text-[10px] font-bold text-slate-400">
-                    <div class="flex justify-between items-center"><span>ESTIMADO:</span><span class="text-slate-900">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></div>
-                    <div class="flex justify-between items-center"><span>ABERTO HÁ:</span><span class="text-slate-900">${Math.max(0, openDays)} dias</span></div>
-                    <div class="flex justify-between items-center"><span>CLASSIFICAÇÃO:</span><span class="text-cyan-500">${p.classificacao || '--'}</span></div>
-                    <div class="pt-2">
-                        <div class="flex justify-between items-center mb-1"><span>PROGRESSO</span><span class="text-emerald-500">${pCent}%</span></div>
-                        <div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div>
-                    </div>
-                    <div class="flex justify-between items-center pt-4"><span>STATUS:</span><span class="${isOverdue ? 'text-red-500 animate-pulse' : 'text-slate-900'} uppercase font-black">${isOverdue ? 'ATRASADO' : (p.status === 'Despriorizado' ? 'SUSPENSO' : 'NO PRAZO')}</span></div>
-                </div>
-                ${justificationHtml}
-                <button onclick="window.editProjectByID('${p.id}')" class="w-full bg-[#000a28] text-white py-3.5 rounded-xl font-black uppercase text-[10px] hover:bg-slate-800 transition-all mt-6 shadow-lg tracking-widest">GERENCIAR</button>
-            </div>`;
+            let justificationHtml = (p.status === 'Despriorizado' && p.justificativa_despriorizacao) ? `<div class="mt-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg"><span class="block text-[8px] font-black text-red-600 uppercase mb-1">Motivo:</span><p class="text-[10px] text-red-800 font-semibold italic">${p.justificativa_despriorizacao}</p></div>` : '';
+            return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}"><div class="flex justify-between items-start mb-6"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${tipoDisplay} | ${areasDisplay}</span><span class="status-pill text-white" style="background: ${topColor}">${p.status}</span></div><h3 class="text-[15px] font-black mb-6 uppercase leading-tight text-slate-900 min-h-[40px]">${p.iniciativa}</h3><div class="space-y-2 text-[10px] font-bold text-slate-400"><div class="flex justify-between items-center"><span>ESTIMADO:</span><span class="text-slate-900">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></div><div class="flex justify-between items-center"><span>ABERTO HÁ:</span><span class="text-slate-900">${Math.max(0, openDays)} dias</span></div><div class="flex justify-between items-center"><span>CLASSIFICAÇÃO:</span><span class="text-cyan-500">${p.classificacao || '--'}</span></div><div class="pt-2"><div class="flex justify-between items-center mb-1"><span>PROGRESSO</span><span class="text-emerald-500">${pCent}%</span></div><div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div></div><div class="flex justify-between items-center pt-4"><span>STATUS:</span><span class="${isOverdue ? 'text-red-500 animate-pulse' : 'text-slate-900'} uppercase font-black">${isOverdue ? 'ATRASADO' : (p.status === 'Despriorizado' ? 'SUSPENSO' : 'NO PRAZO')}</span></div></div>${justificationHtml}<button onclick="window.editProjectByID('${p.id}')" class="w-full bg-[#000a28] text-white py-3.5 rounded-xl font-black uppercase text-[10px] hover:bg-slate-800 transition-all mt-6 shadow-lg tracking-widest">GERENCIAR</button></div>`;
         }
 
         window.setDirty = () => { isFormDirty = true; };
-
         window.updateStatusUI = (v) => {
-            const clo = document.getElementById('closure-dates');
-            const dep = document.getElementById('deprioritize-box');
+            const clo = document.getElementById('closure-dates'), dep = document.getElementById('deprioritize-box');
             if(clo) clo.classList.toggle('hidden', v !== 'Finalizado');
             if(dep) dep.classList.toggle('hidden', v !== 'Despriorizado');
         };
-
         window.validatePrazo = function(input) {
-            const selectedDate = input.value;
-            const today = new Date().toISOString().split('T')[0];
-            if (selectedDate && selectedDate < today) {
-                const mod = document.createElement('div'); mod.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-[20000]";
-                mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center text-slate-800"><h3 class="font-black uppercase text-red-500 mb-4">Data Inválida</h3><p class="text-sm font-medium mb-6">O Prazo Estimado não pode ser uma data retroativa.</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">Entendido</button></div>`;
-                document.body.appendChild(mod);
-                input.value = today;
-            }
+            const selectedDate = input.value, today = new Date().toISOString().split('T')[0];
+            if (selectedDate && selectedDate < today) { alertModal("Data Inválida", "O Prazo Estimado não pode ser uma data retroativa."); input.value = today; }
         };
-
         window.confirmFinalizationQuick = () => {
-            const statusEl = document.getElementById('status');
-            const dateEl = document.getElementById('data_conclusao');
-            if(statusEl) statusEl.value = 'Finalizado';
-            if(dateEl) dateEl.value = new Date().toISOString().split('T')[0];
-            window.updateStatusUI('Finalizado');
-            isFormDirty = true;
-            document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' });
+            const statusEl = document.getElementById('status'), dateEl = document.getElementById('data_conclusao');
+            if(statusEl) statusEl.value = 'Finalizado'; if(dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+            window.updateStatusUI('Finalizado'); isFormDirty = true; document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' });
         };
-
-        // REATORAÇÃO DAS FUNÇÕES DE MODAL PARA SUPORTAR TIPOS DIFERENTES
         window.openDeleteModal = (id, type = 'projects') => { 
-            idToDelete = id; 
-            typeToDelete = type;
+            idToDelete = id; typeToDelete = type;
             const titleEl = document.getElementById('delete-modal-title');
             if(titleEl) titleEl.innerText = type === 'planning' ? 'Excluir Ciclo?' : 'Excluir Iniciativa?';
             document.getElementById('delete-modal').style.display = 'flex'; 
         };
-
-        window.closeDeleteModal = () => { 
-            idToDelete = null; 
-            typeToDelete = null;
-            document.getElementById('delete-modal').style.display = 'none'; 
-        };
-
+        window.closeDeleteModal = () => { idToDelete = null; typeToDelete = null; document.getElementById('delete-modal').style.display = 'none'; };
         window.confirmDelete = async () => { 
             if(idToDelete && typeToDelete && user) { 
                 const collectionPath = typeToDelete === 'planning' ? 'planning' : 'projects';
@@ -1044,19 +986,16 @@
                 window.closeDeleteModal(); 
             } 
         };
-
         window.saveAndExit = () => { document.getElementById('project-form').requestSubmit(); isFormDirty = false; document.getElementById('confirm-exit-modal').style.display = 'none'; };
         window.discardAndExit = () => { isFormDirty = false; document.getElementById('confirm-exit-modal').style.display = 'none'; window.switchTab('dashboard'); };
-
         function resetForm() {
-            document.getElementById('project-form').reset();
+            const projectForm = document.getElementById('project-form'); if(projectForm) projectForm.reset();
             document.getElementById('edit-id').value = '';
             document.querySelectorAll('input[name="area_check"]').forEach(cb => cb.checked = false);
             tempNotes = []; tempTasks = []; tempAttention = []; isFormDirty = false;
             window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
             window.updateStatusUI('Backlog');
         }
-
         window.editProjectByID = (id) => {
             const p = projects.find(x => x.id === id); if (!p) return;
             window.switchTab('form');
@@ -1071,9 +1010,7 @@
             document.getElementById('nota_inicial').value = p.nota_inicial || '';
             document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
             document.getElementById('data_conclusao').value = p.data_conclusao || '';
-            
             window.updateStatusUI(p.status);
-            
             tempNotes = p.notes || []; tempTasks = p.tasks || []; tempAttention = p.attention || [];
             window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
             const pAreas = Array.isArray(p.time) ? p.time : [p.time];
@@ -1081,148 +1018,50 @@
             document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => { cb.checked = p.responsavel?.includes(cb.value); });
             document.getElementById('btn-concluir-quick').classList.toggle('hidden', p.status === 'Finalizado');
         };
-
         window.renderTasksList = () => {
             const container = document.getElementById('tasks-list-container'); if(!container) return; container.innerHTML = ''; 
-            tempTasks.forEach(t => { 
-                container.innerHTML += `<div class="task-item text-slate-800"><input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskStatus(${t.id})"><span class="flex-1 text-xs font-bold ${t.completed ? 'line-through text-slate-300' : 'text-slate-700'}">${t.text}</span><button type="button" onclick="window.removeTaskFromProject(${t.id})" class="text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>`; 
-            }); 
+            tempTasks.forEach(t => { container.innerHTML += `<div class="task-item text-slate-800"><input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskStatus(${t.id})"><span class="flex-1 text-xs font-bold ${t.completed ? 'line-through text-slate-300' : 'text-slate-700'}">${t.text}</span><button type="button" onclick="window.removeTaskFromProject(${t.id})" class="text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>`; }); 
             window.updateTaskProgress();
         };
-
         window.updateTaskProgress = function() {
-            const total = tempTasks.length;
-            const completed = tempTasks.filter(t => t.completed).length;
-            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-            const bar = document.getElementById('task-progress-bar');
-            const txt = document.getElementById('progress-percent');
-            if(bar) bar.style.width = percent + '%';
-            if(txt) txt.innerText = `PROGRESSO: ${percent}%`;
+            const total = tempTasks.length, completed = tempTasks.filter(t => t.completed).length, percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+            const bar = document.getElementById('task-progress-bar'), txt = document.getElementById('progress-percent');
+            if(bar) bar.style.width = percent + '%'; if(txt) txt.innerText = `PROGRESSO: ${percent}%`;
         };
-
         window.toggleTaskStatus = (id) => { tempTasks = tempTasks.map(t => t.id === id ? {...t, completed: !t.completed} : t); window.renderTasksList(); isFormDirty = true; };
         window.removeTaskFromProject = (id) => { tempTasks = tempTasks.filter(t => t.id !== id); window.renderTasksList(); isFormDirty = true; };
-        window.addTaskToProject = () => { const input = document.getElementById('new-task-input'); const val = input?.value.trim(); if(!val) return; tempTasks.push({ id: Date.now(), text: val, completed: false }); if(input) input.value = ''; window.renderTasksList(); isFormDirty = true; };
-
-        window.renderHistoryLists = () => {
-            const l = document.getElementById('notes-history-list'); l.innerHTML = '';
-            tempNotes.forEach(n => l.innerHTML += `<div class="history-entry"><span class="text-cyan-500 font-black text-[9px] uppercase">${n.date}</span><p class="mt-1 font-semibold text-xs">${n.text}</p></div>`);
-        };
+        window.addTaskToProject = () => { const input = document.getElementById('new-task-input'), val = input?.value.trim(); if(!val) return; tempTasks.push({ id: Date.now(), text: val, completed: false }); if(input) input.value = ''; window.renderTasksList(); isFormDirty = true; };
+        window.renderHistoryLists = () => { const l = document.getElementById('notes-history-list'); if(l) { l.innerHTML = ''; tempNotes.forEach(n => l.innerHTML += `<div class="history-entry"><span class="text-cyan-500 font-black text-[9px] uppercase">${n.date}</span><p class="mt-1 font-semibold text-xs">${n.text}</p></div>`); } };
         window.addItemToHistory = (type) => {
-            const inputId = type === 'note' ? 'new-milestone-note' : 'new-attention-note';
-            const val = document.getElementById(inputId).value; if(!val) return;
+            const inputId = type === 'note' ? 'new-milestone-note' : 'new-attention-note', val = document.getElementById(inputId).value; if(!val) return;
             const item = { date: new Date().toLocaleDateString('pt-BR'), text: val };
             if(type === 'note') { tempNotes.unshift(item); window.renderHistoryLists(); }
             else { item.type = document.getElementById('impedimento_tipo_list').value; tempAttention.unshift(item); window.renderAttentionList(); }
             document.getElementById(inputId).value = ''; isFormDirty = true;
         };
-
-        window.renderAttentionList = () => {
-            const l = document.getElementById('attention-history-list'); l.innerHTML = '';
-            tempAttention.forEach((a, i) => {
-                const color = a.type === 'Problema' ? 'border-red-500' : 'border-amber-500';
-                l.innerHTML += `<div class="history-entry border-l-4 ${color}"><div class="flex justify-between items-start"><span class="font-black text-[9px] uppercase">${a.type} | ${a.date}</span><button type="button" onclick="window.removeAttention(${i})" class="text-slate-300">✕</button></div><p class="mt-1 font-semibold text-xs">${a.text}</p></div>`;
-            });
-        };
+        window.renderAttentionList = () => { const l = document.getElementById('attention-history-list'); if(l) { l.innerHTML = ''; tempAttention.forEach((a, i) => { const color = a.type === 'Problema' ? 'border-red-500' : 'border-amber-500'; l.innerHTML += `<div class="history-entry border-l-4 ${color}"><div class="flex justify-between items-start"><span class="font-black text-[9px] uppercase">${a.type} | ${a.date}</span><button type="button" onclick="window.removeAttention(${i})" class="text-slate-300">✕</button></div><p class="mt-1 font-semibold text-xs">${a.text}</p></div>`; }); } };
         window.removeAttention = (i) => { tempAttention.splice(i, 1); window.renderAttentionList(); isFormDirty = true; };
         window.setAttentionType = (t) => { document.getElementById('impedimento_tipo_list').value = t; document.getElementById('toggle-list-risco').className = `toggle-btn ${t==='Risco'?'active-risco':'inactive'}`; document.getElementById('toggle-list-problema').className = `toggle-btn ${t==='Problema'?'active-problema':'inactive'}`; };
-
         document.getElementById('project-form').onsubmit = async (e) => {
             e.preventDefault(); if(!user) return;
-            
-            const status = document.getElementById('status').value;
-            const justificativa = document.getElementById('justificativa_despriorizacao').value.trim();
-            
-            if (status === 'Despriorizado' && !justificativa) {
-                const mod = document.createElement('div'); mod.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-[20000]";
-                mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center"><h3 class="font-black uppercase text-red-500 mb-4">Atenção</h3><p class="text-sm font-medium mb-6">Ao despriorizar uma iniciativa, é obrigatório preencher o motivo.</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">Preencher agora</button></div>`;
-                document.body.appendChild(mod);
-                return;
-            }
-
+            const status = document.getElementById('status').value, justificativa = document.getElementById('justificativa_despriorizacao').value.trim();
+            if (status === 'Despriorizado' && !justificativa) { alertModal("Atenção", "Ao despriorizar uma iniciativa, é obrigatório preencher o motivo."); return; }
             const resps = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const areas = Array.from(document.querySelectorAll('input[name="area_check"]:checked')).map(cb => cb.value);
-            
-            if(areas.length === 0) {
-                const mod = document.createElement('div'); mod.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-[20000]";
-                mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center"><h3 class="font-black uppercase text-red-500 mb-4">Erro</h3><p class="text-sm font-medium mb-6">Selecione pelo menos uma Área impactada.</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">Ok</button></div>`;
-                document.body.appendChild(mod); return;
-            }
-            
+            if(areas.length === 0) { alertModal("Erro", "Selecione pelo menos uma Área impactada."); return; }
             const id = document.getElementById('edit-id').value;
-            const data = {
-                iniciativa: document.getElementById('iniciativa').value,
-                time: areas,
-                estrutura: document.getElementById('estrutura').value,
-                frente: document.getElementById('frente').value,
-                classificacao: document.getElementById('classificacao').value,
-                status: status,
-                prazo: document.getElementById('prazo').value,
-                data_criacao: document.getElementById('data_criacao').value,
-                nota_inicial: document.getElementById('nota_inicial').value,
-                responsavel: resps,
-                justificativa_despriorizacao: justificativa,
-                data_conclusao: document.getElementById('data_conclusao').value,
-                notes: tempNotes, tasks: tempTasks, attention: tempAttention
-            };
-            if(id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data);
-            else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
+            const data = { iniciativa: document.getElementById('iniciativa').value, time: areas, estrutura: document.getElementById('estrutura').value, frente: document.getElementById('frente').value, classificacao: document.getElementById('classificacao').value, status: status, prazo: document.getElementById('prazo').value, data_criacao: document.getElementById('data_criacao').value, nota_inicial: document.getElementById('nota_inicial').value, responsavel: resps, justificativa_despriorizacao: justificativa, data_conclusao: document.getElementById('data_conclusao').value, notes: tempNotes, tasks: tempTasks, attention: tempAttention };
+            if(id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data); else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
             isFormDirty = false; window.switchTab('dashboard');
         };
-
-        window.exportToXLS = () => {
-            let csv = "Iniciativa,Areas,Estrutura,Responsáveis,Prazo,Status,Motivo Despriorização\n";
-            projects.forEach(p => { const areas = Array.isArray(p.time) ? p.time.join('; ') : p.time; csv += `"${p.iniciativa}","${areas}","${p.estrutura}","${p.responsavel?.join('; ')}","${p.prazo}","${p.status}","${p.justificativa_despriorizacao || ''}"\n`; });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "Projetos_Unico.csv"); link.click();
-        };
-        
+        window.exportToXLS = () => { let csv = "Iniciativa,Areas,Estrutura,Responsáveis,Prazo,Status,Motivo Despriorização\n"; projects.forEach(p => { csv += `"${p.iniciativa}","${Array.isArray(p.time) ? p.time.join('; ') : p.time}","${p.estrutura}","${p.responsavel?.join('; ')}","${p.prazo}","${p.status}","${p.justificativa_despriorizacao || ''}"\n`; }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "Projetos_Unico.csv"); link.click(); };
         window.exportPDF = () => window.print();
-
         window.openAddModal = (t) => { pendingTab = t; document.getElementById('add-item-title').innerText = "Adicionar " + t; document.getElementById('add-item-modal').style.display = 'flex'; };
         window.closeAddModal = () => document.getElementById('add-item-modal').style.display = 'none';
-        window.processAddItem = () => {
-            const v = document.getElementById('new-item-input').value.trim(); if(!v) return;
-            if(pendingTab === 'analista') renderAnalista(v);
-            else if(pendingTab === 'area_check') renderAreaCheckbox(v);
-            else { const el = document.getElementById(pendingTab); if(el) el.add(new Option(v, v, true, true)); }
-            window.closeAddModal(); document.getElementById('new-item-input').value = '';
-        };
-
-        function renderAnalista(name) {
-            const g = document.getElementById('responsaveis-grid'); if(!g) return;
-            const l = document.createElement('label'); l.className = "checkbox-item";
-            l.innerHTML = `<input type="checkbox" name="responsavel_check" value="${name}"><span>${name}</span>`;
-            g.appendChild(l);
-            ['dash', 'list', 'archive'].forEach(p => {
-                const el = document.getElementById(`${p}-filter-analista`);
-                if(el) el.add(new Option(name, name));
-            });
-        }
-
-        function renderAreaCheckbox(name) {
-            const g = document.getElementById('areas-checkbox-grid'); if(!g) return;
-            const l = document.createElement('label'); l.className = "checkbox-item";
-            l.innerHTML = `<input type="checkbox" name="area_check" value="${name}"><span>${name}</span>`;
-            g.appendChild(l);
-            ['dash', 'list', 'archive', 'planning'].forEach(p => {
-                const el = document.getElementById(`${p}-filter-area`);
-                if(el) el.add(new Option(name, name));
-            });
-        }
-
-        const setupFilters = () => {
-            defaultTeam.forEach(renderAnalista);
-            defaultAreas.forEach(renderAreaCheckbox);
-            defaultFrentes.forEach(f => {
-                const sel = document.getElementById('frente');
-                if(sel) sel.add(new Option(f, f));
-                ['dash', 'list', 'archive', 'planning'].forEach(p => {
-                    const el = document.getElementById(`${p}-filter-frente`);
-                    if(el) el.add(new Option(f, f));
-                });
-            });
-        };
+        window.processAddItem = () => { const v = document.getElementById('new-item-input').value.trim(); if(!v) return; if(pendingTab === 'analista') renderAnalista(v); else if(pendingTab === 'area_check') renderAreaCheckbox(v); else { const el = document.getElementById(pendingTab); if(el) el.add(new Option(v, v, true, true)); } window.closeAddModal(); document.getElementById('new-item-input').value = ''; };
+        function renderAnalista(name) { const g = document.getElementById('responsaveis-grid'); if(!g) return; const l = document.createElement('label'); l.className = "checkbox-item"; l.innerHTML = `<input type="checkbox" name="responsavel_check" value="${name}"><span>${name}</span>`; g.appendChild(l); ['dash', 'list', 'archive'].forEach(p => { const el = document.getElementById(`${p}-filter-analista`); if(el) el.add(new Option(name, name)); }); const pSel = document.getElementById('planning-responsible'); if(pSel) pSel.add(new Option(name, name)); }
+        function renderAreaCheckbox(name) { const g = document.getElementById('areas-checkbox-grid'); if(!g) return; const l = document.createElement('label'); l.className = "checkbox-item"; l.innerHTML = `<input type="checkbox" name="area_check" value="${name}"><span>${name}</span>`; g.appendChild(l); ['dash', 'list', 'archive', 'planning'].forEach(p => { const el = document.getElementById(`${p}-filter-area`); if(el) el.add(new Option(name, name)); }); }
+        const setupFilters = () => { defaultTeam.forEach(renderAnalista); defaultAreas.forEach(renderAreaCheckbox); defaultFrentes.forEach(f => { const sel = document.getElementById('frente'); if(sel) sel.add(new Option(f, f)); ['dash', 'list', 'archive', 'planning'].forEach(p => { const el = document.getElementById(`${p}-filter-frente`); if(el) el.add(new Option(f, f)); }); }); };
 
         setupFilters();
         initAuth();
