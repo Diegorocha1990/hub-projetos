@@ -430,7 +430,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left min-w-[1000px]">
                         <thead class="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            <tr><th class="p-6">Iniciativa</th><th class="p-6">Área</th><th class="p-6 text-center">Responsáveis</th><th class="p-6 text-center">Estimado</th><th class="p-6 text-center">Status</th><th class="p-6 text-right no-print">Ações</th></tr>
+                            <tr><th class="p-6">Iniciativa</th><th class="p-6">Área</th><th class="p-6 text-center">Responsáveis</th><th class="p-6 text-center">Início</th><th class="p-6 text-center">Estimado</th><th class="p-6 text-center">Status</th><th class="p-6 text-right no-print">Ações</th></tr>
                         </thead>
                         <tbody id="detailed-table-body" class="divide-y divide-slate-100 text-[11px] md:text-[13px] font-bold text-slate-700"></tbody>
                     </table>
@@ -933,6 +933,7 @@
 
         window.refreshUI = function() {
             const today = new Date(); today.setHours(0,0,0,0);
+            const todayStr = today.toISOString().split('T')[0];
             const activeTab = document.querySelector('.active-tab')?.id.split('-')[1];
             if(activeTab === 'planning') return;
             const prefix = activeTab === 'dashboard' ? 'dash' : activeTab === 'list' ? 'list' : 'archive';
@@ -972,15 +973,12 @@
             });
 
             if (activeTab === 'dashboard') {
-                const todayStr = today.toISOString().split('T')[0];
                 const f = filtered.filter(p => p.status === 'Finalizado');
                 
-                // --- LÓGICA SÊNIOR DE MÉTRICAS ---
-                // Contagem de Riscos e Problemas (agregados do array attention de cada projeto)
+                // --- LÓGICA DE MÉTRICAS (PMO Auditoria) ---
                 const totalRisks = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Risco').length || 0), 0);
                 const totalProblems = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Problema').length || 0), 0);
                 
-                // Cálculo de SLA Geral (projetos que não estão atrasados)
                 const inSLA = filtered.filter(p => {
                     if (p.status === 'Finalizado' || p.status === 'Despriorizado') return true;
                     if (!p.prazo) return true;
@@ -988,7 +986,6 @@
                 });
                 const slaPerc = filtered.length ? Math.round((inSLA.length / filtered.length) * 100) : 100;
 
-                // Cálculo de Saúde (Baseado em problemas e atrasos)
                 const saude = Math.max(0, 100 - (totalProblems * 10) - (totalRisks * 5));
 
                 document.getElementById('kpi-total').innerText = filtered.length;
@@ -1005,9 +1002,14 @@
                 renderChart('chartTime', 'bar', areaStats, paleta);
                 renderChart('chartFrente', 'bar', filtered.reduce((a,v) => { a[v.frente||'N/A']=(a[v.frente||'N/A']||0)+1; return a; }, {}), paleta);
                 renderChart('chartLeadTime', 'bar', { 'Médio': 10, 'Atual': 8 }, ['#00A5FF', '#FF1A5C']);
+                
                 const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
                 if(bG) bG.innerHTML = ''; if(aG) aG.innerHTML = '';
-                filtered.forEach(p => {
+                
+                // Ordenação por data de criação (Recentes primeiro)
+                const sortedDash = [...filtered].sort((a, b) => (b.data_criacao || '').localeCompare(a.data_criacao || ''));
+
+                sortedDash.forEach(p => {
                     const card = createProjectCard(p, today);
                     if(p.status === 'Backlog' && bG) bG.innerHTML += card;
                     else if(p.status === 'Em Andamento' && aG) aG.innerHTML += card;
@@ -1022,7 +1024,7 @@
                     tbody.innerHTML = '';
                     filtered.forEach(p => {
                         const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || '--');
-                        tbody.innerHTML += `<tr><td class="p-6 uppercase font-bold">${p.iniciativa}</td><td class="p-6">${areasDisplay}</td><td class="p-6 text-center">${p.responsavel?.join(', ') || '--'}</td><td class="p-6 text-center font-bold">${p.prazo?.split('-').reverse().join('/') || '--'}</td><td class="p-6 text-center"><span class="status-pill" style="background: ${getStatusColor(p.status)}">${p.status}</span></td><td class="p-6 text-right flex items-center justify-end gap-3 no-print"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 uppercase text-[10px] font-black">Gerenciar</button><button onclick="window.openDeleteModal('${p.id}', 'projects')" class="text-red-400 hover:text-red-600 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
+                        tbody.innerHTML += `<tr><td class="p-6 uppercase font-bold">${p.iniciativa}</td><td class="p-6">${areasDisplay}</td><td class="p-6 text-center">${p.responsavel?.join(', ') || '--'}</td><td class="p-6 text-center">${p.data_criacao?.split('-').reverse().join('/') || '--'}</td><td class="p-6 text-center font-bold">${p.prazo?.split('-').reverse().join('/') || '--'}</td><td class="p-6 text-center"><span class="status-pill" style="background: ${getStatusColor(p.status)}">${p.status}</span></td><td class="p-6 text-right flex items-center justify-end gap-3 no-print"><button onclick="window.editProjectByID('${p.id}')" class="text-cyan-500 uppercase text-[10px] font-black">Gerenciar</button><button onclick="window.openDeleteModal('${p.id}', 'projects')" class="text-red-400 hover:text-red-600 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
                     });
                 }
             }
@@ -1030,13 +1032,20 @@
             if (activeTab === 'archive') {
                 const fG = document.getElementById('grid-finalizado'), dG = document.getElementById('grid-despriorizado');
                 if(fG) fG.innerHTML = ''; if(dG) dG.innerHTML = '';
-                filtered.forEach(p => {
-                    const card = createProjectCard(p, today);
-                    if(p.status === 'Finalizado' && fG) fG.innerHTML += card;
-                    else if(p.status === 'Despriorizado' && dG) dG.innerHTML += card;
-                });
-                document.getElementById('count-finalizado-archive').innerText = filtered.filter(p => p.status === 'Finalizado').length;
-                document.getElementById('count-despriorizado-archive').innerText = filtered.filter(p => p.status === 'Despriorizado').length;
+                
+                const sortedFinalizados = filtered
+                    .filter(p => p.status === 'Finalizado')
+                    .sort((a, b) => (b.data_conclusao || '').localeCompare(a.data_conclusao || ''));
+
+                const sortedDespriorizados = filtered
+                    .filter(p => p.status === 'Despriorizado')
+                    .sort((a, b) => (b.data_criacao || '').localeCompare(a.data_criacao || ''));
+
+                sortedFinalizados.forEach(p => { if(fG) fG.innerHTML += createProjectCard(p, today); });
+                sortedDespriorizados.forEach(p => { if(dG) dG.innerHTML += createProjectCard(p, today); });
+
+                document.getElementById('count-finalizado-archive').innerText = sortedFinalizados.length;
+                document.getElementById('count-despriorizado-archive').innerText = sortedDespriorizados.length;
             }
         };
 
@@ -1056,7 +1065,6 @@
             const pCent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
             const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || 'MESA');
             
-            // Lógica de alerta de prazo
             let deadlineAlert = "";
             if (p.status !== 'Finalizado' && p.status !== 'Despriorizado' && p.prazo) {
                 if (p.prazo < todayStr) {
@@ -1066,7 +1074,6 @@
                 }
             }
 
-            // Bloco de Motivo da Despriorização (Visível no Arquivo)
             let deprioritizeInfo = "";
             if (p.status === 'Despriorizado' && p.justificativa_despriorizacao) {
                 deprioritizeInfo = `
@@ -1075,6 +1082,11 @@
                         <p class="text-[10px] font-bold text-red-800 leading-tight">${p.justificativa_despriorizacao}</p>
                     </div>
                 `;
+            }
+
+            let conclusionInfo = "";
+            if (p.status === 'Finalizado' && p.data_conclusao) {
+                conclusionInfo = `<div class="flex justify-between items-center text-emerald-600"><span>CONCLUÍDO EM:</span><span>${p.data_conclusao.split('-').reverse().join('/')}</span></div>`;
             }
 
             return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}">
@@ -1088,7 +1100,9 @@
                 <h3 class="text-[15px] font-black mb-6 uppercase leading-tight text-slate-900 min-h-[40px]">${p.iniciativa}</h3>
                 <div class="space-y-2 text-[10px] font-bold text-slate-400">
                     <div class="flex justify-between items-center"><span>ESTIMADO:</span><span class="text-slate-900">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></div>
-                    <div class="flex justify-between items-center"><span>ABERTO HÁ:</span><span class="text-slate-900">${Math.max(0, openDays)} dias</span></div>
+                    <div class="flex justify-between items-center"><span>CRIAÇÃO:</span><span class="text-slate-900">${p.data_criacao ? p.data_criacao.split('-').reverse().join('/') : '--'}</span></div>
+                    <div class="flex justify-between items-center"><span>DURAÇÃO:</span><span class="text-slate-900">${Math.max(0, openDays)} dias</span></div>
+                    ${conclusionInfo}
                     <div class="pt-2">
                         <div class="flex justify-between items-center mb-1"><span>PROGRESSO</span><span class="text-emerald-500">${pCent}%</span></div>
                         <div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div>
@@ -1108,8 +1122,7 @@
 
         window.validatePrazo = function(input) {
             const selectedDate = input.value;
-            const today = new Date();
-            const todayStr = today.toISOString().split('T')[0];
+            const todayStr = new Date().toISOString().split('T')[0];
 
             if (selectedDate) {
                 if (selectedDate < todayStr) {
@@ -1216,13 +1229,16 @@
             e.preventDefault(); if(!user) return;
             const resps = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const areas = Array.from(document.querySelectorAll('input[name="area_check"]:checked')).map(cb => cb.value);
+            
+            // Validação Sênior: Nome do Analista é obrigatório
+            if(resps.length === 0) { alertModal("Erro", "Selecione pelo menos um Analista responsável."); return; }
+            
             if(areas.length === 0) { alertModal("Erro", "Selecione pelo menos uma Área impactada."); return; }
             
             const id = document.getElementById('edit-id').value;
             const statusVal = document.getElementById('status').value;
             const justificativa = document.getElementById('justificativa_despriorizacao').value;
 
-            // Validação de despriorização com mensagem original recuperada
             if (statusVal === 'Despriorizado' && !justificativa.trim()) {
                 alertModal("Campo Obrigatório", "Para despriorizar uma iniciativa, é obrigatório preencher o motivo da despriorização.");
                 return;
