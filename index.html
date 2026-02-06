@@ -269,8 +269,17 @@
                 </div>
                 <div class="flex flex-wrap gap-2 md:gap-3 items-center no-print">
                     <div class="flex flex-col gap-2">
-                        <div class="flex flex-wrap gap-2">
+                        <div class="flex flex-wrap gap-2 items-center">
                             <input type="text" id="dash-search" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Buscar projeto..." oninput="window.refreshUI()">
+                            
+                            <!-- Filtro de Período Customizado -->
+                            <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-xl px-2 py-1 shadow-sm">
+                                <span class="text-[8px] font-black uppercase text-slate-400">De</span>
+                                <input type="date" id="dash-filter-start" class="border-0 bg-transparent text-[10px] font-bold outline-none cursor-pointer" onchange="window.refreshUI()">
+                                <span class="text-[8px] font-black uppercase text-slate-400">Até</span>
+                                <input type="date" id="dash-filter-end" class="border-0 bg-transparent text-[10px] font-bold outline-none cursor-pointer" onchange="window.refreshUI()">
+                            </div>
+
                             <select id="dash-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                                 <option value="all">Todo o Período</option>
                                 <option value="mes">Mensal</option>
@@ -679,6 +688,11 @@
             ['dashboard', 'form', 'list', 'archive', 'planning'].forEach(v => document.getElementById('view-'+v)?.classList.add('hidden'));
             document.getElementById('view-'+t)?.classList.remove('hidden');
             document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`));
+            
+            if (t === 'form') {
+                resetForm();
+            }
+
             if (t === 'planning') {
                 window.renderPlanningInputs();
                 window.renderPlanningTimeline();
@@ -924,6 +938,10 @@
             const prefix = activeTab === 'dashboard' ? 'dash' : activeTab === 'list' ? 'list' : 'archive';
             const searchVal = document.getElementById(`${prefix}-search`)?.value.toLowerCase() || '';
             const periodVal = document.getElementById(`${prefix}-filter-period`)?.value || 'all';
+            
+            const dateStart = document.getElementById(`${prefix}-filter-start`)?.value || '';
+            const dateEnd = document.getElementById(`${prefix}-filter-end`)?.value || '';
+
             const analistaVal = document.getElementById(`${prefix}-filter-analista`)?.value || '';
             const areaVal = document.getElementById(`${prefix}-filter-area`)?.value || '';
             const frenteVal = document.getElementById(`${prefix}-filter-frente`)?.value || '';
@@ -938,7 +956,13 @@
                 if (frenteVal && p.frente !== frenteVal) match = false;
                 if (classVal && p.classificacao !== classVal) match = false;
                 if (estruturaVal && p.estrutura !== estruturaVal) match = false;
-                if (periodVal !== 'all' && p.data_criacao) {
+                
+                if (p.data_criacao) {
+                    if (dateStart && p.data_criacao < dateStart) match = false;
+                    if (dateEnd && p.data_criacao > dateEnd) match = false;
+                }
+
+                if (periodVal !== 'all' && p.data_criacao && !dateStart && !dateEnd) {
                     const d = new Date(p.data_criacao), n = new Date();
                     if(periodVal === 'mes') match = match && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
                     if(periodVal === 'trimestre') match = match && Math.floor(n.getMonth() / 3) === Math.floor(d.getMonth() / 3);
@@ -948,9 +972,32 @@
             });
 
             if (activeTab === 'dashboard') {
+                const todayStr = today.toISOString().split('T')[0];
                 const f = filtered.filter(p => p.status === 'Finalizado');
+                
+                // --- LÓGICA SÊNIOR DE MÉTRICAS ---
+                // Contagem de Riscos e Problemas (agregados do array attention de cada projeto)
+                const totalRisks = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Risco').length || 0), 0);
+                const totalProblems = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Problema').length || 0), 0);
+                
+                // Cálculo de SLA Geral (projetos que não estão atrasados)
+                const inSLA = filtered.filter(p => {
+                    if (p.status === 'Finalizado' || p.status === 'Despriorizado') return true;
+                    if (!p.prazo) return true;
+                    return p.prazo >= todayStr;
+                });
+                const slaPerc = filtered.length ? Math.round((inSLA.length / filtered.length) * 100) : 100;
+
+                // Cálculo de Saúde (Baseado em problemas e atrasos)
+                const saude = Math.max(0, 100 - (totalProblems * 10) - (totalRisks * 5));
+
                 document.getElementById('kpi-total').innerText = filtered.length;
                 document.getElementById('kpi-performance').innerText = (filtered.length ? Math.round((f.length/filtered.length)*100) : 0) + '%';
+                document.getElementById('kpi-riscos').innerText = totalRisks;
+                document.getElementById('kpi-problemas').innerText = totalProblems;
+                document.getElementById('kpi-sla').innerText = slaPerc + '%';
+                document.getElementById('kpi-saude').innerText = saude + '%';
+
                 const paleta = ['#FF1A5C', '#00A5FF', '#A35F9D', '#8D7AD2', '#32B77E', '#5C86C4', '#070047', '#333333'];
                 renderChart('chartStatus', 'pie', filtered.reduce((a,v) => { a[v.status]=(a[v.status]||0)+1; return a; }, {}), paleta);
                 const areaStats = {};
@@ -1001,13 +1048,55 @@
         }
 
         function createProjectCard(p, today) {
-            const start = p.data_criacao ? new Date(p.data_criacao) : today, end = p.prazo ? new Date(p.prazo) : today;
+            const todayStr = today.toISOString().split('T')[0];
+            const start = p.data_criacao ? new Date(p.data_criacao) : today;
             const openDays = Math.floor((today - start) / 86400000);
             const topColor = getStatusColor(p.status);
             const totalTasks = p.tasks?.length || 0, completedTasks = p.tasks?.filter(t => t.completed).length || 0;
             const pCent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
             const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || 'MESA');
-            return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}"><div class="flex justify-between items-start mb-6"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${p.estrutura || 'ANÁLISE'} | ${areasDisplay}</span><span class="status-pill text-white" style="background: ${topColor}">${p.status}</span></div><h3 class="text-[15px] font-black mb-6 uppercase leading-tight text-slate-900 min-h-[40px]">${p.iniciativa}</h3><div class="space-y-2 text-[10px] font-bold text-slate-400"><div class="flex justify-between items-center"><span>ESTIMADO:</span><span class="text-slate-900">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></div><div class="flex justify-between items-center"><span>ABERTO HÁ:</span><span class="text-slate-900">${Math.max(0, openDays)} dias</span></div><div class="pt-2"><div class="flex justify-between items-center mb-1"><span>PROGRESSO</span><span class="text-emerald-500">${pCent}%</span></div><div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div></div></div><button onclick="window.editProjectByID('${p.id}')" class="w-full bg-[#000a28] text-white py-3.5 rounded-xl font-black uppercase text-[10px] hover:bg-slate-800 transition-all mt-6 shadow-lg tracking-widest no-print">GERENCIAR</button></div>`;
+            
+            // Lógica de alerta de prazo
+            let deadlineAlert = "";
+            if (p.status !== 'Finalizado' && p.status !== 'Despriorizado' && p.prazo) {
+                if (p.prazo < todayStr) {
+                    deadlineAlert = `<span class="status-pill bg-red-600 text-white animate-pulse">EM ATRASO</span>`;
+                } else if (p.prazo === todayStr) {
+                    deadlineAlert = `<span class="status-pill bg-amber-500 text-white font-black">FINALIZA HOJE</span>`;
+                }
+            }
+
+            // Bloco de Motivo da Despriorização (Visível no Arquivo)
+            let deprioritizeInfo = "";
+            if (p.status === 'Despriorizado' && p.justificativa_despriorizacao) {
+                deprioritizeInfo = `
+                    <div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl">
+                        <span class="label-forte !text-red-600 !mb-1 !text-[8px]">Motivo da Despriorização</span>
+                        <p class="text-[10px] font-bold text-red-800 leading-tight">${p.justificativa_despriorizacao}</p>
+                    </div>
+                `;
+            }
+
+            return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}">
+                <div class="flex justify-between items-start mb-6">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${p.estrutura || 'ANÁLISE'} | ${areasDisplay}</span>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="status-pill text-white" style="background: ${topColor}">${p.status}</span>
+                        ${deadlineAlert}
+                    </div>
+                </div>
+                <h3 class="text-[15px] font-black mb-6 uppercase leading-tight text-slate-900 min-h-[40px]">${p.iniciativa}</h3>
+                <div class="space-y-2 text-[10px] font-bold text-slate-400">
+                    <div class="flex justify-between items-center"><span>ESTIMADO:</span><span class="text-slate-900">${p.prazo ? p.prazo.split('-').reverse().join('/') : '--'}</span></div>
+                    <div class="flex justify-between items-center"><span>ABERTO HÁ:</span><span class="text-slate-900">${Math.max(0, openDays)} dias</span></div>
+                    <div class="pt-2">
+                        <div class="flex justify-between items-center mb-1"><span>PROGRESSO</span><span class="text-emerald-500">${pCent}%</span></div>
+                        <div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div>
+                    </div>
+                </div>
+                ${deprioritizeInfo}
+                <button onclick="window.editProjectByID('${p.id}')" class="w-full bg-[#000a28] text-white py-3.5 rounded-xl font-black uppercase text-[10px] hover:bg-slate-800 transition-all mt-6 shadow-lg tracking-widest no-print">GERENCIAR</button>
+            </div>`;
         }
 
         window.setDirty = () => { isFormDirty = true; };
@@ -1016,10 +1105,22 @@
             if(clo) clo.classList.toggle('hidden', v !== 'Finalizado');
             if(dep) dep.classList.toggle('hidden', v !== 'Despriorizado');
         };
+
         window.validatePrazo = function(input) {
-            const selectedDate = input.value, today = new Date().toISOString().split('T')[0];
-            if (selectedDate && selectedDate < today) { alertModal("Data Inválida", "O Prazo Estimado não pode ser uma data retroativa."); input.value = today; }
+            const selectedDate = input.value;
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+
+            if (selectedDate) {
+                if (selectedDate < todayStr) {
+                    alertModal("Data Inválida", "O Prazo Estimado não pode ser uma data retroativa.");
+                    input.value = todayStr;
+                } else if (selectedDate === todayStr) {
+                    alertModal("Atenção ao Prazo", "O prazo de finalização do seu projeto é hoje.", "emerald");
+                }
+            }
         };
+
         window.confirmFinalizationQuick = () => {
             const statusEl = document.getElementById('status'), dateEl = document.getElementById('data_conclusao');
             if(statusEl) statusEl.value = 'Finalizado'; if(dateEl) dateEl.value = new Date().toISOString().split('T')[0];
@@ -1045,14 +1146,24 @@
         };
         window.saveAndExit = () => { document.getElementById('project-form').requestSubmit(); isFormDirty = false; document.getElementById('confirm-exit-modal').style.display = 'none'; };
         window.discardAndExit = () => { isFormDirty = false; document.getElementById('confirm-exit-modal').style.display = 'none'; window.switchTab('dashboard'); };
+        
         function resetForm() {
-            const projectForm = document.getElementById('project-form'); if(projectForm) projectForm.reset();
+            const projectForm = document.getElementById('project-form'); 
+            if(projectForm) projectForm.reset();
             document.getElementById('edit-id').value = '';
             document.querySelectorAll('input[name="area_check"]').forEach(cb => cb.checked = false);
-            tempNotes = []; tempTasks = []; tempAttention = []; isFormDirty = false;
-            window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
+            document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => cb.checked = false);
+            tempNotes = []; 
+            tempTasks = []; 
+            tempAttention = []; 
+            isFormDirty = false;
+            window.renderHistoryLists(); 
+            window.renderTasksList(); 
+            window.renderAttentionList();
             window.updateStatusUI('Backlog');
+            document.getElementById('btn-concluir-quick').classList.add('hidden');
         }
+
         window.editProjectByID = (id) => {
             const p = projects.find(x => x.id === id); if (!p) return;
             window.switchTab('form');
@@ -1106,8 +1217,19 @@
             const resps = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const areas = Array.from(document.querySelectorAll('input[name="area_check"]:checked')).map(cb => cb.value);
             if(areas.length === 0) { alertModal("Erro", "Selecione pelo menos uma Área impactada."); return; }
+            
             const id = document.getElementById('edit-id').value;
-            const data = { iniciativa: document.getElementById('iniciativa').value, time: areas, estrutura: document.getElementById('estrutura').value, frente: document.getElementById('frente').value, classificacao: document.getElementById('classificacao').value, status: document.getElementById('status').value, prazo: document.getElementById('prazo').value, data_criacao: document.getElementById('data_criacao').value, nota_inicial: document.getElementById('nota_inicial').value, responsavel: resps, justificativa_despriorizacao: document.getElementById('justificativa_despriorizacao').value, data_conclusao: document.getElementById('data_conclusao').value, notes: tempNotes, tasks: tempTasks, attention: tempAttention };
+            const statusVal = document.getElementById('status').value;
+            const justificativa = document.getElementById('justificativa_despriorizacao').value;
+
+            // Validação de despriorização com mensagem original recuperada
+            if (statusVal === 'Despriorizado' && !justificativa.trim()) {
+                alertModal("Campo Obrigatório", "Para despriorizar uma iniciativa, é obrigatório preencher o motivo da despriorização.");
+                return;
+            }
+
+            const data = { iniciativa: document.getElementById('iniciativa').value, time: areas, estrutura: document.getElementById('estrutura').value, frente: document.getElementById('frente').value, classificacao: document.getElementById('classificacao').value, status: document.getElementById('status').value, prazo: document.getElementById('prazo').value, data_criacao: document.getElementById('data_criacao').value, nota_inicial: document.getElementById('nota_inicial').value, responsavel: resps, justificativa_despriorizacao: justificativa, data_conclusao: document.getElementById('data_conclusao').value, notes: tempNotes, tasks: tempTasks, attention: tempAttention };
+            
             if(id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data); else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
             isFormDirty = false; window.switchTab('dashboard');
         };
@@ -1147,4 +1269,3 @@
     </script>
 </body>
 </html>
-
