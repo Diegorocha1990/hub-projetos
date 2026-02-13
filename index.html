@@ -653,6 +653,32 @@
             }
         };
 
+        // RULE 3 - Setup Firestore Listeners ONLY after authentication
+        const setupFirestoreListeners = () => {
+            if (!auth.currentUser) return;
+
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), snap => {
+                projects = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                window.refreshUI();
+                hideLoader();
+            }, (error) => {
+                console.error("Firestore Error (Projects):", error);
+                hideLoader();
+            });
+
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), snap => {
+                indicatorDefinitions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                window.renderPlanningInputs();
+                window.renderPlanningTimeline();
+            }, (error) => console.error("Firestore Error (Indicators):", error));
+
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), snap => {
+                planningCycles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                window.renderPlanningTimeline();
+            }, (error) => console.error("Firestore Error (Planning):", error));
+        };
+
+        // RULE 3 - Initialize Auth FIRST
         const initAuth = async () => {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -660,39 +686,36 @@
                 } else {
                     await signInAnonymously(auth);
                 }
-            } catch (e) { hideLoader(); }
+            } catch (e) { 
+                console.error("Auth Error:", e);
+                hideLoader(); 
+            }
         };
 
-        onAuthStateChanged(auth, u => {
-            user = u;
-            if (u) {
-                document.getElementById('sync-indicator')?.classList.remove('hidden');
-                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), snap => {
-                    projects = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    window.refreshUI();
-                    hideLoader();
-                }, () => hideLoader());
+        // MAIN INITIALIZATION FLOW
+        const startApp = async () => {
+            // 1. Static UI Setup
+            setupFiltersStatic();
 
-                // AJUSTE: Listener sem re-população automática interna
-                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), snap => {
-                    indicatorDefinitions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    // Se estiver vazio e for o carregamento inicial (verificável por uma flag ou se você quiser forçar os padrões apenas se NUNCA existiu nada)
-                    // Para evitar o bug do vídeo, removemos o populateInitialIndicators daqui.
-                    window.renderPlanningInputs();
-                    window.renderPlanningTimeline();
-                });
+            // 2. Auth
+            await initAuth();
 
-                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), snap => {
-                    planningCycles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    window.renderPlanningTimeline();
-                });
-            } else {
-                setTimeout(hideLoader, 2000);
-            }
-        });
+            // 3. Setup listener for UI updates based on Auth
+            onAuthStateChanged(auth, u => {
+                user = u;
+                if (u) {
+                    document.getElementById('sync-indicator')?.classList.remove('hidden');
+                }
+            });
 
-        // Função para ser chamada manualmente ou apenas no setup inicial único
+            // 4. Guaranteed Auth at this point (if initAuth succeeded)
+            setupFirestoreListeners();
+            await checkInitialSetup();
+        };
+
+        // Function for initial metadata setup
         async function checkInitialSetup() {
+            if (!auth.currentUser) return;
             const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'));
             if (snap.empty) {
                 await populateInitialIndicators();
@@ -788,7 +811,7 @@
         window.addNewIndicatorDefinition = async () => {
             const name = document.getElementById('new-indicator-name').value.trim();
             const type = document.getElementById('new-indicator-type').value;
-            if(!name) return;
+            if(!name || !auth.currentUser) return;
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), { name, type });
             document.getElementById('new-indicator-name').value = '';
             document.getElementById('add-indicator-modal').style.display = 'none';
@@ -804,7 +827,7 @@
         };
 
         window.saveCyclePlanning = async () => {
-            if(!user) return;
+            if(!auth.currentUser) return;
             const responsible = document.getElementById('planning-responsible').value;
             if(!responsible) { alertModal("Atenção", "Selecione o analista responsável."); return; }
             
@@ -1238,7 +1261,7 @@
         window.closeDeleteModal = () => { idToDelete = null; typeToDelete = null; document.getElementById('delete-modal').style.display = 'none'; };
         
         window.confirmDelete = async () => { 
-            if(idToDelete && typeToDelete && user) { 
+            if(idToDelete && typeToDelete && auth.currentUser) { 
                 let collectionPath = typeToDelete === 'planning' ? 'planning' : (typeToDelete === 'indicator' ? 'indicator_definitions' : 'projects');
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionPath, idToDelete)); 
                 window.closeDeleteModal(); 
@@ -1345,7 +1368,7 @@
         window.setAttentionType = (t) => { document.getElementById('impedimento_tipo_list').value = t; document.getElementById('toggle-list-risco').className = `toggle-btn ${t==='Risco'?'active-risco':'inactive'}`; document.getElementById('toggle-list-problema').className = `toggle-btn ${t==='Problema'?'active-problema':'inactive'}`; };
         
         document.getElementById('project-form').onsubmit = async (e) => {
-            e.preventDefault(); if(!user) return;
+            e.preventDefault(); if(!auth.currentUser) return;
             const resps = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const areas = Array.from(document.querySelectorAll('input[name="area_check"]:checked')).map(cb => cb.value);
             if(resps.length === 0) { alertModal("Erro", "Selecione pelo menos um Analista responsável."); return; }
@@ -1388,15 +1411,20 @@
             document.body.appendChild(mod);
         }
 
-        const setupFilters = () => { 
+        const setupFiltersStatic = () => { 
+            document.getElementById('responsaveis-grid').innerHTML = '';
+            document.getElementById('areas-checkbox-grid').innerHTML = '';
             defaultTeam.forEach(renderAnalista); 
             defaultAreas.forEach(renderAreaCheckbox); 
-            defaultFrentes.forEach(f => { const sel = document.getElementById('frente'); if(sel) sel.add(new Option(f, f)); }); 
-            checkInitialSetup(); // Verifica se precisa criar indicadores iniciais uma única vez
+            const frenteSel = document.getElementById('frente');
+            if (frenteSel) {
+                frenteSel.innerHTML = '';
+                defaultFrentes.forEach(f => frenteSel.add(new Option(f, f)));
+            }
         };
 
-        setupFilters();
-        initAuth();
+        // Start everything
+        startApp();
     </script>
 </body>
 </html>
