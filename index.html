@@ -684,6 +684,7 @@
 
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), snap => {
                     indicatorDefinitions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    // Removido o gatilho automático de populateInitialIndicators
                     window.renderPlanningInputs();
                     window.renderPlanningTimeline();
                 });
