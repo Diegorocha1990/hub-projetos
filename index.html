@@ -560,7 +560,23 @@
                     <div class="form-section-box shadow-sm space-y-6">
                         <div>
                             <label class="label-forte">Descrição detalhada <span class="text-red-500 font-black">*</span></label>
-                            <textarea id="nota_inicial" required rows="4" class="input-premium text-xs leading-relaxed"></textarea>
+                            <!-- AJUSTE: Módulo de Descrição Dinâmica -->
+                            <div id="description-container">
+                                <div id="description-edit-mode">
+                                    <textarea id="nota_inicial" rows="4" class="input-premium text-xs leading-relaxed" placeholder="Descreva o escopo e objetivos principais..."></textarea>
+                                    <div class="flex justify-end mt-2 no-print">
+                                        <button type="button" onclick="window.saveDescriptionUI()" class="bg-indigo-600 text-white px-5 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-indigo-700 transition-all">Incluir Descrição</button>
+                                    </div>
+                                </div>
+                                <div id="description-view-mode" class="hidden">
+                                    <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl relative group min-h-[100px]">
+                                        <p id="description-text-display" class="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-wrap"></p>
+                                        <button type="button" onclick="window.editDescriptionUI()" class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white p-2 rounded-lg shadow-sm text-cyan-500 border border-slate-100 no-print">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="pt-6 border-t border-slate-50">
                             <label class="label-forte">Log de Updates</label>
@@ -1113,6 +1129,24 @@
             </div>`;
         }
 
+        // AJUSTE: Funções de Controle da Descrição Detalhada
+        window.saveDescriptionUI = () => {
+            const val = document.getElementById('nota_inicial').value.trim();
+            if(!val) {
+                alertModal("Atenção", "O campo Descrição detalhada é obrigatório.");
+                return;
+            }
+            document.getElementById('description-text-display').innerText = val;
+            document.getElementById('description-edit-mode').classList.add('hidden');
+            document.getElementById('description-view-mode').classList.remove('hidden');
+            isFormDirty = true;
+        };
+
+        window.editDescriptionUI = () => {
+            document.getElementById('description-edit-mode').classList.remove('hidden');
+            document.getElementById('description-view-mode').classList.add('hidden');
+        };
+
         window.setDirty = () => { isFormDirty = true; };
         window.updateStatusUI = (v) => {
             const clo = document.getElementById('closure-dates'), dep = document.getElementById('deprioritize-box');
@@ -1175,6 +1209,11 @@
             window.renderAttentionList();
             window.updateStatusUI('Backlog');
             document.getElementById('btn-concluir-quick').classList.add('hidden');
+            
+            // Reset do container de descrição
+            document.getElementById('description-edit-mode').classList.remove('hidden');
+            document.getElementById('description-view-mode').classList.add('hidden');
+            document.getElementById('description-text-display').innerText = '';
         }
 
         window.editProjectByID = (id) => {
@@ -1198,6 +1237,13 @@
             document.querySelectorAll('input[name="area_check"]').forEach(cb => { cb.checked = pAreas.includes(cb.value); });
             document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => { cb.checked = p.responsavel?.includes(cb.value); });
             document.getElementById('btn-concluir-quick').classList.toggle('hidden', p.status === 'Finalizado');
+            
+            // Configura modo visualização se houver nota inicial
+            if(p.nota_inicial) {
+                document.getElementById('description-text-display').innerText = p.nota_inicial;
+                document.getElementById('description-edit-mode').classList.add('hidden');
+                document.getElementById('description-view-mode').classList.remove('hidden');
+            }
         };
 
         window.renderTasksList = () => {
@@ -1230,10 +1276,13 @@
             const resps = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const areas = Array.from(document.querySelectorAll('input[name="area_check"]:checked')).map(cb => cb.value);
             
-            // Validação Sênior: Nome do Analista é obrigatório
+            // Validações Sênior
             if(resps.length === 0) { alertModal("Erro", "Selecione pelo menos um Analista responsável."); return; }
-            
             if(areas.length === 0) { alertModal("Erro", "Selecione pelo menos uma Área impactada."); return; }
+            
+            // Validação de Descrição (Pode estar oculta no view mode)
+            const desc = document.getElementById('nota_inicial').value.trim();
+            if(!desc) { alertModal("Erro", "O campo Descrição detalhada é obrigatório."); return; }
             
             const id = document.getElementById('edit-id').value;
             const statusVal = document.getElementById('status').value;
@@ -1244,7 +1293,7 @@
                 return;
             }
 
-            const data = { iniciativa: document.getElementById('iniciativa').value, time: areas, estrutura: document.getElementById('estrutura').value, frente: document.getElementById('frente').value, classificacao: document.getElementById('classificacao').value, status: document.getElementById('status').value, prazo: document.getElementById('prazo').value, data_criacao: document.getElementById('data_criacao').value, nota_inicial: document.getElementById('nota_inicial').value, responsavel: resps, justificativa_despriorizacao: justificativa, data_conclusao: document.getElementById('data_conclusao').value, notes: tempNotes, tasks: tempTasks, attention: tempAttention };
+            const data = { iniciativa: document.getElementById('iniciativa').value, time: areas, estrutura: document.getElementById('estrutura').value, frente: document.getElementById('frente').value, classificacao: document.getElementById('classificacao').value, status: document.getElementById('status').value, prazo: document.getElementById('prazo').value, data_criacao: document.getElementById('data_criacao').value, nota_inicial: desc, responsavel: resps, justificativa_despriorizacao: justificativa, data_conclusao: document.getElementById('data_conclusao').value, notes: tempNotes, tasks: tempTasks, attention: tempAttention };
             
             if(id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data); else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
             isFormDirty = false; window.switchTab('dashboard');
