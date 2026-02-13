@@ -227,11 +227,20 @@
     <div id="add-indicator-modal" class="modal-overlay no-print">
         <div class="modal-content text-center">
             <h3 class="text-xl font-black mb-6 uppercase tracking-tighter text-slate-800">Novo Indicador</h3>
-            <input type="text" id="new-indicator-name" class="input-premium mb-4" placeholder="Nome do Indicador (ex: Tempo de Ocupação)">
+            <input type="text" id="new-indicator-name" class="input-premium mb-4" placeholder="Nome do Indicador (ex: NPS Operacional)">
+            
+            <label class="label-forte text-left mb-2">Unidade de Medida</label>
+            <select id="new-indicator-unit" class="input-premium mb-4 font-bold">
+                <option value="R$">Real (R$)</option>
+                <option value="%">Percentual (%)</option>
+                <option value="Vol">Volume (un)</option>
+            </select>
+
             <label class="label-forte text-left mb-2">Qual o objetivo?</label>
             <select id="new-indicator-type" class="input-premium mb-8 font-bold">
                 <option value="reducao">Redução (Quanto menor, melhor)</option>
                 <option value="crescimento">Crescimento (Quanto maior, melhor)</option>
+                <option value="manter">Manter</option>
             </select>
             <div class="flex gap-3">
                 <button onclick="window.addNewIndicatorDefinition()" class="flex-1 bg-slate-900 text-white py-3.5 rounded-2xl font-black uppercase text-[11px] shadow-xl">ADICIONAR</button>
@@ -633,7 +642,6 @@
         
         let projects = [], planningCycles = [], indicatorDefinitions = [], tempNotes = [], tempTasks = [], tempAttention = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, idToDelete = null, typeToDelete = null, editingCycleId = null;
 
-        // AJUSTE: Variável para rastrear mudança de status
         let previousStatusValue = null;
 
         const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Rodrigo Prinz De Paiva", "Simone Thomé de Andrade"].sort();
@@ -676,7 +684,6 @@
 
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), snap => {
                     indicatorDefinitions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    if(indicatorDefinitions.length === 0) populateInitialIndicators();
                     window.renderPlanningInputs();
                     window.renderPlanningTimeline();
                 });
@@ -690,17 +697,31 @@
             }
         });
 
-        async function populateInitialIndicators() {
-            const initials = [
-                { name: "Custo por Análise (R$)", type: "reducao" },
-                { name: "Custo por Chamado (R$)", type: "reducao" },
-                { name: "Qualidade Onboarding (%)", type: "crescimento" },
-                { name: "SLA de Operação (%)", type: "crescimento" }
-            ];
-            for(const item of initials) {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), item);
-            }
-        }
+        window.addNewIndicatorDefinition = async () => {
+            if(!user) return;
+            const name = document.getElementById('new-indicator-name').value.trim();
+            const type = document.getElementById('new-indicator-type').value;
+            const unit = document.getElementById('new-indicator-unit').value;
+
+            if(!name) { alertModal("Atenção", "O nome do indicador é obrigatório."); return; }
+
+            const data = { name, type, unit, createdAt: new Date().toISOString() };
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), data);
+            
+            document.getElementById('new-indicator-name').value = '';
+            document.getElementById('add-indicator-modal').style.display = 'none';
+        };
+
+        window.addNewYearPlanning = () => {
+            const yearInput = document.getElementById('new-year-input');
+            const year = yearInput.value;
+            if(!year) return;
+            const select = document.getElementById('planning-year');
+            const option = new Option(year, year, true, true);
+            select.add(option);
+            document.getElementById('add-year-modal').style.display = 'none';
+            yearInput.value = '';
+        };
 
         window.switchTab = (t) => {
             ['dashboard', 'form', 'list', 'archive', 'planning'].forEach(v => document.getElementById('view-'+v)?.classList.add('hidden'));
@@ -727,6 +748,11 @@
             if(!container) return;
             container.innerHTML = '';
             
+            if(indicatorDefinitions.length === 0) {
+                container.innerHTML = '<div class="p-8 border-2 border-dashed border-slate-200 rounded-3xl text-center"><p class="text-slate-400 font-bold text-xs uppercase tracking-widest">Nenhuma meta cadastrada. Clique em "+ Novo Indicador" acima.</p></div>';
+                return;
+            }
+
             indicatorDefinitions.forEach(ind => {
                 const div = document.createElement('div');
                 div.className = "mb-10 pb-8 border-b border-slate-100 last:border-0";
@@ -743,7 +769,10 @@
 
                 div.innerHTML = `
                     <div class="flex justify-between items-center mb-5">
-                        <h4 class="label-forte !text-slate-900 !mb-0 !text-[10px] tracking-tight">${ind.name}</h4>
+                        <div class="flex items-center gap-2">
+                             <h4 class="label-forte !text-slate-900 !mb-0 !text-[10px] tracking-tight">${ind.name}</h4>
+                             <span class="bg-slate-100 text-slate-500 text-[8px] px-2 py-0.5 rounded-full font-black uppercase">${ind.unit || 'un'}</span>
+                        </div>
                         <button onclick="window.openDeleteModal('${ind.id}', 'indicator')" class="text-slate-300 hover:text-red-500 transition-all p-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
@@ -761,14 +790,17 @@
                 container.appendChild(div);
 
                 labels.forEach(m => {
-                    document.getElementById(`plan-mth-${ind.id}-${m}`).addEventListener('input', () => {
-                        let sum = 0, count = 0;
-                        labels.forEach(mo => {
-                            const val = parseFloat(document.getElementById(`plan-mth-${ind.id}-${mo}`).value);
-                            if(!isNaN(val)) { sum += val; count++; }
+                    const inputEl = document.getElementById(`plan-mth-${ind.id}-${m}`);
+                    if(inputEl) {
+                        inputEl.addEventListener('input', () => {
+                            let sum = 0, count = 0;
+                            labels.forEach(mo => {
+                                const val = parseFloat(document.getElementById(`plan-mth-${ind.id}-${mo}`).value);
+                                if(!isNaN(val)) { sum += val; count++; }
+                            });
+                            document.getElementById(`plan-r-${ind.id}`).value = count > 0 ? (sum / count).toFixed(2) : '';
                         });
-                        document.getElementById(`plan-r-${ind.id}`).value = count > 0 ? (sum / count).toFixed(2) : '';
-                    });
+                    }
                 });
             });
         };
@@ -783,15 +815,18 @@
             indicatorDefinitions.forEach(ind => {
                 const monthlyData = {};
                 monthLabels[semester].forEach(m => {
-                    monthlyData[m] = Number(document.getElementById(`plan-mth-${ind.id}-${m}`).value) || null;
+                    const val = document.getElementById(`plan-mth-${ind.id}-${m}`)?.value;
+                    monthlyData[m] = val !== "" ? Number(val) : null;
                 });
 
                 kpiValues[ind.id] = {
-                    b: Number(document.getElementById(`plan-b-${ind.id}`).value) || 0,
-                    m: Number(document.getElementById(`plan-m-${ind.id}`).value) || 0,
-                    r: Number(document.getElementById(`plan-r-${ind.id}`).value) || 0,
+                    b: Number(document.getElementById(`plan-b-${ind.id}`)?.value) || 0,
+                    m: Number(document.getElementById(`plan-m-${ind.id}`)?.value) || 0,
+                    r: Number(document.getElementById(`plan-r-${ind.id}`)?.value) || 0,
                     monthly: monthlyData,
-                    name: ind.name, type: ind.type
+                    name: ind.name, 
+                    type: ind.type,
+                    unit: ind.unit || ''
                 };
             });
 
@@ -814,6 +849,11 @@
             if(!container) return;
             container.innerHTML = '';
             
+            if(planningCycles.length === 0) {
+                 container.innerHTML = '<div class="h-full flex flex-col items-center justify-center p-12 text-center bg-white border border-slate-100 rounded-3xl"><p class="text-slate-400 font-bold text-xs uppercase tracking-widest leading-relaxed">Nenhum resultado consolidado.<br>Preencha os dados à esquerda e clique em Salvar Ciclo.</p></div>';
+                 return;
+            }
+
             [...planningCycles].sort((a,b) => b.year - a.year || b.semester.localeCompare(a.semester)).forEach(c => {
                 const card = document.createElement('div');
                 card.className = "cycle-card !p-8";
@@ -821,19 +861,34 @@
                 let kpisHtml = '';
                 Object.entries(c.kpis || {}).forEach(([id, k]) => {
                     const canvasId = `chart-${c.id}-${id}`;
+                    
+                    let adherence = 0;
+                    if(k.m > 0) {
+                        if(k.type === 'reducao') adherence = k.r <= k.m ? 100 : Math.max(0, 100 - ((k.r - k.m) / k.m * 100));
+                        else if(k.type === 'crescimento') adherence = Math.min(100, (k.r / k.m * 100));
+                        else adherence = 100; // Manter
+                    } else if (k.r > 0 && k.m === 0 && k.type === 'reducao') {
+                        adherence = 0;
+                    } else {
+                        adherence = 100;
+                    }
+
                     kpisHtml += `
                         <div class="mb-12 last:mb-0">
                             <div class="flex justify-between items-end mb-6">
                                 <div>
-                                    <span class="label-forte !mb-1">${k.name}</span>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="label-forte !mb-0">${k.name}</span>
+                                        <span class="bg-slate-50 text-slate-400 text-[8px] px-2 py-0.5 rounded-full font-black uppercase">${k.unit || 'un'}</span>
+                                    </div>
                                     <div class="flex gap-4 text-[10px] font-bold">
-                                        <span class="text-slate-400">Baseline: ${k.b}</span>
+                                        <span class="text-slate-400">Base: ${k.b}</span>
                                         <span class="text-indigo-500">Meta: ${k.m}</span>
                                         <span class="text-emerald-600">Real: ${k.r}</span>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-[20px] font-black ${k.r <= k.m ? 'text-emerald-500' : 'text-slate-900'}">${Math.round((k.r/k.m)*100)}%</span>
+                                    <span class="text-[20px] font-black ${adherence >= 100 ? 'text-emerald-500' : 'text-amber-500'}">${Math.round(adherence)}%</span>
                                     <p class="text-[8px] font-black uppercase text-slate-300 tracking-widest">Aderência</p>
                                 </div>
                             </div>
@@ -851,7 +906,7 @@
                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Responsável: ${c.registeredBy}</span>
                         </div>
                         <div class="flex gap-2 no-print">
-                            <button onclick="window.editCycle('${c.id}')" class="text-[9px] font-black px-4 py-2 bg-slate-100 rounded-xl hover:bg-cyan-50 hover:text-cyan-600 transition-all uppercase">Editar Dados</button>
+                            <button onclick="window.editCycle('${c.id}')" class="text-[9px] font-black px-4 py-2 bg-slate-100 rounded-xl hover:bg-cyan-50 hover:text-cyan-600 transition-all uppercase">Editar</button>
                             <button onclick="window.deleteCycle('${c.id}')" class="text-red-200 hover:text-red-500 p-2 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                         </div>
                     </div>
@@ -860,7 +915,9 @@
                 container.appendChild(card);
 
                 Object.entries(c.kpis || {}).forEach(([id, k]) => {
-                    const ctx = document.getElementById(`chart-${c.id}-${id}`).getContext('2d');
+                    const canvasEl = document.getElementById(`chart-${c.id}-${id}`);
+                    if(!canvasEl) return;
+                    const ctx = canvasEl.getContext('2d');
                     const months = Object.keys(k.monthly || {});
                     const values = Object.values(k.monthly || {});
                     
@@ -993,7 +1050,6 @@
             if (activeTab === 'dashboard') {
                 const f = filtered.filter(p => p.status === 'Finalizado');
                 
-                // --- LÓGICA DE MÉTRICAS (PMO Auditoria) ---
                 const totalRisks = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Risco').length || 0), 0);
                 const totalProblems = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Problema').length || 0), 0);
                 
@@ -1024,7 +1080,6 @@
                 const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
                 if(bG) bG.innerHTML = ''; if(aG) aG.innerHTML = '';
                 
-                // Ordenação por data de criação (Recentes primeiro)
                 const sortedDash = [...filtered].sort((a, b) => (b.data_criacao || '').localeCompare(a.data_criacao || ''));
 
                 sortedDash.forEach(p => {
@@ -1150,28 +1205,25 @@
 
         window.setDirty = () => { isFormDirty = true; };
 
-        // AJUSTE: Função de Update Status com Log Automático
         window.updateStatusUI = (v) => {
             const clo = document.getElementById('closure-dates'), dep = document.getElementById('deprioritize-box');
             if(clo) clo.classList.toggle('hidden', v !== 'Finalizado');
             if(dep) dep.classList.toggle('hidden', v !== 'Despriorizado');
 
-            // Lógica de Log Automático
             if (previousStatusValue && previousStatusValue !== v) {
                 const logMsg = `Status alterado de "${previousStatusValue}" para "${v}"`;
                 const color = getStatusColor(v);
                 
-                // Adiciona ao início do histórico (mais recente)
                 tempNotes.unshift({ 
                     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
                     text: logMsg,
-                    color: color // Passamos a cor definida para o log
+                    color: color
                 });
                 
                 window.renderHistoryLists();
                 isFormDirty = true;
             }
-            previousStatusValue = v; // Atualiza o "anterior" para a próxima mudança
+            previousStatusValue = v; 
         };
 
         window.validatePrazo = function(input) {
@@ -1228,7 +1280,6 @@
             window.renderTasksList(); 
             window.renderAttentionList();
             
-            // AJUSTE: Reset do controle de status
             previousStatusValue = null;
             window.updateStatusUI('Backlog');
             
@@ -1253,7 +1304,6 @@
             document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
             document.getElementById('data_conclusao').value = p.data_conclusao || '';
             
-            // AJUSTE: Carrega o status para o controle de mudança ANTES de rodar updateStatusUI
             previousStatusValue = p.status || 'Backlog';
             window.updateStatusUI(previousStatusValue);
             
@@ -1285,7 +1335,6 @@
         window.removeTaskFromProject = (id) => { tempTasks = tempTasks.filter(t => t.id !== id); window.renderTasksList(); isFormDirty = true; };
         window.addTaskToProject = () => { const input = document.getElementById('new-task-input'), val = input?.value.trim(); if(!val) return; tempTasks.push({ id: Date.now(), text: val, completed: false }); if(input) input.value = ''; window.renderTasksList(); isFormDirty = true; };
         
-        // AJUSTE: Renderização do Histórico com suporte a cor de status
         window.renderHistoryLists = () => { 
             const l = document.getElementById('notes-history-list'); 
             if(l) { 
