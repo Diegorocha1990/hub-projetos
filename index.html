@@ -560,7 +560,6 @@
                     <div class="form-section-box shadow-sm space-y-6">
                         <div>
                             <label class="label-forte">Descrição detalhada <span class="text-red-500 font-black">*</span></label>
-                            <!-- AJUSTE: Módulo de Descrição Dinâmica -->
                             <div id="description-container">
                                 <div id="description-edit-mode">
                                     <textarea id="nota_inicial" rows="4" class="input-premium text-xs leading-relaxed" placeholder="Descreva o escopo e objetivos principais..."></textarea>
@@ -633,6 +632,9 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'unico-eficiencia-2026';
         
         let projects = [], planningCycles = [], indicatorDefinitions = [], tempNotes = [], tempTasks = [], tempAttention = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, idToDelete = null, typeToDelete = null, editingCycleId = null;
+
+        // AJUSTE: Variável para rastrear mudança de status
+        let previousStatusValue = null;
 
         const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Rodrigo Prinz De Paiva", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
@@ -1129,7 +1131,6 @@
             </div>`;
         }
 
-        // AJUSTE: Funções de Controle da Descrição Detalhada
         window.saveDescriptionUI = () => {
             const val = document.getElementById('nota_inicial').value.trim();
             if(!val) {
@@ -1148,10 +1149,29 @@
         };
 
         window.setDirty = () => { isFormDirty = true; };
+
+        // AJUSTE: Função de Update Status com Log Automático
         window.updateStatusUI = (v) => {
             const clo = document.getElementById('closure-dates'), dep = document.getElementById('deprioritize-box');
             if(clo) clo.classList.toggle('hidden', v !== 'Finalizado');
             if(dep) dep.classList.toggle('hidden', v !== 'Despriorizado');
+
+            // Lógica de Log Automático
+            if (previousStatusValue && previousStatusValue !== v) {
+                const logMsg = `Status alterado de "${previousStatusValue}" para "${v}"`;
+                const color = getStatusColor(v);
+                
+                // Adiciona ao início do histórico (mais recente)
+                tempNotes.unshift({ 
+                    date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
+                    text: logMsg,
+                    color: color // Passamos a cor definida para o log
+                });
+                
+                window.renderHistoryLists();
+                isFormDirty = true;
+            }
+            previousStatusValue = v; // Atualiza o "anterior" para a próxima mudança
         };
 
         window.validatePrazo = function(input) {
@@ -1207,10 +1227,12 @@
             window.renderHistoryLists(); 
             window.renderTasksList(); 
             window.renderAttentionList();
-            window.updateStatusUI('Backlog');
-            document.getElementById('btn-concluir-quick').classList.add('hidden');
             
-            // Reset do container de descrição
+            // AJUSTE: Reset do controle de status
+            previousStatusValue = null;
+            window.updateStatusUI('Backlog');
+            
+            document.getElementById('btn-concluir-quick').classList.add('hidden');
             document.getElementById('description-edit-mode').classList.remove('hidden');
             document.getElementById('description-view-mode').classList.add('hidden');
             document.getElementById('description-text-display').innerText = '';
@@ -1230,7 +1252,11 @@
             document.getElementById('nota_inicial').value = p.nota_inicial || '';
             document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
             document.getElementById('data_conclusao').value = p.data_conclusao || '';
-            window.updateStatusUI(p.status);
+            
+            // AJUSTE: Carrega o status para o controle de mudança ANTES de rodar updateStatusUI
+            previousStatusValue = p.status || 'Backlog';
+            window.updateStatusUI(previousStatusValue);
+            
             tempNotes = p.notes || []; tempTasks = p.tasks || []; tempAttention = p.attention || [];
             window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
             const pAreas = Array.isArray(p.time) ? p.time : [p.time];
@@ -1238,7 +1264,6 @@
             document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => { cb.checked = p.responsavel?.includes(cb.value); });
             document.getElementById('btn-concluir-quick').classList.toggle('hidden', p.status === 'Finalizado');
             
-            // Configura modo visualização se houver nota inicial
             if(p.nota_inicial) {
                 document.getElementById('description-text-display').innerText = p.nota_inicial;
                 document.getElementById('description-edit-mode').classList.add('hidden');
@@ -1259,14 +1284,38 @@
         window.toggleTaskStatus = (id) => { tempTasks = tempTasks.map(t => t.id === id ? {...t, completed: !t.completed} : t); window.renderTasksList(); isFormDirty = true; };
         window.removeTaskFromProject = (id) => { tempTasks = tempTasks.filter(t => t.id !== id); window.renderTasksList(); isFormDirty = true; };
         window.addTaskToProject = () => { const input = document.getElementById('new-task-input'), val = input?.value.trim(); if(!val) return; tempTasks.push({ id: Date.now(), text: val, completed: false }); if(input) input.value = ''; window.renderTasksList(); isFormDirty = true; };
-        window.renderHistoryLists = () => { const l = document.getElementById('notes-history-list'); if(l) { l.innerHTML = ''; tempNotes.forEach(n => l.innerHTML += `<div class="history-entry"><span class="text-cyan-500 font-black text-[9px] uppercase">${n.date}</span><p class="mt-1 font-semibold text-xs">${n.text}</p></div>`); } };
+        
+        // AJUSTE: Renderização do Histórico com suporte a cor de status
+        window.renderHistoryLists = () => { 
+            const l = document.getElementById('notes-history-list'); 
+            if(l) { 
+                l.innerHTML = ''; 
+                tempNotes.forEach(n => {
+                    const borderStyle = n.color ? `border-left: 4px solid ${n.color}` : '';
+                    const labelColor = n.color ? '' : 'text-cyan-500';
+                    const customLabelStyle = n.color ? `color: ${n.color}` : '';
+
+                    l.innerHTML += `
+                        <div class="history-entry" style="${borderStyle}">
+                            <span class="font-black text-[9px] uppercase ${labelColor}" style="${customLabelStyle}">${n.date}</span>
+                            <p class="mt-1 font-semibold text-xs text-slate-700">${n.text}</p>
+                        </div>
+                    `;
+                }); 
+            } 
+        };
+
         window.addItemToHistory = (type) => {
             const inputId = type === 'note' ? 'new-milestone-note' : 'new-attention-note', val = document.getElementById(inputId).value; if(!val) return;
-            const item = { date: new Date().toLocaleDateString('pt-BR'), text: val };
+            const item = { 
+                date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
+                text: val 
+            };
             if(type === 'note') { tempNotes.unshift(item); window.renderHistoryLists(); }
             else { item.type = document.getElementById('impedimento_tipo_list').value; tempAttention.unshift(item); window.renderAttentionList(); }
             document.getElementById(inputId).value = ''; isFormDirty = true;
         };
+
         window.renderAttentionList = () => { const l = document.getElementById('attention-history-list'); if(l) { l.innerHTML = ''; tempAttention.forEach((a, i) => { const color = a.type === 'Problema' ? 'border-red-500' : 'border-amber-500'; l.innerHTML += `<div class="history-entry border-l-4 ${color}"><div class="flex justify-between items-start"><span class="font-black text-[9px] uppercase">${a.type} | ${a.date}</span><button type="button" onclick="window.removeAttention(${i})" class="text-slate-300 no-print">✕</button></div><p class="mt-1 font-semibold text-xs">${a.text}</p></div>`; }); } };
         window.removeAttention = (i) => { tempAttention.splice(i, 1); window.renderAttentionList(); isFormDirty = true; };
         window.setAttentionType = (t) => { document.getElementById('impedimento_tipo_list').value = t; document.getElementById('toggle-list-risco').className = `toggle-btn ${t==='Risco'?'active-risco':'inactive'}`; document.getElementById('toggle-list-problema').className = `toggle-btn ${t==='Problema'?'active-problema':'inactive'}`; };
@@ -1276,11 +1325,9 @@
             const resps = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const areas = Array.from(document.querySelectorAll('input[name="area_check"]:checked')).map(cb => cb.value);
             
-            // Validações Sênior
             if(resps.length === 0) { alertModal("Erro", "Selecione pelo menos um Analista responsável."); return; }
             if(areas.length === 0) { alertModal("Erro", "Selecione pelo menos uma Área impactada."); return; }
             
-            // Validação de Descrição (Pode estar oculta no view mode)
             const desc = document.getElementById('nota_inicial').value.trim();
             if(!desc) { alertModal("Erro", "O campo Descrição detalhada é obrigatório."); return; }
             
