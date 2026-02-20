@@ -113,7 +113,6 @@
         }
         .checkbox-item span { font-size: 0.8rem; font-weight: 700; color: #334155; }
         
-        /* Ações para Analistas */
         .analista-item-actions {
             display: flex;
             gap: 4px;
@@ -170,7 +169,7 @@
         .modal-content { background: white; padding: 2rem; border-radius: 2rem; width: 90%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
         .count-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 900; min-width: 24px; text-align: center; }
         
-        /* Planejamento Estilos */
+        /* Planeamento Estilos */
         .card-planning { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 1.25rem; box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); }
         .cycle-card { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 1.5rem; position: relative; border-left: 8px solid #00e5ff; transition: all 0.2s; }
         .cycle-card:hover { transform: translateX(5px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05); }
@@ -190,14 +189,12 @@
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- Overlay de Loading -->
     <div id="loading-overlay" class="no-print" style="position: fixed; inset: 0; background: var(--primary-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: white; transition: opacity 0.5s, visibility 0.5s;">
         <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="w-24 md:w-32 mb-8 invert" alt="Unico">
         <div class="w-10 h-10 border-4 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
         <p class="mt-4 text-[10px] font-black uppercase tracking-widest text-slate-500">A conectar à estratégia...</p>
     </div>
 
-    <!-- MODAIS -->
     <div id="confirm-exit-modal" class="modal-overlay no-print">
         <div class="modal-content text-center text-slate-800">
             <h3 class="text-xl md:text-2xl font-black mb-2 uppercase tracking-tighter text-slate-800">Alterações não salvas</h3>
@@ -246,14 +243,12 @@
         <div class="modal-content text-center">
             <h3 class="text-xl font-black mb-6 uppercase tracking-tighter text-slate-800">Novo Indicador</h3>
             <input type="text" id="new-indicator-name" class="input-premium mb-4" placeholder="Nome do Indicador (ex: NPS Operacional)">
-            
             <label class="label-forte text-left mb-2">Unidade de Medida</label>
             <select id="new-indicator-unit" class="input-premium mb-4 font-bold">
                 <option value="R$">Real (R$)</option>
                 <option value="%">Percentual (%)</option>
                 <option value="Vol">Volume (un)</option>
             </select>
-
             <label class="label-forte text-left mb-2">Qual o objetivo?</label>
             <select id="new-indicator-type" class="input-premium mb-8 font-bold">
                 <option value="reducao">Redução (Quanto menor, melhor)</option>
@@ -278,7 +273,7 @@
             </div>
             <nav class="flex gap-4 md:gap-10 h-full items-center text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-slate-400">
                 <button onclick="window.trySwitchTab('dashboard')" id="tab-dashboard" class="h-full px-1 md:px-2 active-tab">Dash</button>
-                <button onclick="window.trySwitchTab('planning')" id="tab-planning" class="h-full px-1 md:px-2 hover:text-slate-900">Planejamento</button>
+                <button onclick="window.trySwitchTab('planning')" id="tab-planning" class="h-full px-1 md:px-2 hover:text-slate-900">Planeamento</button>
                 <button onclick="window.trySwitchTab('form')" id="tab-form" class="h-full px-1 md:px-2 hover:text-slate-900">Novo</button>
                 <button onclick="window.trySwitchTab('list')" id="tab-list" class="h-full px-1 md:px-2 hover:text-slate-900">Projetos</button>
                 <button onclick="window.trySwitchTab('archive')" id="tab-archive" class="h-full px-1 md:px-2 hover:text-slate-900">Arquivo</button>
@@ -287,7 +282,6 @@
     </header>
 
     <main class="max-w-7xl mx-auto p-4 md:p-8 mt-2 md:mt-4">
-        <!-- VIEW DASHBOARD -->
         <div id="view-dashboard" class="block">
             <div class="mb-8 md:mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-6">
                 <div>
@@ -297,16 +291,13 @@
                 <div class="flex flex-wrap gap-2 md:gap-3 items-center no-print">
                     <div class="flex flex-col gap-2">
                         <div class="flex flex-wrap gap-2 items-center">
-                            <input type="text" id="dash-search" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Buscar projeto..." oninput="window.refreshUI()">
-                            
-                            <!-- Filtro de Período Customizado -->
+                            <input type="text" id="dash-search" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Procurar projeto..." oninput="window.refreshUI()">
                             <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-xl px-2 py-1 shadow-sm">
                                 <span class="text-[8px] font-black uppercase text-slate-400">De</span>
                                 <input type="date" id="dash-filter-start" class="border-0 bg-transparent text-[10px] font-bold outline-none cursor-pointer" onchange="window.refreshUI()">
                                 <span class="text-[8px] font-black uppercase text-slate-400">Até</span>
                                 <input type="date" id="dash-filter-end" class="border-0 bg-transparent text-[10px] font-bold outline-none cursor-pointer" onchange="window.refreshUI()">
                             </div>
-
                             <select id="dash-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                                 <option value="all">Todo o Período</option>
                                 <option value="mes">Mensal</option>
@@ -373,7 +364,6 @@
             </div>
         </div>
 
-        <!-- VIEW PLANEJAMENTO -->
         <div id="view-planning" class="hidden">
             <div class="mb-10 flex justify-between items-start">
                 <div>
@@ -382,9 +372,7 @@
                 </div>
                 <button onclick="document.getElementById('add-indicator-modal').style.display='flex'" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-indigo-700 transition-all no-print">+ Novo Indicador</button>
             </div>
-
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <!-- Inputs Left Column -->
                 <div class="lg:col-span-6 space-y-6 no-print">
                     <div class="form-section-box !mb-0">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -406,33 +394,23 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div id="dynamic-kpi-inputs-container" class="space-y-10">
-                            <!-- Injetado via JS -->
-                        </div>
-
+                        <div id="dynamic-kpi-inputs-container" class="space-y-10"></div>
                         <div class="mt-12 pt-8 border-t border-slate-100">
                             <label class="label-forte text-indigo-600">Responsável pelo Preenchimento *</label>
                             <select id="planning-responsible" class="input-premium font-black text-slate-900 mb-6">
                                 <option value="">Selecione o analista...</option>
                             </select>
-                            
                             <button onclick="window.saveCyclePlanning()" id="btn-save-planning" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-[1.01] transition-all">Salvar Ciclo e Atualizar Gráficos</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Timeline Right Column -->
                 <div class="lg:col-span-6 print:!col-span-12">
                     <label class="label-forte text-slate-400 mb-6 uppercase tracking-widest no-print">Resultados Consolidados</label>
-                    <div id="planning-timeline-list" class="space-y-8">
-                        <!-- Cards injetados via JS -->
-                    </div>
+                    <div id="planning-timeline-list" class="space-y-8"></div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW LIST -->
         <div id="view-list" class="hidden">
             <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
@@ -443,7 +421,7 @@
                     <div class="flex flex-wrap gap-2">
                         <button onclick="window.exportToXLS()" class="bg-white border border-slate-200 px-5 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-50 shadow-sm h-[34px]">XLS</button>
                         <button onclick="window.exportPDF()" class="bg-slate-900 text-white px-5 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-800 shadow-sm h-[34px]">PDF</button>
-                        <input type="text" id="list-search" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Buscar projeto..." oninput="window.refreshUI()">
+                        <input type="text" id="list-search" class="input-premium !py-1.5 !px-3 !text-[10px] !w-40 shadow-sm" placeholder="Procurar projeto..." oninput="window.refreshUI()">
                         <select id="list-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                             <option value="all">Período</option><option value="mes">Mensal</option><option value="trimestre">Trimestral</option><option value="ano">Anual</option>
                         </select>
@@ -465,7 +443,6 @@
             </div>
         </div>
 
-        <!-- VIEW ARQUIVO -->
         <div id="view-archive" class="hidden">
             <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
@@ -491,7 +468,6 @@
             </div>
         </div>
 
-        <!-- VIEW FORM -->
         <div id="view-form" class="hidden max-w-6xl mx-auto">
             <div class="mb-6 md:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <h2 id="form-title" class="text-2xl md:text-3xl font-black uppercase tracking-tighter text-slate-900">Ficha Técnica</h2>
@@ -503,7 +479,6 @@
             <form id="project-form" oninput="window.setDirty()">
                 <input type="hidden" id="edit-id" value="">
                 <input type="hidden" id="impedimento_tipo_list" value="Risco">
-                
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-300 mb-6 pb-2 border-b border-slate-50 uppercase">1. Identificação Geral</label>
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10">
@@ -514,7 +489,6 @@
                         <div class="md:col-span-4"><label class="label-forte">Prioridade</label><select id="prioridade" class="input-premium font-bold"><option value="Baixa">Baixa</option><option value="Média" selected>Média</option><option value="Alta">Alta</option></select></div>
                     </div>
                 </div>
-
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50 uppercase">2. Definição Operacional</label>
                     <div class="flex flex-wrap items-start gap-4">
@@ -535,7 +509,6 @@
                         </div>
                         <div class="flex-1 min-w-[130px]"><label class="label-forte">Status</label><select id="status" class="input-premium font-black text-slate-900" onchange="window.updateStatusUI(this.value)"><option value="Backlog">Backlog</option><option value="Em Andamento">Em Andamento</option><option value="Finalizado">Finalizado</option><option value="Despriorizado">Despriorizado</option></select></div>
                     </div>
-
                     <div class="mt-8 pt-6 border-t border-slate-50">
                         <div class="flex justify-between items-center mb-4">
                             <label class="label-forte !mb-0">Áreas Impactadas <span class="text-red-500 font-black">*</span></label>
@@ -544,7 +517,6 @@
                         <div id="areas-checkbox-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"></div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div class="form-section-box shadow-sm">
                         <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50 uppercase">3. Cronograma</label>
@@ -560,7 +532,6 @@
                             <textarea id="justificativa_despriorizacao" rows="3" class="input-premium text-xs" placeholder="Descreva o motivo pelo qual este projeto foi despriorizado..."></textarea>
                         </div>
                     </div>
-
                     <div class="form-section-box shadow-sm">
                         <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50 uppercase">4. Atividades / Tasks</label>
                         <div class="flex justify-between items-center mb-2">
@@ -574,7 +545,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="form-section-box shadow-sm">
                     <div class="flex justify-between items-center mb-8 pb-3 border-b border-slate-50">
                         <label class="label-forte text-slate-400 !mb-0">5. Analistas Responsáveis <span class="text-red-500 font-black">*</span></label>
@@ -582,7 +552,6 @@
                     </div>
                     <div id="responsaveis-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-3 gap-x-12 max-h-56 overflow-y-auto pr-2"></div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                     <div class="form-section-box shadow-sm space-y-6">
                         <div>
@@ -613,7 +582,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div class="form-section-box shadow-sm !bg-slate-50">
                         <div class="flex justify-between items-center mb-4">
                             <label class="label-forte !mb-0">Atenção Executiva</label>
@@ -629,7 +597,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="pt-10 flex flex-col sm:flex-row gap-4 border-t border-slate-100 no-print pb-10">
                     <button type="submit" class="bg-slate-900 text-white px-12 py-5 rounded-[1.5rem] font-black shadow-2xl flex-1 uppercase text-xs tracking-widest hover:scale-[1.01] transition-all">Salvar Projeto</button>
                     <button type="button" onclick="window.trySwitchTab('dashboard');" class="bg-white text-slate-400 border border-slate-200 px-10 py-5 rounded-[1.5rem] font-bold text-xs uppercase">Sair</button>
@@ -663,10 +630,22 @@
         let analystToEdit = null;
         let previousStatusValue = null;
 
-        // Lista de analistas atualizada (Rodrigo Prinz De Paiva removido permanentemente)
+        // Lista de analistas padrão
         const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
         const defaultFrentes = ["Automação", "Performance", "Reestruturação", "Simplificação"].sort();
+
+        // MAPEAMENTO DE AVATARES - Podes inserir os URLs das fotos aqui entre as aspas
+        const teamAvatars = {
+            "Cauan Pereira Da Silva": "",
+            "Diego Francisco Rocha": "",
+            "Hudson Nestor Pereira Cortes": "",
+            "Lucas Henrique Jantsch": "",
+            "Luiz Gustavo Ribeiro": "",
+            "Michael Gabriel Moraes Faria": "",
+            "Otávio Augusto Oliveira": "",
+            "Simone Thomé de Andrade": ""
+        };
 
         const monthLabels = {
             "H1": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
@@ -692,7 +671,6 @@
             } catch (e) { hideLoader(); }
         };
 
-        // Função utilitária para transformar URLs em hyperlinks clicáveis de forma segura
         const safeLinkify = (text) => {
             if (!text) return "";
             const div = document.createElement('div');
@@ -702,6 +680,14 @@
             return escapedText.replace(urlPattern, (url) => {
                 return `<a href="${url}" target="_blank" class="text-cyan-500 underline hover:text-cyan-700 transition-colors font-bold">${url}</a>`;
             });
+        };
+
+        // Função para obter a foto ou gerar avatar com iniciais
+        const getAnalystAvatarUrl = (name) => {
+            if (teamAvatars[name] && teamAvatars[name].trim() !== "") {
+                return teamAvatars[name];
+            }
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&bold=true&size=128`;
         };
 
         onAuthStateChanged(auth, u => {
@@ -848,7 +834,7 @@
             if(editingCycleId) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'planning', editingCycleId), data);
             else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), data);
             editingCycleId = null;
-            alertModal("SUCESSO", "Planejamento atualizado com sucesso.", "emerald");
+            alertModal("SUCESSO", "Planeamento atualizado com sucesso.", "emerald");
             window.renderPlanningInputs();
         };
 
@@ -879,7 +865,7 @@
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="label-forte !mb-0">${k.name}</span>
-                                        <span class="bg-slate-50 text-slate-400 text-[8px] px-2 py-0.5 rounded-full font-black uppercase">${k.unit || 'un'}</span>
+                                        <span class="bg-slate-100 text-slate-400 text-[8px] px-2 py-0.5 rounded-full font-black uppercase">${k.unit || 'un'}</span>
                                     </div>
                                     <div class="flex gap-4 text-[10px] font-bold">
                                         <span class="text-slate-400">Base: ${k.b}</span>
@@ -1076,6 +1062,16 @@
             const totalTasks = p.tasks?.length || 0, completedTasks = p.tasks?.filter(t => t.completed).length || 0;
             const pCent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
             const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || 'MESA');
+            
+            // Lógica do Avatar Stack
+            let avatarStackHtml = "";
+            if (p.responsavel && p.responsavel.length > 0) {
+                const avatars = p.responsavel.map(name => {
+                    return `<img src="${getAnalystAvatarUrl(name)}" title="${name}" class="w-8 h-8 rounded-full border-2 border-white ring-2 ring-slate-50 object-cover shadow-sm bg-slate-200 transition-transform hover:scale-110" alt="${name}">`;
+                }).join('');
+                avatarStackHtml = `<div class="flex -space-x-3 overflow-hidden ml-1 my-1">${avatars}</div>`;
+            }
+
             let deadlineAlert = "";
             if (p.status !== 'Finalizado' && p.status !== 'Despriorizado' && p.prazo) {
                 if (p.prazo < todayStr) deadlineAlert = `<span class="status-pill bg-red-600 text-white animate-pulse">EM ATRASO</span>`;
@@ -1085,8 +1081,11 @@
             let conclusionInfo = (p.status === 'Finalizado' && p.data_conclusao) ? `<div class="flex justify-between items-center text-emerald-600"><span>CONCLUÍDO EM:</span><span>${p.data_conclusao.split('-').reverse().join('/')}</span></div>` : "";
 
             return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}">
-                <div class="flex justify-between items-start mb-6">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${p.estrutura || 'ANÁLISE'} | ${areasDisplay}</span>
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${p.estrutura || 'ANÁLISE'} | ${areasDisplay}</span>
+                        ${avatarStackHtml}
+                    </div>
                     <div class="flex flex-col items-end gap-1">
                         <span class="status-pill text-white" style="background: ${topColor}">${p.status}</span>
                         ${deadlineAlert}
