@@ -596,7 +596,7 @@
                                 </div>
                                 <div id="description-view-mode" class="hidden">
                                     <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl relative group min-h-[100px]">
-                                        <p id="description-text-display" class="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-wrap"></p>
+                                        <div id="description-text-display" class="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-wrap"></div>
                                         <button type="button" onclick="window.editDescriptionUI()" class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white p-2 rounded-lg shadow-sm text-cyan-500 border border-slate-100 no-print">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                         </button>
@@ -691,6 +691,21 @@
                     await signInAnonymously(auth);
                 }
             } catch (e) { hideLoader(); }
+        };
+
+        // Função utilitária para transformar URLs em hyperlinks clicáveis de forma segura
+        const safeLinkify = (text) => {
+            if (!text) return "";
+            // Cria elemento temporário para converter texto puro em HTML escapado (proteção XSS)
+            const div = document.createElement('div');
+            div.textContent = text;
+            const escapedText = div.innerHTML;
+
+            // Expressão regular para detectar URLs
+            const urlPattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            return escapedText.replace(urlPattern, (url) => {
+                return `<a href="${url}" target="_blank" class="text-cyan-500 underline hover:text-cyan-700 transition-colors font-bold">${url}</a>`;
+            });
         };
 
         onAuthStateChanged(auth, u => {
@@ -1213,7 +1228,8 @@
                 alertModal("Atenção", "O campo Descrição detalhada é obrigatório.");
                 return;
             }
-            document.getElementById('description-text-display').innerText = val;
+            // Aplica linkify na exibição da descrição
+            document.getElementById('description-text-display').innerHTML = safeLinkify(val);
             document.getElementById('description-edit-mode').classList.add('hidden');
             document.getElementById('description-view-mode').classList.remove('hidden');
             isFormDirty = true;
@@ -1342,7 +1358,7 @@
             document.getElementById('btn-concluir-quick').classList.add('hidden');
             document.getElementById('description-edit-mode').classList.remove('hidden');
             document.getElementById('description-view-mode').classList.add('hidden');
-            document.getElementById('description-text-display').innerText = '';
+            document.getElementById('description-text-display').innerHTML = '';
         }
 
         window.editProjectByID = (id) => {
@@ -1371,7 +1387,8 @@
             document.getElementById('btn-concluir-quick').classList.toggle('hidden', p.status === 'Finalizado');
             
             if(p.nota_inicial) {
-                document.getElementById('description-text-display').innerText = p.nota_inicial;
+                // Aplica linkify ao carregar descrição existente
+                document.getElementById('description-text-display').innerHTML = safeLinkify(p.nota_inicial);
                 document.getElementById('description-edit-mode').classList.add('hidden');
                 document.getElementById('description-view-mode').classList.remove('hidden');
             }
@@ -1403,7 +1420,7 @@
                     l.innerHTML += `
                         <div class="history-entry" style="${borderStyle}">
                             <span class="font-black text-[9px] uppercase ${labelColor}" style="${customLabelStyle}">${n.date}</span>
-                            <p class="mt-1 font-semibold text-xs text-slate-700">${n.text}</p>
+                            <div class="mt-1 font-semibold text-xs text-slate-700">${safeLinkify(n.text)}</div>
                         </div>
                     `;
                 }); 
