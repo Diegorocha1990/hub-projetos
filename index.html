@@ -204,7 +204,7 @@
             <p class="text-slate-500 mb-8 font-medium text-sm">Deseja salvar o progresso antes de sair?</p>
             <div class="flex flex-col sm:flex-row gap-3">
                 <button onclick="window.saveAndExit()" class="flex-1 bg-slate-900 text-white py-3.5 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-800 transition-all">Salvar e Sair</button>
-                <button onclick="window.discardAndExit()" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-200 transition-all">Descartar</button>
+                <button onclick="window.discardAndExit()" class="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-2xl font-black uppercase text-[11px] hover:bg-slate-200 transition-all">Descartar</button>
             </div>
         </div>
     </div>
@@ -660,12 +660,11 @@
         
         let projects = [], planningCycles = [], indicatorDefinitions = [], tempNotes = [], tempTasks = [], tempAttention = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, idToDelete = null, typeToDelete = null, editingCycleId = null;
 
-        // Gestão de edição local de analistas
         let analystToEdit = null;
-
         let previousStatusValue = null;
 
-        const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Rodrigo Prinz De Paiva", "Simone Thomé de Andrade"].sort();
+        // Lista de analistas atualizada (Rodrigo Prinz De Paiva removido permanentemente)
+        const defaultTeam = ["Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Otávio Augusto Oliveira", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
         const defaultFrentes = ["Automação", "Performance", "Reestruturação", "Simplificação"].sort();
 
@@ -696,12 +695,9 @@
         // Função utilitária para transformar URLs em hyperlinks clicáveis de forma segura
         const safeLinkify = (text) => {
             if (!text) return "";
-            // Cria elemento temporário para converter texto puro em HTML escapado (proteção XSS)
             const div = document.createElement('div');
             div.textContent = text;
             const escapedText = div.innerHTML;
-
-            // Expressão regular para detectar URLs
             const urlPattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             return escapedText.replace(urlPattern, (url) => {
                 return `<a href="${url}" target="_blank" class="text-cyan-500 underline hover:text-cyan-700 transition-colors font-bold">${url}</a>`;
@@ -738,12 +734,9 @@
             const name = document.getElementById('new-indicator-name').value.trim();
             const type = document.getElementById('new-indicator-type').value;
             const unit = document.getElementById('new-indicator-unit').value;
-
             if(!name) { alertModal("Atenção", "O nome do indicador é obrigatório."); return; }
-
             const data = { name, type, unit, createdAt: new Date().toISOString() };
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'indicator_definitions'), data);
-            
             document.getElementById('new-indicator-name').value = '';
             document.getElementById('add-indicator-modal').style.display = 'none';
         };
@@ -763,11 +756,7 @@
             ['dashboard', 'form', 'list', 'archive', 'planning'].forEach(v => document.getElementById('view-'+v)?.classList.add('hidden'));
             document.getElementById('view-'+t)?.classList.remove('hidden');
             document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active-tab', b.id === `tab-${t}`));
-            
-            if (t === 'form') {
-                resetForm();
-            }
-
+            if (t === 'form') resetForm();
             if (t === 'planning') {
                 window.renderPlanningInputs();
                 window.renderPlanningTimeline();
@@ -783,26 +772,21 @@
             const labels = monthLabels[semester];
             if(!container) return;
             container.innerHTML = '';
-            
             if(indicatorDefinitions.length === 0) {
                 container.innerHTML = '<div class="p-8 border-2 border-dashed border-slate-200 rounded-3xl text-center"><p class="text-slate-400 font-bold text-xs uppercase tracking-widest">Nenhuma meta cadastrada. Clique em "+ Novo Indicador" acima.</p></div>';
                 return;
             }
-
             indicatorDefinitions.forEach(ind => {
                 const div = document.createElement('div');
                 div.className = "mb-10 pb-8 border-b border-slate-100 last:border-0";
-                
                 let monthlyInputsHtml = '';
                 labels.forEach(m => {
                     monthlyInputsHtml += `
                         <div class="kpi-input-box">
                             <label class="!text-[8px]">${m}</label>
                             <input type="number" step="0.01" id="plan-mth-${ind.id}-${m}" class="input-premium !py-1.5 !px-2 !text-[11px]" placeholder="0,00">
-                        </div>
-                    `;
+                        </div>`;
                 });
-
                 div.innerHTML = `
                     <div class="flex justify-between items-center mb-5">
                         <div class="flex items-center gap-2">
@@ -819,12 +803,8 @@
                         <div class="kpi-input-box"><label class="!text-emerald-500">Real Médio</label><input type="number" step="0.01" id="plan-r-${ind.id}" class="input-premium !py-2 !px-3 border-emerald-100" placeholder="Automático" readonly></div>
                     </div>
                     <label class="label-forte !text-[8px] !mb-2">Acompanhamento Mensal (${semester})</label>
-                    <div class="monthly-grid">
-                        ${monthlyInputsHtml}
-                    </div>
-                `;
+                    <div class="monthly-grid">${monthlyInputsHtml}</div>`;
                 container.appendChild(div);
-
                 labels.forEach(m => {
                     const inputEl = document.getElementById(`plan-mth-${ind.id}-${m}`);
                     if(inputEl) {
@@ -845,7 +825,6 @@
             if(!user) return;
             const responsible = document.getElementById('planning-responsible').value;
             if(!responsible) { alertModal("Atenção", "Selecione o analista responsável."); return; }
-            
             const semester = document.getElementById('planning-semester').value;
             const kpiValues = {};
             indicatorDefinitions.forEach(ind => {
@@ -854,27 +833,20 @@
                     const val = document.getElementById(`plan-mth-${ind.id}-${m}`)?.value;
                     monthlyData[m] = val !== "" ? Number(val) : null;
                 });
-
                 kpiValues[ind.id] = {
                     b: Number(document.getElementById(`plan-b-${ind.id}`)?.value) || 0,
                     m: Number(document.getElementById(`plan-m-${ind.id}`)?.value) || 0,
                     r: Number(document.getElementById(`plan-r-${ind.id}`)?.value) || 0,
                     monthly: monthlyData,
-                    name: ind.name, 
-                    type: ind.type,
-                    unit: ind.unit || ''
+                    name: ind.name, type: ind.type, unit: ind.unit || ''
                 };
             });
-
             const data = {
-                semester,
-                year: document.getElementById('planning-year').value,
+                semester, year: document.getElementById('planning-year').value,
                 kpis: kpiValues, registeredBy: responsible, updatedAt: new Date().toISOString()
             };
-
             if(editingCycleId) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'planning', editingCycleId), data);
             else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), data);
-            
             editingCycleId = null;
             alertModal("SUCESSO", "Planejamento atualizado com sucesso.", "emerald");
             window.renderPlanningInputs();
@@ -884,31 +856,23 @@
             const container = document.getElementById('planning-timeline-list');
             if(!container) return;
             container.innerHTML = '';
-            
             if(planningCycles.length === 0) {
                  container.innerHTML = '<div class="h-full flex flex-col items-center justify-center p-12 text-center bg-white border border-slate-100 rounded-3xl"><p class="text-slate-400 font-bold text-xs uppercase tracking-widest leading-relaxed">Nenhum resultado consolidado.<br>Preencha os dados à esquerda e clique em Salvar Ciclo.</p></div>';
                  return;
             }
-
             [...planningCycles].sort((a,b) => b.year - a.year || b.semester.localeCompare(a.semester)).forEach(c => {
                 const card = document.createElement('div');
                 card.className = "cycle-card !p-8";
-                
                 let kpisHtml = '';
                 Object.entries(c.kpis || {}).forEach(([id, k]) => {
                     const canvasId = `chart-${c.id}-${id}`;
-                    
                     let adherence = 0;
                     if(k.m > 0) {
                         if(k.type === 'reducao') adherence = k.r <= k.m ? 100 : Math.max(0, 100 - ((k.r - k.m) / k.m * 100));
                         else if(k.type === 'crescimento') adherence = Math.min(100, (k.r / k.m * 100));
                         else adherence = 100; 
-                    } else if (k.r > 0 && k.m === 0 && k.type === 'reducao') {
-                        adherence = 0;
-                    } else {
-                        adherence = 100;
-                    }
-
+                    } else if (k.r > 0 && k.m === 0 && k.type === 'reducao') adherence = 0;
+                    else adherence = 100;
                     kpisHtml += `
                         <div class="mb-12 last:mb-0">
                             <div class="flex justify-between items-end mb-6">
@@ -928,13 +892,9 @@
                                     <p class="text-[8px] font-black uppercase text-slate-300 tracking-widest">Aderência</p>
                                 </div>
                             </div>
-                            <div class="h-48 w-full bg-slate-50/50 rounded-2xl p-4">
-                                <canvas id="${canvasId}"></canvas>
-                            </div>
-                        </div>
-                    `;
+                            <div class="h-48 w-full bg-slate-50/50 rounded-2xl p-4"><canvas id="${canvasId}"></canvas></div>
+                        </div>`;
                 });
-
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-10 pb-6 border-b border-slate-50">
                         <div>
@@ -945,58 +905,27 @@
                             <button onclick="window.editCycle('${c.id}')" class="text-[9px] font-black px-4 py-2 bg-slate-100 rounded-xl hover:bg-cyan-50 hover:text-cyan-600 transition-all uppercase">Editar</button>
                             <button onclick="window.deleteCycle('${c.id}')" class="text-red-200 hover:text-red-500 p-2 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                         </div>
-                    </div>
-                    ${kpisHtml}
-                `;
+                    </div>${kpisHtml}`;
                 container.appendChild(card);
-
                 Object.entries(c.kpis || {}).forEach(([id, k]) => {
                     const canvasEl = document.getElementById(`chart-${c.id}-${id}`);
                     if(!canvasEl) return;
                     const ctx = canvasEl.getContext('2d');
                     const months = Object.keys(k.monthly || {});
                     const values = Object.values(k.monthly || {});
-                    
                     new Chart(ctx, {
                         type: 'line',
                         data: {
                             labels: months,
                             datasets: [
-                                {
-                                    label: 'Realizado',
-                                    data: values,
-                                    borderColor: '#00e5ff',
-                                    backgroundColor: 'rgba(0, 229, 255, 0.1)',
-                                    borderWidth: 4,
-                                    pointRadius: 6,
-                                    pointBackgroundColor: '#00e5ff',
-                                    fill: true,
-                                    tension: 0.4
-                                },
-                                {
-                                    label: 'Meta',
-                                    data: new Array(months.length).fill(k.m),
-                                    borderColor: '#6366f1',
-                                    borderDash: [5, 5],
-                                    borderWidth: 2,
-                                    pointRadius: 0
-                                },
-                                {
-                                    label: 'Baseline',
-                                    data: new Array(months.length).fill(k.b),
-                                    borderColor: '#94a3b8',
-                                    borderWidth: 1,
-                                    pointRadius: 0
-                                }
+                                { label: 'Realizado', data: values, borderColor: '#00e5ff', backgroundColor: 'rgba(0, 229, 255, 0.1)', borderWidth: 4, pointRadius: 6, pointBackgroundColor: '#00e5ff', fill: true, tension: 0.4 },
+                                { label: 'Meta', data: new Array(months.length).fill(k.m), borderColor: '#6366f1', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 },
+                                { label: 'Baseline', data: new Array(months.length).fill(k.b), borderColor: '#94a3b8', borderWidth: 1, pointRadius: 0 }
                             ]
                         },
                         options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { 
-                                legend: { display: false },
-                                datalabels: { display: false }
-                            },
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, datalabels: { display: false } },
                             scales: {
                                 y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 9, weight: 'bold' } } },
                                 x: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } }
@@ -1015,12 +944,10 @@
             document.getElementById('planning-year').value = c.year;
             document.getElementById('planning-responsible').value = c.registeredBy || '';
             window.renderPlanningInputs();
-
             Object.entries(c.kpis || {}).forEach(([indId, val]) => {
                 if(document.getElementById(`plan-b-${indId}`)) document.getElementById(`plan-b-${indId}`).value = val.b;
                 if(document.getElementById(`plan-m-${indId}`)) document.getElementById(`plan-m-${indId}`).value = val.m;
                 if(document.getElementById(`plan-r-${indId}`)) document.getElementById(`plan-r-${indId}`).value = val.r;
-                
                 Object.entries(val.monthly || {}).forEach(([m, v]) => {
                     const el = document.getElementById(`plan-mth-${indId}-${m}`);
                     if(el) el.value = v;
@@ -1050,16 +977,13 @@
             const prefix = activeTab === 'dashboard' ? 'dash' : activeTab === 'list' ? 'list' : 'archive';
             const searchVal = document.getElementById(`${prefix}-search`)?.value.toLowerCase() || '';
             const periodVal = document.getElementById(`${prefix}-filter-period`)?.value || 'all';
-            
             const dateStart = document.getElementById(`${prefix}-filter-start`)?.value || '';
             const dateEnd = document.getElementById(`${prefix}-filter-end`)?.value || '';
-
             const analistaVal = document.getElementById(`${prefix}-filter-analista`)?.value || '';
             const areaVal = document.getElementById(`${prefix}-filter-area`)?.value || '';
             const frenteVal = document.getElementById(`${prefix}-filter-frente`)?.value || '';
             const classVal = document.getElementById(`${prefix}-filter-classificacao`)?.value || '';
             const estruturaVal = document.getElementById(`${prefix}-filter-estrutura`)?.value || '';
-            
             const filtered = projects.filter(p => {
                 let match = true;
                 if (searchVal && !p.iniciativa?.toLowerCase().includes(searchVal)) match = false;
@@ -1068,12 +992,10 @@
                 if (frenteVal && p.frente !== frenteVal) match = false;
                 if (classVal && p.classificacao !== classVal) match = false;
                 if (estruturaVal && p.estrutura !== estruturaVal) match = false;
-                
                 if (p.data_criacao) {
                     if (dateStart && p.data_criacao < dateStart) match = false;
                     if (dateEnd && p.data_criacao > dateEnd) match = false;
                 }
-
                 if (periodVal !== 'all' && p.data_criacao && !dateStart && !dateEnd) {
                     const d = new Date(p.data_criacao), n = new Date();
                     if(periodVal === 'mes') match = match && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
@@ -1082,29 +1004,23 @@
                 }
                 return match;
             });
-
             if (activeTab === 'dashboard') {
                 const f = filtered.filter(p => p.status === 'Finalizado');
-                
                 const totalRisks = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Risco').length || 0), 0);
                 const totalProblems = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Problema').length || 0), 0);
-                
                 const inSLA = filtered.filter(p => {
                     if (p.status === 'Finalizado' || p.status === 'Despriorizado') return true;
                     if (!p.prazo) return true;
                     return p.prazo >= todayStr;
                 });
                 const slaPerc = filtered.length ? Math.round((inSLA.length / filtered.length) * 100) : 100;
-
                 const saude = Math.max(0, 100 - (totalProblems * 10) - (totalRisks * 5));
-
                 document.getElementById('kpi-total').innerText = filtered.length;
                 document.getElementById('kpi-performance').innerText = (filtered.length ? Math.round((f.length/filtered.length)*100) : 0) + '%';
                 document.getElementById('kpi-riscos').innerText = totalRisks;
                 document.getElementById('kpi-problemas').innerText = totalProblems;
                 document.getElementById('kpi-sla').innerText = slaPerc + '%';
                 document.getElementById('kpi-saude').innerText = saude + '%';
-
                 const paleta = ['#FF1A5C', '#00A5FF', '#A35F9D', '#8D7AD2', '#32B77E', '#5C86C4', '#070047', '#333333'];
                 renderChart('chartStatus', 'pie', filtered.reduce((a,v) => { a[v.status]=(a[v.status]||0)+1; return a; }, {}), paleta);
                 const areaStats = {};
@@ -1112,12 +1028,9 @@
                 renderChart('chartTime', 'bar', areaStats, paleta);
                 renderChart('chartFrente', 'bar', filtered.reduce((a,v) => { a[v.frente||'N/A']=(a[v.frente||'N/A']||0)+1; return a; }, {}), paleta);
                 renderChart('chartLeadTime', 'bar', { 'Médio': 10, 'Atual': 8 }, ['#00A5FF', '#FF1A5C']);
-                
                 const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
                 if(bG) bG.innerHTML = ''; if(aG) aG.innerHTML = '';
-                
                 const sortedDash = [...filtered].sort((a, b) => (b.data_criacao || '').localeCompare(a.data_criacao || ''));
-
                 sortedDash.forEach(p => {
                     const card = createProjectCard(p, today);
                     if(p.status === 'Backlog' && bG) bG.innerHTML += card;
@@ -1126,7 +1039,6 @@
                 document.getElementById('count-backlog').innerText = filtered.filter(p => p.status === 'Backlog').length;
                 document.getElementById('count-andamento').innerText = filtered.filter(p => p.status === 'Em Andamento').length;
             }
-
             if (activeTab === 'list') {
                 const tbody = document.getElementById('detailed-table-body');
                 if(tbody) {
@@ -1137,22 +1049,13 @@
                     });
                 }
             }
-
             if (activeTab === 'archive') {
                 const fG = document.getElementById('grid-finalizado'), dG = document.getElementById('grid-despriorizado');
                 if(fG) fG.innerHTML = ''; if(dG) dG.innerHTML = '';
-                
-                const sortedFinalizados = filtered
-                    .filter(p => p.status === 'Finalizado')
-                    .sort((a, b) => (b.data_conclusao || '').localeCompare(a.data_conclusao || ''));
-
-                const sortedDespriorizados = filtered
-                    .filter(p => p.status === 'Despriorizado')
-                    .sort((a, b) => (b.data_criacao || '').localeCompare(a.data_criacao || ''));
-
+                const sortedFinalizados = filtered.filter(p => p.status === 'Finalizado').sort((a, b) => (b.data_conclusao || '').localeCompare(a.data_conclusao || ''));
+                const sortedDespriorizados = filtered.filter(p => p.status === 'Despriorizado').sort((a, b) => (b.data_criacao || '').localeCompare(a.data_criacao || ''));
                 sortedFinalizados.forEach(p => { if(fG) fG.innerHTML += createProjectCard(p, today); });
                 sortedDespriorizados.forEach(p => { if(dG) dG.innerHTML += createProjectCard(p, today); });
-
                 document.getElementById('count-finalizado-archive').innerText = sortedFinalizados.length;
                 document.getElementById('count-despriorizado-archive').innerText = sortedDespriorizados.length;
             }
@@ -1173,30 +1076,13 @@
             const totalTasks = p.tasks?.length || 0, completedTasks = p.tasks?.filter(t => t.completed).length || 0;
             const pCent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
             const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || 'MESA');
-            
             let deadlineAlert = "";
             if (p.status !== 'Finalizado' && p.status !== 'Despriorizado' && p.prazo) {
-                if (p.prazo < todayStr) {
-                    deadlineAlert = `<span class="status-pill bg-red-600 text-white animate-pulse">EM ATRASO</span>`;
-                } else if (p.prazo === todayStr) {
-                    deadlineAlert = `<span class="status-pill bg-amber-500 text-white font-black">FINALIZA HOJE</span>`;
-                }
+                if (p.prazo < todayStr) deadlineAlert = `<span class="status-pill bg-red-600 text-white animate-pulse">EM ATRASO</span>`;
+                else if (p.prazo === todayStr) deadlineAlert = `<span class="status-pill bg-amber-500 text-white font-black">FINALIZA HOJE</span>`;
             }
-
-            let deprioritizeInfo = "";
-            if (p.status === 'Despriorizado' && p.justificativa_despriorizacao) {
-                deprioritizeInfo = `
-                    <div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl">
-                        <span class="label-forte !text-red-600 !mb-1 !text-[8px]">Motivo da Despriorização</span>
-                        <p class="text-[10px] font-bold text-red-800 leading-tight">${p.justificativa_despriorizacao}</p>
-                    </div>
-                `;
-            }
-
-            let conclusionInfo = "";
-            if (p.status === 'Finalizado' && p.data_conclusao) {
-                conclusionInfo = `<div class="flex justify-between items-center text-emerald-600"><span>CONCLUÍDO EM:</span><span>${p.data_conclusao.split('-').reverse().join('/')}</span></div>`;
-            }
+            let deprioritizeInfo = (p.status === 'Despriorizado' && p.justificativa_despriorizacao) ? `<div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl"><span class="label-forte !text-red-600 !mb-1 !text-[8px]">Motivo da Despriorização</span><p class="text-[10px] font-bold text-red-800 leading-tight">${p.justificativa_despriorizacao}</p></div>` : "";
+            let conclusionInfo = (p.status === 'Finalizado' && p.data_conclusao) ? `<div class="flex justify-between items-center text-emerald-600"><span>CONCLUÍDO EM:</span><span>${p.data_conclusao.split('-').reverse().join('/')}</span></div>` : "";
 
             return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}">
                 <div class="flex justify-between items-start mb-6">
@@ -1224,11 +1110,7 @@
 
         window.saveDescriptionUI = () => {
             const val = document.getElementById('nota_inicial').value.trim();
-            if(!val) {
-                alertModal("Atenção", "O campo Descrição detalhada é obrigatório.");
-                return;
-            }
-            // Aplica linkify na exibição da descrição
+            if(!val) { alertModal("Atenção", "O campo Descrição detalhada é obrigatório."); return; }
             document.getElementById('description-text-display').innerHTML = safeLinkify(val);
             document.getElementById('description-edit-mode').classList.add('hidden');
             document.getElementById('description-view-mode').classList.remove('hidden');
@@ -1246,25 +1128,17 @@
             const clo = document.getElementById('closure-dates'), dep = document.getElementById('deprioritize-box');
             if(clo) clo.classList.toggle('hidden', v !== 'Finalizado');
             if(dep) dep.classList.toggle('hidden', v !== 'Despriorizado');
-
-            // Preenchimento automático da data de conclusão
             if (v === 'Finalizado') {
                 const dateEl = document.getElementById('data_conclusao');
-                if (dateEl && !dateEl.value) {
-                    dateEl.value = new Date().toISOString().split('T')[0];
-                }
+                if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
             }
-
             if (previousStatusValue && previousStatusValue !== v) {
                 const logMsg = `Status alterado de "${previousStatusValue}" para "${v}"`;
                 const color = getStatusColor(v);
-                
                 tempNotes.unshift({ 
                     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
-                    text: logMsg,
-                    color: color
+                    text: logMsg, color: color
                 });
-                
                 window.renderHistoryLists();
                 isFormDirty = true;
             }
@@ -1274,14 +1148,11 @@
         window.validatePrazo = function(input) {
             const selectedDate = input.value;
             const todayStr = new Date().toISOString().split('T')[0];
-
             if (selectedDate) {
                 if (selectedDate < todayStr) {
                     alertModal("Data Inválida", "O Prazo Estimado não pode ser uma data retroativa.");
                     input.value = todayStr;
-                } else if (selectedDate === todayStr) {
-                    alertModal("Atenção ao Prazo", "O prazo de finalização do seu projeto é hoje.", "emerald");
-                }
+                } else if (selectedDate === todayStr) alertModal("Atenção ao Prazo", "O prazo de finalização do seu projeto é hoje.", "emerald");
             }
         };
 
@@ -1298,21 +1169,11 @@
             idToDelete = id; typeToDelete = type;
             const titleEl = document.getElementById('delete-modal-title');
             const descEl = document.getElementById('delete-modal-desc');
-
             if(titleEl) {
-                if (type === 'planning') {
-                    titleEl.innerText = 'Excluir Ciclo?';
-                    descEl.innerText = 'Os resultados consolidados deste ciclo serão perdidos.';
-                } else if (type === 'indicator') {
-                    titleEl.innerText = 'Excluir Indicador?';
-                    descEl.innerText = 'Esta meta não aparecerá mais nos próximos planejamentos.';
-                } else if (type === 'analista') {
-                    titleEl.innerText = 'Excluir Analista?';
-                    descEl.innerText = `Remover "${id}" da lista de seleção? Projetos históricos manterão o registro.`;
-                } else {
-                    titleEl.innerText = 'Excluir Iniciativa?';
-                    descEl.innerText = 'A remoção será permanente.';
-                }
+                if (type === 'planning') { titleEl.innerText = 'Excluir Ciclo?'; descEl.innerText = 'Os resultados consolidados deste ciclo serão perdidos.'; }
+                else if (type === 'indicator') { titleEl.innerText = 'Excluir Indicador?'; descEl.innerText = 'Esta meta não aparecerá mais nos próximos planejamentos.'; }
+                else if (type === 'analista') { titleEl.innerText = 'Excluir Analista?'; descEl.innerText = `Remover "${id}" da lista de seleção? Projetos históricos manterão o registro.`; }
+                else { titleEl.innerText = 'Excluir Iniciativa?'; descEl.innerText = 'A remoção será permanente.'; }
             }
             document.getElementById('delete-modal').style.display = 'flex'; 
         };
@@ -1321,13 +1182,7 @@
         
         window.confirmDelete = async () => { 
             if(!user) return;
-
-            if (typeToDelete === 'analista') {
-                window.executeDeleteAnalista(idToDelete);
-                window.closeDeleteModal();
-                return;
-            }
-
+            if (typeToDelete === 'analista') { window.executeDeleteAnalista(idToDelete); window.closeDeleteModal(); return; }
             if(idToDelete && typeToDelete) { 
                 let collectionPath = typeToDelete === 'planning' ? 'planning' : (typeToDelete === 'indicator' ? 'indicator_definitions' : 'projects');
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionPath, idToDelete)); 
@@ -1344,17 +1199,9 @@
             document.getElementById('edit-id').value = '';
             document.querySelectorAll('input[name="area_check"]').forEach(cb => cb.checked = false);
             document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => cb.checked = false);
-            tempNotes = []; 
-            tempTasks = []; 
-            tempAttention = []; 
-            isFormDirty = false;
-            window.renderHistoryLists(); 
-            window.renderTasksList(); 
-            window.renderAttentionList();
-            
-            previousStatusValue = null;
-            window.updateStatusUI('Backlog');
-            
+            tempNotes = []; tempTasks = []; tempAttention = []; isFormDirty = false;
+            window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
+            previousStatusValue = null; window.updateStatusUI('Backlog');
             document.getElementById('btn-concluir-quick').classList.add('hidden');
             document.getElementById('description-edit-mode').classList.remove('hidden');
             document.getElementById('description-view-mode').classList.add('hidden');
@@ -1375,19 +1222,15 @@
             document.getElementById('nota_inicial').value = p.nota_inicial || '';
             document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
             document.getElementById('data_conclusao').value = p.data_conclusao || '';
-            
             previousStatusValue = p.status || 'Backlog';
             window.updateStatusUI(previousStatusValue);
-            
             tempNotes = p.notes || []; tempTasks = p.tasks || []; tempAttention = p.attention || [];
             window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
             const pAreas = Array.isArray(p.time) ? p.time : [p.time];
             document.querySelectorAll('input[name="area_check"]').forEach(cb => { cb.checked = pAreas.includes(cb.value); });
             document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => { cb.checked = p.responsavel?.includes(cb.value); });
             document.getElementById('btn-concluir-quick').classList.toggle('hidden', p.status === 'Finalizado');
-            
             if(p.nota_inicial) {
-                // Aplica linkify ao carregar descrição existente
                 document.getElementById('description-text-display').innerHTML = safeLinkify(p.nota_inicial);
                 document.getElementById('description-edit-mode').classList.add('hidden');
                 document.getElementById('description-view-mode').classList.remove('hidden');
@@ -1416,23 +1259,18 @@
                     const borderStyle = n.color ? `border-left: 4px solid ${n.color}` : '';
                     const labelColor = n.color ? '' : 'text-cyan-500';
                     const customLabelStyle = n.color ? `color: ${n.color}` : '';
-
                     l.innerHTML += `
                         <div class="history-entry" style="${borderStyle}">
                             <span class="font-black text-[9px] uppercase ${labelColor}" style="${customLabelStyle}">${n.date}</span>
                             <div class="mt-1 font-semibold text-xs text-slate-700">${safeLinkify(n.text)}</div>
-                        </div>
-                    `;
+                        </div>`;
                 }); 
             } 
         };
 
         window.addItemToHistory = (type) => {
             const inputId = type === 'note' ? 'new-milestone-note' : 'new-attention-note', val = document.getElementById(inputId).value; if(!val) return;
-            const item = { 
-                date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
-                text: val 
-            };
+            const item = { date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), text: val };
             if(type === 'note') { tempNotes.unshift(item); window.renderHistoryLists(); }
             else { item.type = document.getElementById('impedimento_tipo_list').value; tempAttention.unshift(item); window.renderAttentionList(); }
             document.getElementById(inputId).value = ''; isFormDirty = true;
@@ -1446,159 +1284,79 @@
             e.preventDefault(); if(!user) return;
             const resps = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
             const areas = Array.from(document.querySelectorAll('input[name="area_check"]:checked')).map(cb => cb.value);
-            
             if(resps.length === 0) { alertModal("Erro", "Selecione pelo menos um Analista responsável."); return; }
             if(areas.length === 0) { alertModal("Erro", "Selecione pelo menos uma Área impactada."); return; }
-            
             const desc = document.getElementById('nota_inicial').value.trim();
             if(!desc) { alertModal("Erro", "O campo Descrição detalhada é obrigatório."); return; }
-            
             const id = document.getElementById('edit-id').value;
             const statusVal = document.getElementById('status').value;
             const justificativa = document.getElementById('justificativa_despriorizacao').value;
-
-            if (statusVal === 'Despriorizado' && !justificativa.trim()) {
-                alertModal("Campo Obrigatório", "Para despriorizar uma iniciativa, é obrigatório preencher o motivo da despriorização.");
-                return;
-            }
-
+            if (statusVal === 'Despriorizado' && !justificativa.trim()) { alertModal("Campo Obrigatório", "Para despriorizar uma iniciativa, é obrigatório preencher o motivo da despriorização."); return; }
             const data = { iniciativa: document.getElementById('iniciativa').value, time: areas, estrutura: document.getElementById('estrutura').value, frente: document.getElementById('frente').value, classificacao: document.getElementById('classificacao').value, status: document.getElementById('status').value, prazo: document.getElementById('prazo').value, data_criacao: document.getElementById('data_criacao').value, nota_inicial: desc, responsavel: resps, justificativa_despriorizacao: justificativa, data_conclusao: document.getElementById('data_conclusao').value, notes: tempNotes, tasks: tempTasks, attention: tempAttention };
-            
             if(id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data); else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
             isFormDirty = false; window.switchTab('dashboard');
         };
 
         window.exportToXLS = () => { let csv = "Iniciativa,Areas,Status\n"; projects.forEach(p => { csv += `"${p.iniciativa}","${Array.isArray(p.time) ? p.time.join('; ') : p.time}","${p.status}"\n`; }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "Projetos.csv"); link.click(); };
         window.exportPDF = () => window.print();
-        
-        window.openAddModal = (t) => { 
-            pendingTab = t; 
-            analystToEdit = null;
-            document.getElementById('add-item-title').innerText = "Adicionar " + t; 
-            document.getElementById('btn-process-item').innerText = "Adicionar";
-            document.getElementById('new-item-input').value = '';
-            document.getElementById('add-item-modal').style.display = 'flex'; 
-        };
-
+        window.openAddModal = (t) => { pendingTab = t; analystToEdit = null; document.getElementById('add-item-title').innerText = "Adicionar " + t; document.getElementById('btn-process-item').innerText = "Adicionar"; document.getElementById('new-item-input').value = ''; document.getElementById('add-item-modal').style.display = 'flex'; };
         window.closeAddModal = () => document.getElementById('add-item-modal').style.display = 'none';
-
-        // Lógica de Edição de Analista
-        window.openEditAnalistaModal = (oldName, event) => {
-            if(event) event.stopPropagation();
-            pendingTab = 'analista_edit';
-            analystToEdit = oldName;
-            document.getElementById('add-item-title').innerText = "Editar Analista"; 
-            document.getElementById('btn-process-item').innerText = "Salvar";
-            document.getElementById('new-item-input').value = oldName;
-            document.getElementById('add-item-modal').style.display = 'flex';
-        };
-
-        window.processAddItem = () => { 
-            const v = document.getElementById('new-item-input').value.trim(); 
-            if(!v) return; 
-
-            if(pendingTab === 'analista') {
-                renderAnalista(v); 
-            } else if (pendingTab === 'analista_edit') {
-                window.executeEditAnalista(analystToEdit, v);
-            } else if(pendingTab === 'area_check') {
-                renderAreaCheckbox(v); 
-            } else { 
-                const el = document.getElementById(pendingTab); 
-                if(el) el.add(new Option(v, v, true, true)); 
-            } 
-            window.closeAddModal(); 
-            document.getElementById('new-item-input').value = ''; 
-        };
-
+        window.openEditAnalistaModal = (oldName, event) => { if(event) event.stopPropagation(); pendingTab = 'analista_edit'; analystToEdit = oldName; document.getElementById('add-item-title').innerText = "Editar Analista"; document.getElementById('btn-process-item').innerText = "Salvar"; document.getElementById('new-item-input').value = oldName; document.getElementById('add-item-modal').style.display = 'flex'; };
+        window.processAddItem = () => { const v = document.getElementById('new-item-input').value.trim(); if(!v) return; if(pendingTab === 'analista') renderAnalista(v); else if (pendingTab === 'analista_edit') window.executeEditAnalista(analystToEdit, v); else if(pendingTab === 'area_check') renderAreaCheckbox(v); else { const el = document.getElementById(pendingTab); if(el) el.add(new Option(v, v, true, true)); } window.closeAddModal(); document.getElementById('new-item-input').value = ''; };
         window.executeEditAnalista = (oldName, newName) => {
             const grid = document.getElementById('responsaveis-grid');
             const items = grid.querySelectorAll('.checkbox-item');
             items.forEach(item => {
                 const input = item.querySelector('input');
                 if(input.value === oldName) {
-                    input.value = newName;
-                    item.querySelector('span').innerText = newName;
+                    input.value = newName; item.querySelector('span').innerText = newName;
                     const btns = item.querySelectorAll('button');
                     btns[0].setAttribute('onclick', `window.openEditAnalistaModal('${newName}', event)`);
                     btns[1].setAttribute('onclick', `window.openDeleteModal('${newName}', 'analista')`);
                 }
             });
-
             ['dash', 'list', 'planning-responsible'].forEach(prefix => {
                 const sel = document.getElementById(prefix.includes('planning') ? prefix : `${prefix}-filter-analista`);
-                if(sel) {
-                    for(let i=0; i<sel.options.length; i++) {
-                        if(sel.options[i].value === oldName) {
-                            sel.options[i].text = newName;
-                            sel.options[i].value = newName;
-                        }
-                    }
-                }
+                if(sel) { for(let i=0; i<sel.options.length; i++) { if(sel.options[i].value === oldName) { sel.options[i].text = newName; sel.options[i].value = newName; } } }
             });
             analystToEdit = null;
         };
-
         window.executeDeleteAnalista = (name) => {
             const grid = document.getElementById('responsaveis-grid');
             const items = grid.querySelectorAll('.checkbox-item');
-            items.forEach(item => {
-                if(item.querySelector('input').value === name) item.remove();
-            });
-
+            items.forEach(item => { if(item.querySelector('input').value === name) item.remove(); });
             ['dash', 'list', 'planning-responsible'].forEach(prefix => {
                 const sel = document.getElementById(prefix.includes('planning') ? prefix : `${prefix}-filter-analista`);
-                if(sel) {
-                    for(let i=sel.options.length-1; i>=0; i--) {
-                        if(sel.options[i].value === name) sel.remove(i);
-                    }
-                }
+                if(sel) { for(let i=sel.options.length-1; i>=0; i--) { if(sel.options[i].value === name) sel.remove(i); } }
             });
         };
-        
         function renderAnalista(name) { 
-            const g = document.getElementById('responsaveis-grid'); 
-            if(!g) return; 
-            const l = document.createElement('label'); 
-            l.className = "checkbox-item group"; 
+            const g = document.getElementById('responsaveis-grid'); if(!g) return; 
+            const l = document.createElement('label'); l.className = "checkbox-item group"; 
             l.innerHTML = `
                 <input type="checkbox" name="responsavel_check" value="${name}">
                 <span class="flex-1">${name}</span>
                 <div class="analista-item-actions no-print">
-                    <button type="button" onclick="window.openEditAnalistaModal('${name}', event)" class="btn-action-small text-slate-400 hover:text-indigo-600" title="Editar">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                    </button>
-                    <button type="button" onclick="window.openDeleteModal('${name}', 'analista')" class="btn-action-small text-slate-400 hover:text-red-500" title="Excluir">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                </div>
-            `; 
+                    <button type="button" onclick="window.openEditAnalistaModal('${name}', event)" class="btn-action-small text-slate-400 hover:text-indigo-600" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+                    <button type="button" onclick="window.openDeleteModal('${name}', 'analista')" class="btn-action-small text-slate-400 hover:text-red-500" title="Excluir"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                </div>`; 
             g.appendChild(l); 
             const pSel = document.getElementById('planning-responsible'); if(pSel) pSel.add(new Option(name, name));
             ['dash', 'list'].forEach(p => { const el = document.getElementById(`${p}-filter-analista`); if(el) el.add(new Option(name, name)); });
         }
-
         function renderAreaCheckbox(name) { 
             const g = document.getElementById('areas-checkbox-grid'); if(!g) return; 
             const l = document.createElement('label'); l.className = "checkbox-item"; l.innerHTML = `<input type="checkbox" name="area_check" value="${name}"><span>${name}</span>`; g.appendChild(l); 
             ['dash', 'list'].forEach(p => { const el = document.getElementById(`${p}-filter-area`); if(el) el.add(new Option(name, name)); });
         }
-
         function alertModal(title, msg, color = "slate") {
             const mod = document.createElement('div'); mod.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-[20000]";
             const iconColor = color === "emerald" ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600";
             mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center"><div class="w-12 h-12 ${iconColor} rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">${color === 'emerald' ? '✓' : '!'}</div><h3 class="font-black uppercase text-slate-800 mb-2">${title}</h3><p class="text-sm font-medium text-slate-500 mb-6">${msg}</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">FECHAR</button></div>`;
             document.body.appendChild(mod);
         }
-
-        const setupFilters = () => { 
-            defaultTeam.forEach(renderAnalista); 
-            defaultAreas.forEach(renderAreaCheckbox); 
-            defaultFrentes.forEach(f => { const sel = document.getElementById('frente'); if(sel) sel.add(new Option(f, f)); }); 
-        };
-
-        setupFilters();
-        initAuth();
+        const setupFilters = () => { defaultTeam.forEach(renderAnalista); defaultAreas.forEach(renderAreaCheckbox); defaultFrentes.forEach(f => { const sel = document.getElementById('frente'); if(sel) sel.add(new Option(f, f)); }); };
+        setupFilters(); initAuth();
     </script>
 </body>
 </html>
