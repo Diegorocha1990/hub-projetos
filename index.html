@@ -273,7 +273,7 @@
             </div>
             <nav class="flex gap-4 md:gap-10 h-full items-center text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-slate-400">
                 <button onclick="window.trySwitchTab('dashboard')" id="tab-dashboard" class="h-full px-1 md:px-2 active-tab">Dash</button>
-                <button onclick="window.trySwitchTab('planning')" id="tab-planning" class="h-full px-1 md:px-2 hover:text-slate-900">Planeamento</button>
+                <button onclick="window.trySwitchTab('planning')" id="tab-planning" class="h-full px-1 md:px-2 hover:text-slate-900">Planejamento</button>
                 <button onclick="window.trySwitchTab('form')" id="tab-form" class="h-full px-1 md:px-2 hover:text-slate-900">Novo</button>
                 <button onclick="window.trySwitchTab('list')" id="tab-list" class="h-full px-1 md:px-2 hover:text-slate-900">Projetos</button>
                 <button onclick="window.trySwitchTab('archive')" id="tab-archive" class="h-full px-1 md:px-2 hover:text-slate-900">Arquivo</button>
@@ -491,7 +491,7 @@
                 </div>
                 <div class="form-section-box shadow-sm">
                     <label class="label-forte text-slate-400 mb-6 pb-2 border-b border-slate-50 uppercase">2. Definição Operacional</label>
-                    <div class="flex flex-wrap items-start gap-4">
+                    <div class="flex flex-wrap items-start gap-4 mb-6">
                         <div class="flex-1 min-w-[140px]">
                             <label class="label-forte">Estrutura</label>
                             <select id="estrutura" required class="input-premium font-bold">
@@ -509,6 +509,33 @@
                         </div>
                         <div class="flex-1 min-w-[130px]"><label class="label-forte">Status</label><select id="status" class="input-premium font-black text-slate-900" onchange="window.updateStatusUI(this.value)"><option value="Backlog">Backlog</option><option value="Em Andamento">Em Andamento</option><option value="Finalizado">Finalizado</option><option value="Despriorizado">Despriorizado</option></select></div>
                     </div>
+
+                    <!-- CAMPO: DEPENDÊNCIA EXTERNA -->
+                    <div class="mb-6">
+                        <label class="checkbox-item !bg-slate-50/50 !border-slate-100 !py-4 mb-4">
+                            <input type="checkbox" id="possui_dependencia" onchange="window.toggleDependenciaUI()">
+                            <span class="!text-[11px] !font-black uppercase tracking-tight">Possui dependência externa?</span>
+                        </label>
+                        <div id="dependencia-fields" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div>
+                                <label class="label-forte">Área Responsável</label>
+                                <select id="dependencia_area" class="input-premium font-bold">
+                                    <option value="">Selecione a área...</option>
+                                    <option value="Compras">Compras</option>
+                                    <option value="Eficiência">Eficiência</option>
+                                    <option value="Engenharia">Engenharia</option>
+                                    <option value="Privacidade">Privacidade</option>
+                                    <option value="Segurança">Segurança</option>
+                                    <option value="Sucesso">Sucesso</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-forte">Resumo da Dependência</label>
+                                <input type="text" id="dependencia_resumo" class="input-premium" placeholder="Ex: Aguardando integração de API">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mt-8 pt-6 border-t border-slate-50">
                         <div class="flex justify-between items-center mb-4">
                             <label class="label-forte !mb-0">Áreas Impactadas <span class="text-red-500 font-black">*</span></label>
@@ -629,25 +656,24 @@
 
         let analystToEdit = null;
         let previousStatusValue = null;
+        let previousDepState = false; // Monitorar estado anterior para log automático
 
-        // Lista de analistas padrão
         const defaultTeam = ["Ariel Mori", "Bárbara Pammela Savazi", "Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Natalia Pereira", "Otávio Augusto Oliveira", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
         const defaultFrentes = ["Automação", "Performance", "Reestruturação", "Simplificação"].sort();
 
-        // MAPEAMENTO DE AVATARES - Podes inserir os URLs das fotos aqui entre as aspas
         const teamAvatars = {
-    "Ariel Mori": "",
-    "Bárbara Pammela Savazi": "",
-    "Cauan Pereira Da Silva": "",
-    "Diego Francisco Rocha": "",
-    "Hudson Nestor Pereira Cortes": "",
-    "Lucas Henrique Jantsch": "",
-    "Luiz Gustavo Ribeiro": "",
-    "Michael Gabriel Moraes Faria": "",
-    "Natalia Pereira": "",
-    "Otávio Augusto Oliveira": "",
-    "Simone Thomé de Andrade": ""
+            "Ariel Mori": "",
+            "Bárbara Pammela Savazi": "",
+            "Cauan Pereira Da Silva": "",
+            "Diego Francisco Rocha": "",
+            "Hudson Nestor Pereira Cortes": "",
+            "Lucas Henrique Jantsch": "",
+            "Luiz Gustavo Ribeiro": "",
+            "Michael Gabriel Moraes Faria": "",
+            "Natalia Pereira": "",
+            "Otávio Augusto Oliveira": "",
+            "Simone Thomé de Andrade": ""
         };
 
         const monthLabels = {
@@ -685,7 +711,6 @@
             });
         };
 
-        // Função para obter a foto ou gerar avatar com iniciais
         const getAnalystAvatarUrl = (name) => {
             if (teamAvatars[name] && teamAvatars[name].trim() !== "") {
                 return teamAvatars[name];
@@ -837,7 +862,7 @@
             if(editingCycleId) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'planning', editingCycleId), data);
             else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'planning'), data);
             editingCycleId = null;
-            alertModal("SUCESSO", "Planeamento atualizado com sucesso.", "emerald");
+            alertModal("SUCESSO", "Planejamento atualizado com sucesso.", "emerald");
             window.renderPlanningInputs();
         };
 
@@ -1066,7 +1091,6 @@
             const pCent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
             const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || 'MESA');
             
-            // Lógica do Avatar Stack
             let avatarStackHtml = "";
             if (p.responsavel && p.responsavel.length > 0) {
                 const avatars = p.responsavel.map(name => {
@@ -1082,6 +1106,21 @@
             }
             let deprioritizeInfo = (p.status === 'Despriorizado' && p.justificativa_despriorizacao) ? `<div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl"><span class="label-forte !text-red-600 !mb-1 !text-[8px]">Motivo da Despriorização</span><p class="text-[10px] font-bold text-red-800 leading-tight">${p.justificativa_despriorizacao}</p></div>` : "";
             let conclusionInfo = (p.status === 'Finalizado' && p.data_conclusao) ? `<div class="flex justify-between items-center text-emerald-600"><span>CONCLUÍDO EM:</span><span>${p.data_conclusao.split('-').reverse().join('/')}</span></div>` : "";
+
+            // Visualização da Dependência no Card (Emoji etiqueta 🏷️ e fundo #f1f5f9)
+            let dependenciaHtml = "";
+            if (p.possuiDependencia) {
+                dependenciaHtml = `
+                    <div class="mt-4 p-4 bg-[#f1f5f9] border border-slate-100 rounded-2xl flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                             <div class="bg-black text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-tighter flex items-center gap-1">
+                                <span>🏷️</span>
+                                <span>${p.dependenciaArea || 'DEP. EXTERNA'}</span>
+                             </div>
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-500 leading-tight">${p.dependenciaResumo || 'Aguardando ação externa.'}</p>
+                    </div>`;
+            }
 
             return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}">
                 <div class="flex justify-between items-start mb-4">
@@ -1105,6 +1144,7 @@
                         <div class="progress-container"><div class="progress-bar-fill" style="width: ${pCent}%"></div></div>
                     </div>
                 </div>
+                ${dependenciaHtml}
                 ${deprioritizeInfo}
                 <button onclick="window.editProjectByID('${p.id}')" class="w-full bg-[#000a28] text-white py-3.5 rounded-xl font-black uppercase text-[10px] hover:bg-slate-800 transition-all mt-6 shadow-lg tracking-widest no-print">GERENCIAR</button>
             </div>`;
@@ -1125,6 +1165,13 @@
         };
 
         window.setDirty = () => { isFormDirty = true; };
+
+        // LÓGICA DE EXIBIÇÃO DA DEPENDÊNCIA
+        window.toggleDependenciaUI = () => {
+            const isChecked = document.getElementById('possui_dependencia').checked;
+            document.getElementById('dependencia-fields').classList.toggle('hidden', !isChecked);
+            isFormDirty = true;
+        };
 
         window.updateStatusUI = (v) => {
             const clo = document.getElementById('closure-dates'), dep = document.getElementById('deprioritize-box');
@@ -1201,9 +1248,13 @@
             document.getElementById('edit-id').value = '';
             document.querySelectorAll('input[name="area_check"]').forEach(cb => cb.checked = false);
             document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => cb.checked = false);
+            document.getElementById('possui_dependencia').checked = false;
+            document.getElementById('dependencia-fields').classList.add('hidden');
             tempNotes = []; tempTasks = []; tempAttention = []; isFormDirty = false;
             window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
-            previousStatusValue = null; window.updateStatusUI('Backlog');
+            previousStatusValue = null; 
+            previousDepState = false;
+            window.updateStatusUI('Backlog');
             document.getElementById('btn-concluir-quick').classList.add('hidden');
             document.getElementById('description-edit-mode').classList.remove('hidden');
             document.getElementById('description-view-mode').classList.add('hidden');
@@ -1215,6 +1266,7 @@
             window.switchTab('form');
             document.getElementById('edit-id').value = p.id;
             document.getElementById('iniciativa').value = p.iniciativa || '';
+            document.getElementById('prioridade').value = p.prioridade || 'Média';
             document.getElementById('frente').value = p.frente || '';
             document.getElementById('status').value = p.status || 'Backlog';
             document.getElementById('estrutura').value = p.estrutura || 'Análise';
@@ -1224,6 +1276,15 @@
             document.getElementById('nota_inicial').value = p.nota_inicial || '';
             document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
             document.getElementById('data_conclusao').value = p.data_conclusao || '';
+            
+            // Carregar Dependência
+            const depCheck = document.getElementById('possui_dependencia');
+            depCheck.checked = !!p.possuiDependencia;
+            previousDepState = !!p.possuiDependencia;
+            document.getElementById('dependencia_area').value = p.dependenciaArea || '';
+            document.getElementById('dependencia_resumo').value = p.dependenciaResumo || '';
+            window.toggleDependenciaUI();
+
             previousStatusValue = p.status || 'Backlog';
             window.updateStatusUI(previousStatusValue);
             tempNotes = p.notes || []; tempTasks = p.tasks || []; tempAttention = p.attention || [];
@@ -1294,7 +1355,46 @@
             const statusVal = document.getElementById('status').value;
             const justificativa = document.getElementById('justificativa_despriorizacao').value;
             if (statusVal === 'Despriorizado' && !justificativa.trim()) { alertModal("Campo Obrigatório", "Para despriorizar uma iniciativa, é obrigatório preencher o motivo da despriorização."); return; }
-            const data = { iniciativa: document.getElementById('iniciativa').value, time: areas, estrutura: document.getElementById('estrutura').value, frente: document.getElementById('frente').value, classificacao: document.getElementById('classificacao').value, status: document.getElementById('status').value, prazo: document.getElementById('prazo').value, data_criacao: document.getElementById('data_criacao').value, nota_inicial: desc, responsavel: resps, justificativa_despriorizacao: justificativa, data_conclusao: document.getElementById('data_conclusao').value, notes: tempNotes, tasks: tempTasks, attention: tempAttention };
+            
+            // Lógica de Registro de Log Automático para Dependência
+            const possuiDep = document.getElementById('possui_dependencia').checked;
+            const areaDep = document.getElementById('dependencia_area').value;
+            if (possuiDep && !previousDepState) {
+                tempNotes.unshift({ 
+                    date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
+                    text: `Dependência criada: ${areaDep || 'Área não definida'}`,
+                    color: '#0ea5e9' // Azul para Dependência
+                });
+            } else if (!possuiDep && previousDepState) {
+                tempNotes.unshift({ 
+                    date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
+                    text: `Dependência resolvida`,
+                    color: '#10b981' // Verde para Sucesso
+                });
+            }
+
+            const data = { 
+                iniciativa: document.getElementById('iniciativa').value, 
+                prioridade: document.getElementById('prioridade').value,
+                time: areas, 
+                estrutura: document.getElementById('estrutura').value, 
+                frente: document.getElementById('frente').value, 
+                classificacao: document.getElementById('classificacao').value, 
+                status: statusVal, 
+                prazo: document.getElementById('prazo').value, 
+                data_criacao: document.getElementById('data_criacao').value, 
+                nota_inicial: desc, 
+                responsavel: resps, 
+                justificativa_despriorizacao: justificativa, 
+                data_conclusao: document.getElementById('data_conclusao').value, 
+                possuiDependencia: possuiDep,
+                dependenciaArea: areaDep,
+                dependenciaResumo: document.getElementById('dependencia_resumo').value,
+                notes: tempNotes, 
+                tasks: tempTasks, 
+                attention: tempAttention 
+            };
+
             if(id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data); else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
             isFormDirty = false; window.switchTab('dashboard');
         };
@@ -1362,4 +1462,3 @@
     </script>
 </body>
 </html>
-
