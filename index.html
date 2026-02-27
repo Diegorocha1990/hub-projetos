@@ -1359,13 +1359,18 @@
             // Lógica de Registro de Log Automático para Dependência
             const possuiDep = document.getElementById('possui_dependencia').checked;
             const areaDep = document.getElementById('dependencia_area').value;
+            const resumoDep = document.getElementById('dependencia_resumo').value.trim();
+            
             if (possuiDep && !previousDepState) {
+                // Log de Dependência Criada com o Resumo incluído
+                const logMsg = `Dependência criada: ${areaDep || 'Área não definida'}${resumoDep ? ' - ' + resumoDep : ''}`;
                 tempNotes.unshift({ 
                     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
-                    text: `Dependência criada: ${areaDep || 'Área não definida'}`,
+                    text: logMsg,
                     color: '#0ea5e9' // Azul para Dependência
                 });
             } else if (!possuiDep && previousDepState) {
+                // Log de Dependência Resolvida (mantido conforme premissa)
                 tempNotes.unshift({ 
                     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
                     text: `Dependência resolvida`,
@@ -1462,4 +1467,3 @@
     </script>
 </body>
 </html>
-
