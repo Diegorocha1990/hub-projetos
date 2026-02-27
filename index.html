@@ -525,7 +525,7 @@
                                     <option value="Eficiência">Eficiência</option>
                                     <option value="Engenharia">Engenharia</option>
                                     <option value="Privacidade">Privacidade</option>
-                                    <option value="Segurança">Segurança da Informação</option>
+                                    <option value="Segurança da informação">Segurança</option>
                                     <option value="CX">CX</option>
                                 </select>
                             </div>
@@ -657,23 +657,14 @@
         let analystToEdit = null;
         let previousStatusValue = null;
         let previousDepState = false; // Monitorar estado anterior para log automático
+        let currentDepStartTime = null; // Armazena timestamp de quando a dependência começou
 
         const defaultTeam = ["Ariel Mori", "Bárbara Pammela Savazi", "Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Natalia Pereira", "Otávio Augusto Oliveira", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
         const defaultFrentes = ["Automação", "Performance", "Reestruturação", "Simplificação"].sort();
 
         const teamAvatars = {
-            "Ariel Mori": "",
-            "Bárbara Pammela Savazi": "",
-            "Cauan Pereira Da Silva": "",
-            "Diego Francisco Rocha": "",
-            "Hudson Nestor Pereira Cortes": "",
-            "Lucas Henrique Jantsch": "",
-            "Luiz Gustavo Ribeiro": "",
-            "Michael Gabriel Moraes Faria": "",
-            "Natalia Pereira": "",
-            "Otávio Augusto Oliveira": "",
-            "Simone Thomé de Andrade": ""
+            "Ariel Mori": "", "Bárbara Pammela Savazi": "", "Cauan Pereira Da Silva": "", "Diego Francisco Rocha": "", "Hudson Nestor Pereira Cortes": "", "Lucas Henrique Jantsch": "", "Luiz Gustavo Ribeiro": "", "Michael Gabriel Moraes Faria": "", "Natalia Pereira": "", "Otávio Augusto Oliveira": "", "Simone Thomé de Andrade": ""
         };
 
         const monthLabels = {
@@ -716,6 +707,32 @@
                 return teamAvatars[name];
             }
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&bold=true&size=128`;
+        };
+
+        // HELPER: Cálculo de Duração (Corridas e Úteis 09h-18h Seg-Sex)
+        const calculateDependencyDurations = (startISO, endISO) => {
+            if (!startISO) return { calendar: "0", business: "0" };
+            const start = new Date(startISO);
+            const end = new Date(endISO);
+            
+            // Horas Corridas
+            const calendarHrs = Math.max(0, (end - start) / 36e5).toFixed(1);
+
+            // Horas Úteis (Algoritmo de varredura granular por minuto para precisão sênior)
+            let businessMinutes = 0;
+            let iter = new Date(start);
+            while (iter < end) {
+                const day = iter.getDay();
+                const hour = iter.getHours();
+                // 0 = Domingo, 6 = Sábado. Úteis = 1 a 5. Horário: 09:00 até 17:59
+                if (day !== 0 && day !== 6 && hour >= 9 && hour < 18) {
+                    businessMinutes++;
+                }
+                iter.setMinutes(iter.getMinutes() + 1);
+            }
+            const businessHrs = (businessMinutes / 60).toFixed(1);
+
+            return { calendar: calendarHrs, business: businessHrs };
         };
 
         onAuthStateChanged(auth, u => {
@@ -1107,7 +1124,6 @@
             let deprioritizeInfo = (p.status === 'Despriorizado' && p.justificativa_despriorizacao) ? `<div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl"><span class="label-forte !text-red-600 !mb-1 !text-[8px]">Motivo da Despriorização</span><p class="text-[10px] font-bold text-red-800 leading-tight">${p.justificativa_despriorizacao}</p></div>` : "";
             let conclusionInfo = (p.status === 'Finalizado' && p.data_conclusao) ? `<div class="flex justify-between items-center text-emerald-600"><span>CONCLUÍDO EM:</span><span>${p.data_conclusao.split('-').reverse().join('/')}</span></div>` : "";
 
-            // Visualização da Dependência no Card (Emoji etiqueta 🏷️ e fundo #f1f5f9)
             let dependenciaHtml = "";
             if (p.possuiDependencia) {
                 dependenciaHtml = `
@@ -1166,7 +1182,6 @@
 
         window.setDirty = () => { isFormDirty = true; };
 
-        // LÓGICA DE EXIBIÇÃO DA DEPENDÊNCIA
         window.toggleDependenciaUI = () => {
             const isChecked = document.getElementById('possui_dependencia').checked;
             document.getElementById('dependencia-fields').classList.toggle('hidden', !isChecked);
@@ -1254,6 +1269,7 @@
             window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
             previousStatusValue = null; 
             previousDepState = false;
+            currentDepStartTime = null;
             window.updateStatusUI('Backlog');
             document.getElementById('btn-concluir-quick').classList.add('hidden');
             document.getElementById('description-edit-mode').classList.remove('hidden');
@@ -1277,10 +1293,11 @@
             document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
             document.getElementById('data_conclusao').value = p.data_conclusao || '';
             
-            // Carregar Dependência
             const depCheck = document.getElementById('possui_dependencia');
             depCheck.checked = !!p.possuiDependencia;
             previousDepState = !!p.possuiDependencia;
+            currentDepStartTime = p.dependenciaDataInicio || null;
+
             document.getElementById('dependencia_area').value = p.dependenciaArea || '';
             document.getElementById('dependencia_resumo').value = p.dependenciaResumo || '';
             window.toggleDependenciaUI();
@@ -1356,25 +1373,29 @@
             const justificativa = document.getElementById('justificativa_despriorizacao').value;
             if (statusVal === 'Despriorizado' && !justificativa.trim()) { alertModal("Campo Obrigatório", "Para despriorizar uma iniciativa, é obrigatório preencher o motivo da despriorização."); return; }
             
-            // Lógica de Registro de Log Automático para Dependência
             const possuiDep = document.getElementById('possui_dependencia').checked;
             const areaDep = document.getElementById('dependencia_area').value;
             const resumoDep = document.getElementById('dependencia_resumo').value.trim();
             
+            let dataInicio = currentDepStartTime;
+
             if (possuiDep && !previousDepState) {
-                // Log de Dependência Criada com o Resumo incluído
+                dataInicio = new Date().toISOString();
                 const logMsg = `Dependência criada: ${areaDep || 'Área não definida'}${resumoDep ? ' - ' + resumoDep : ''}`;
                 tempNotes.unshift({ 
                     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
                     text: logMsg,
-                    color: '#0ea5e9' // Azul para Dependência
+                    color: '#0ea5e9'
                 });
             } else if (!possuiDep && previousDepState) {
-                // Log de Dependência Resolvida (mantido conforme premissa)
+                const now = new Date().toISOString();
+                const durations = calculateDependencyDurations(dataInicio, now);
+                dataInicio = null;
+                
                 tempNotes.unshift({ 
                     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
-                    text: `Dependência resolvida`,
-                    color: '#10b981' // Verde para Sucesso
+                    text: `Dependência resolvida (Duração: ${durations.calendar}h corridas | ${durations.business}h úteis)`,
+                    color: '#10b981'
                 });
             }
 
@@ -1395,6 +1416,7 @@
                 possuiDependencia: possuiDep,
                 dependenciaArea: areaDep,
                 dependenciaResumo: document.getElementById('dependencia_resumo').value,
+                dependenciaDataInicio: dataInicio,
                 notes: tempNotes, 
                 tasks: tempTasks, 
                 attention: tempAttention 
@@ -1467,4 +1489,3 @@
     </script>
 </body>
 </html>
-
