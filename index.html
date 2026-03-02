@@ -25,6 +25,48 @@
             color: var(--primary-color);
             -webkit-font-smoothing: antialiased;
         }
+        /* Estilos de Login */
+        #login-view {
+            position: fixed;
+            inset: 0;
+            background: var(--primary-color);
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .login-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+        .btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 1rem;
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        .btn-google:hover {
+            background: #f8fafc;
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
         .input-premium {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
@@ -189,6 +231,21 @@
     </style>
 </head>
 <body class="min-h-screen">
+    <!-- TELA DE LOGIN -->
+    <div id="login-view" class="no-print hidden">
+        <div class="login-card">
+            <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="w-32 mx-auto mb-8" alt="Unico">
+            <h1 class="text-2xl font-black uppercase tracking-tighter text-slate-900 mb-2">Acesso Restrito</h1>
+            <p class="text-slate-400 text-xs font-bold uppercase mb-10 tracking-widest leading-relaxed">Gestão de Eficiência Operacional<br>Painel de Estratégia</p>
+            
+            <button id="btn-login-google" class="btn-google">
+                <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+                Entrar com Google
+            </button>
+            <p class="mt-8 text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Exclusivo para domínio @unico.io</p>
+        </div>
+    </div>
+
     <div id="loading-overlay" class="no-print" style="position: fixed; inset: 0; background: var(--primary-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: white; transition: opacity 0.5s, visibility 0.5s;">
         <img src="https://cloudfilesdm.com/postcards/unico-color__1-878cebbc.png" class="w-24 md:w-32 mb-8 invert" alt="Unico">
         <div class="w-10 h-10 border-4 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
@@ -277,11 +334,13 @@
                 <button onclick="window.trySwitchTab('form')" id="tab-form" class="h-full px-1 md:px-2 hover:text-slate-900">Novo</button>
                 <button onclick="window.trySwitchTab('list')" id="tab-list" class="h-full px-1 md:px-2 hover:text-slate-900">Projetos</button>
                 <button onclick="window.trySwitchTab('archive')" id="tab-archive" class="h-full px-1 md:px-2 hover:text-slate-900">Arquivo</button>
+                <button onclick="window.logout()" class="h-full px-1 md:px-2 text-red-400 hover:text-red-600 border-l border-slate-100 pl-4">Sair</button>
             </nav>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto p-4 md:p-8 mt-2 md:mt-4">
+        <!-- Vistas mantidas integralmente para não quebrar lógica existente -->
         <div id="view-dashboard" class="block">
             <div class="mb-8 md:mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-6">
                 <div>
@@ -634,7 +693,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const isGitHubHost = window.location.hostname.includes("github.io");
@@ -651,13 +710,14 @@
         const auth = getAuth(app); 
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'unico-eficiencia-2026';
+        const googleProvider = new GoogleAuthProvider();
         
         let projects = [], planningCycles = [], indicatorDefinitions = [], tempNotes = [], tempTasks = [], tempAttention = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, idToDelete = null, typeToDelete = null, editingCycleId = null;
 
         let analystToEdit = null;
         let previousStatusValue = null;
-        let previousDepState = false; // Monitorar estado anterior para log automático
-        let currentDepStartTime = null; // Armazena timestamp de quando a dependência começou
+        let previousDepState = false; 
+        let currentDepStartTime = null; 
 
         const defaultTeam = ["Ariel Mori", "Bárbara Pammela Savazi", "Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Natalia Pereira", "Otávio Augusto Oliveira", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
@@ -681,14 +741,35 @@
             }
         };
 
-        const initAuth = async () => {
+        // LÓGICA DE LOGIN GOOGLE COM TRAVA DE DOMÍNIO @UNICO.IO
+        window.loginWithGoogle = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                // Validação de Domínio Sénior
+                if (user && user.email && !user.email.endsWith('@unico.io')) {
+                    await signOut(auth);
+                    alertModal("Acesso Negado", "Este sistema é restrito a colaboradores da Unico. Utilize o seu e-mail @unico.io para entrar.");
+                    return;
                 }
-            } catch (e) { hideLoader(); }
+            } catch (error) {
+                alertModal("Erro de Acesso", "Não foi possível autenticar. Certifique-se de que o provedor Google está ativo e que a ligação é estável.");
+            }
+        };
+
+        window.logout = async () => {
+            await signOut(auth);
+            window.location.reload();
+        };
+
+        document.getElementById('btn-login-google').addEventListener('click', window.loginWithGoogle);
+
+        const initAuth = async () => {
+            if (!auth.currentUser) {
+                hideLoader();
+                document.getElementById('login-view').classList.remove('hidden');
+            }
         };
 
         const safeLinkify = (text) => {
@@ -709,36 +790,32 @@
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&bold=true&size=128`;
         };
 
-        // HELPER: Cálculo de Duração (Corridas e Úteis 09h-18h Seg-Sex)
         const calculateDependencyDurations = (startISO, endISO) => {
             if (!startISO) return { calendar: "0", business: "0" };
             const start = new Date(startISO);
             const end = new Date(endISO);
-            
-            // Horas Corridas
             const calendarHrs = Math.max(0, (end - start) / 36e5).toFixed(1);
-
-            // Horas Úteis (Algoritmo de varredura granular por minuto para precisão sênior)
             let businessMinutes = 0;
             let iter = new Date(start);
             while (iter < end) {
                 const day = iter.getDay();
                 const hour = iter.getHours();
-                // 0 = Domingo, 6 = Sábado. Úteis = 1 a 5. Horário: 09:00 até 17:59
                 if (day !== 0 && day !== 6 && hour >= 9 && hour < 18) {
                     businessMinutes++;
                 }
                 iter.setMinutes(iter.getMinutes() + 1);
             }
             const businessHrs = (businessMinutes / 60).toFixed(1);
-
             return { calendar: calendarHrs, business: businessHrs };
         };
 
         onAuthStateChanged(auth, u => {
             user = u;
-            if (u) {
+            if (u && u.email && u.email.endsWith('@unico.io')) {
+                // Utilizador validado
+                document.getElementById('login-view').classList.add('hidden');
                 document.getElementById('sync-indicator')?.classList.remove('hidden');
+                
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), snap => {
                     projects = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     window.refreshUI();
@@ -756,10 +833,14 @@
                     window.renderPlanningTimeline();
                 });
             } else {
-                setTimeout(hideLoader, 2000);
+                // Utilizador sem e-mail válido ou deslogado
+                if (u) signOut(auth); // Garante que e-mails errados sejam deslogados
+                document.getElementById('login-view').classList.remove('hidden');
+                setTimeout(hideLoader, 1000);
             }
         });
 
+        // Funções de manutenção de estado e UI mantidas integralmente
         window.addNewIndicatorDefinition = async () => {
             if(!user) return;
             const name = document.getElementById('new-indicator-name').value.trim();
@@ -1107,7 +1188,6 @@
             const totalTasks = p.tasks?.length || 0, completedTasks = p.tasks?.filter(t => t.completed).length || 0;
             const pCent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
             const areasDisplay = Array.isArray(p.time) ? p.time.join(', ') : (p.time || 'MESA');
-            
             let avatarStackHtml = "";
             if (p.responsavel && p.responsavel.length > 0) {
                 const avatars = p.responsavel.map(name => {
@@ -1115,7 +1195,6 @@
                 }).join('');
                 avatarStackHtml = `<div class="flex -space-x-3 overflow-hidden ml-1 my-1">${avatars}</div>`;
             }
-
             let deadlineAlert = "";
             if (p.status !== 'Finalizado' && p.status !== 'Despriorizado' && p.prazo) {
                 if (p.prazo < todayStr) deadlineAlert = `<span class="status-pill bg-red-600 text-white animate-pulse">EM ATRASO</span>`;
@@ -1123,7 +1202,6 @@
             }
             let deprioritizeInfo = (p.status === 'Despriorizado' && p.justificativa_despriorizacao) ? `<div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl"><span class="label-forte !text-red-600 !mb-1 !text-[8px]">Motivo da Despriorização</span><p class="text-[10px] font-bold text-red-800 leading-tight">${p.justificativa_despriorizacao}</p></div>` : "";
             let conclusionInfo = (p.status === 'Finalizado' && p.data_conclusao) ? `<div class="flex justify-between items-center text-emerald-600"><span>CONCLUÍDO EM:</span><span>${p.data_conclusao.split('-').reverse().join('/')}</span></div>` : "";
-
             let dependenciaHtml = "";
             if (p.possuiDependencia) {
                 dependenciaHtml = `
@@ -1137,7 +1215,6 @@
                         <p class="text-[10px] font-bold text-slate-500 leading-tight">${p.dependenciaResumo || 'Aguardando ação externa.'}</p>
                     </div>`;
             }
-
             return `<div class="card-project p-6 flex flex-col h-full bg-white shadow-sm border-slate-100" style="border-top-color: ${topColor}">
                 <div class="flex justify-between items-start mb-4">
                     <div class="flex flex-col gap-1">
@@ -1292,16 +1369,13 @@
             document.getElementById('nota_inicial').value = p.nota_inicial || '';
             document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
             document.getElementById('data_conclusao').value = p.data_conclusao || '';
-            
             const depCheck = document.getElementById('possui_dependencia');
             depCheck.checked = !!p.possuiDependencia;
             previousDepState = !!p.possuiDependencia;
             currentDepStartTime = p.dependenciaDataInicio || null;
-
             document.getElementById('dependencia_area').value = p.dependenciaArea || '';
             document.getElementById('dependencia_resumo').value = p.dependenciaResumo || '';
             window.toggleDependenciaUI();
-
             previousStatusValue = p.status || 'Backlog';
             window.updateStatusUI(previousStatusValue);
             tempNotes = p.notes || []; tempTasks = p.tasks || []; tempAttention = p.attention || [];
@@ -1330,7 +1404,6 @@
         window.toggleTaskStatus = (id) => { tempTasks = tempTasks.map(t => t.id === id ? {...t, completed: !t.completed} : t); window.renderTasksList(); isFormDirty = true; };
         window.removeTaskFromProject = (id) => { tempTasks = tempTasks.filter(t => t.id !== id); window.renderTasksList(); isFormDirty = true; };
         window.addTaskToProject = () => { const input = document.getElementById('new-task-input'), val = input?.value.trim(); if(!val) return; tempTasks.push({ id: Date.now(), text: val, completed: false }); if(input) input.value = ''; window.renderTasksList(); isFormDirty = true; };
-        
         window.renderHistoryLists = () => { 
             const l = document.getElementById('notes-history-list'); 
             if(l) { 
@@ -1347,7 +1420,6 @@
                 }); 
             } 
         };
-
         window.addItemToHistory = (type) => {
             const inputId = type === 'note' ? 'new-milestone-note' : 'new-attention-note', val = document.getElementById(inputId).value; if(!val) return;
             const item = { date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), text: val };
@@ -1355,11 +1427,9 @@
             else { item.type = document.getElementById('impedimento_tipo_list').value; tempAttention.unshift(item); window.renderAttentionList(); }
             document.getElementById(inputId).value = ''; isFormDirty = true;
         };
-
         window.renderAttentionList = () => { const l = document.getElementById('attention-history-list'); if(l) { l.innerHTML = ''; tempAttention.forEach((a, i) => { const color = a.type === 'Problema' ? 'border-red-500' : 'border-amber-500'; l.innerHTML += `<div class="history-entry border-l-4 ${color}"><div class="flex justify-between items-start"><span class="font-black text-[9px] uppercase">${a.type} | ${a.date}</span><button type="button" onclick="window.removeAttention(${i})" class="text-slate-300 no-print">✕</button></div><p class="mt-1 font-semibold text-xs">${a.text}</p></div>`; }); } };
         window.removeAttention = (i) => { tempAttention.splice(i, 1); window.renderAttentionList(); isFormDirty = true; };
         window.setAttentionType = (t) => { document.getElementById('impedimento_tipo_list').value = t; document.getElementById('toggle-list-risco').className = `toggle-btn ${t==='Risco'?'active-risco':'inactive'}`; document.getElementById('toggle-list-problema').className = `toggle-btn ${t==='Problema'?'active-problema':'inactive'}`; };
-        
         document.getElementById('project-form').onsubmit = async (e) => {
             e.preventDefault(); if(!user) return;
             const resps = Array.from(document.querySelectorAll('input[name="responsavel_check"]:checked')).map(cb => cb.value);
@@ -1372,13 +1442,10 @@
             const statusVal = document.getElementById('status').value;
             const justificativa = document.getElementById('justificativa_despriorizacao').value;
             if (statusVal === 'Despriorizado' && !justificativa.trim()) { alertModal("Campo Obrigatório", "Para despriorizar uma iniciativa, é obrigatório preencher o motivo da despriorização."); return; }
-            
             const possuiDep = document.getElementById('possui_dependencia').checked;
             const areaDep = document.getElementById('dependencia_area').value;
             const resumoDep = document.getElementById('dependencia_resumo').value.trim();
-            
             let dataInicio = currentDepStartTime;
-
             if (possuiDep && !previousDepState) {
                 dataInicio = new Date().toISOString();
                 const logMsg = `Dependência criada: ${areaDep || 'Área não definida'}${resumoDep ? ' - ' + resumoDep : ''}`;
@@ -1391,14 +1458,12 @@
                 const now = new Date().toISOString();
                 const durations = calculateDependencyDurations(dataInicio, now);
                 dataInicio = null;
-                
                 tempNotes.unshift({ 
                     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
                     text: `Dependência resolvida (Duração: ${durations.calendar}h corridas | ${durations.business}h úteis)`,
                     color: '#10b981'
                 });
             }
-
             const data = { 
                 iniciativa: document.getElementById('iniciativa').value, 
                 prioridade: document.getElementById('prioridade').value,
@@ -1421,11 +1486,9 @@
                 tasks: tempTasks, 
                 attention: tempAttention 
             };
-
             if(id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data); else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
             isFormDirty = false; window.switchTab('dashboard');
         };
-
         window.exportToXLS = () => { let csv = "Iniciativa,Areas,Status\n"; projects.forEach(p => { csv += `"${p.iniciativa}","${Array.isArray(p.time) ? p.time.join('; ') : p.time}","${p.status}"\n`; }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "Projetos.csv"); link.click(); };
         window.exportPDF = () => window.print();
         window.openAddModal = (t) => { pendingTab = t; analystToEdit = null; document.getElementById('add-item-title').innerText = "Adicionar " + t; document.getElementById('btn-process-item').innerText = "Adicionar"; document.getElementById('new-item-input').value = ''; document.getElementById('add-item-modal').style.display = 'flex'; };
