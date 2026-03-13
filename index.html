@@ -345,12 +345,25 @@
                 <div class="kpi-card"><p class="label-forte !mb-0 text-red-500 text-[9px]">Problemas</p><h2 id="kpi-problemas" class="text-xl md:text-2xl font-black text-red-500">0</h2></div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-8 mb-8 md:mb-12">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 mb-8 md:mb-12">
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Status</span><div class="w-full h-40 md:h-44"><canvas id="chartStatus"></canvas></div></div>
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Área</span><div class="w-full h-40 md:h-44"><canvas id="chartTime"></canvas></div></div>
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Frentes Ativas</span><div class="w-full h-40 md:h-44"><canvas id="chartFrente"></canvas></div></div>
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Lead Time Médio</span><div class="w-full h-40 md:h-44"><canvas id="chartLeadTime"></canvas></div></div>
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Dependências Externas</span><div class="w-full h-40 md:h-44"><canvas id="chartDependencias"></canvas></div></div>
+                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center justify-center min-h-[240px]">
+                    <span class="label-forte mb-4 text-center">Horas de Dependência (Global)</span>
+                    <div class="flex flex-col gap-3 w-full max-w-[200px]">
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center">
+                            <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest block mb-1">Horas Úteis</span>
+                            <h3 id="dash-dep-uteis" class="text-xl md:text-2xl font-black text-emerald-600">0.0h</h3>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-center">
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Horas Corridas</span>
+                            <h3 id="dash-dep-corridas" class="text-xl md:text-2xl font-black text-slate-500">0.0h</h3>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
@@ -1011,14 +1024,33 @@
 
         window.deleteCycle = (id) => { window.openDeleteModal(id, 'planning'); };
 
-        function renderChart(id, type, data, colors) { 
+        function renderChart(id, type, data, colors, showPercentage = true) { 
             if(charts[id]) charts[id].destroy(); 
             const canvas = document.getElementById(id); if(!canvas) return; 
             charts[id] = new Chart(canvas.getContext('2d'), { 
                 type: type, 
                 data: { labels: Object.keys(data), datasets: [{ data: Object.values(data), backgroundColor: colors, borderWidth: 0 }] }, 
                 plugins: [ChartDataLabels],
-                options: { responsive: true, maintainAspectRatio: false, scales: type === 'pie' ? {} : { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { display: false } } }, plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } }, datalabels: { display: true, color: type === 'pie' ? '#fff' : '#070047', font: { weight: 'bold', size: 10 } } } } 
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    scales: type === 'pie' ? {} : { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { display: false } } }, 
+                    plugins: { 
+                        legend: { display: type === 'pie', position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } }, 
+                        datalabels: { 
+                            display: true, 
+                            color: type === 'pie' ? '#fff' : '#070047', 
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value, context) => {
+                                if (!showPercentage) return value;
+                                const dataset = context.chart.data.datasets[0];
+                                const total = dataset.data.reduce((acc, curr) => acc + Number(curr), 0);
+                                if (total === 0) return value;
+                                const percentage = Math.round((value / total) * 100) + "%";
+                                return `${value} (${percentage})`;
+                            }
+                        } 
+                    } 
+                } 
             }); 
         }
 
@@ -1079,16 +1111,41 @@
                 document.getElementById('kpi-sla').innerText = slaPerc + '%';
                 document.getElementById('kpi-saude').innerText = saude + '%';
                 const paleta = ['#FF1A5C', '#00A5FF', '#A35F9D', '#8D7AD2', '#32B77E', '#5C86C4', '#070047', '#333333'];
-                renderChart('chartStatus', 'pie', filtered.reduce((a,v) => { a[v.status]=(a[v.status]||0)+1; return a; }, {}), paleta);
+                renderChart('chartStatus', 'pie', filtered.reduce((a,v) => { a[v.status]=(a[v.status]||0)+1; return a; }, {}), paleta, true);
                 const areaStats = {};
                 filtered.forEach(p => { (Array.isArray(p.time) ? p.time : [p.time]).forEach(area => { if(area) areaStats[area] = (areaStats[area] || 0) + 1; }); });
-                renderChart('chartTime', 'bar', areaStats, paleta);
-                renderChart('chartFrente', 'bar', filtered.reduce((a,v) => { a[v.frente||'N/A']=(a[v.frente||'N/A']||0)+1; return a; }, {}), paleta);
-                renderChart('chartLeadTime', 'bar', { 'Médio': 10, 'Atual': 8 }, ['#00A5FF', '#FF1A5C']);
+                renderChart('chartTime', 'bar', areaStats, paleta, true);
+                renderChart('chartFrente', 'bar', filtered.reduce((a,v) => { a[v.frente||'N/A']=(a[v.frente||'N/A']||0)+1; return a; }, {}), paleta, true);
+                renderChart('chartLeadTime', 'bar', { 'Médio': 10, 'Atual': 8 }, ['#00A5FF', '#FF1A5C'], false);
                 
                 const depStats = {};
-                filtered.forEach(p => { if(p.dependenciaArea) depStats[p.dependenciaArea] = (depStats[p.dependenciaArea] || 0) + 1; });
-                renderChart('chartDependencias', 'bar', depStats, paleta);
+                let sumCorridas = 0, sumUteis = 0;
+                const nowIso = new Date().toISOString();
+
+                filtered.forEach(p => { 
+                    if(p.dependenciaArea) depStats[p.dependenciaArea] = (depStats[p.dependenciaArea] || 0) + 1; 
+                    
+                    if (p.notes && p.notes.length > 0) {
+                        p.notes.forEach(note => {
+                            if (note.text && note.text.includes("Duração:")) {
+                                const match = note.text.match(/Duração: ([\d.]+)h corridas \| ([\d.]+)h úteis/);
+                                if (match) {
+                                    sumCorridas += parseFloat(match[1]);
+                                    sumUteis += parseFloat(match[2]);
+                                }
+                            }
+                        });
+                    }
+                    if (p.possuiDependencia && p.dependenciaDataInicio) {
+                        const durs = calculateDependencyDurations(p.dependenciaDataInicio, nowIso);
+                        sumCorridas += parseFloat(durs.calendar);
+                        sumUteis += parseFloat(durs.business);
+                    }
+                });
+                renderChart('chartDependencias', 'bar', depStats, paleta, true);
+
+                if(document.getElementById('dash-dep-corridas')) document.getElementById('dash-dep-corridas').innerText = sumCorridas.toFixed(1) + 'h';
+                if(document.getElementById('dash-dep-uteis')) document.getElementById('dash-dep-uteis').innerText = sumUteis.toFixed(1) + 'h';
 
                 const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
                 if(bG) bG.innerHTML = ''; if(aG) aG.innerHTML = '';
