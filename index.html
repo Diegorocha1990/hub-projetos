@@ -345,11 +345,12 @@
                 <div class="kpi-card"><p class="label-forte !mb-0 text-red-500 text-[9px]">Problemas</p><h2 id="kpi-problemas" class="text-xl md:text-2xl font-black text-red-500">0</h2></div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-8 md:mb-12">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-8 mb-8 md:mb-12">
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Status</span><div class="w-full h-40 md:h-44"><canvas id="chartStatus"></canvas></div></div>
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Área</span><div class="w-full h-40 md:h-44"><canvas id="chartTime"></canvas></div></div>
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Frentes Ativas</span><div class="w-full h-40 md:h-44"><canvas id="chartFrente"></canvas></div></div>
                 <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Lead Time Médio</span><div class="w-full h-40 md:h-44"><canvas id="chartLeadTime"></canvas></div></div>
+                <div class="bg-white p-4 md:p-8 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col items-center"><span class="label-forte mb-4">Dependências Externas</span><div class="w-full h-40 md:h-44"><canvas id="chartDependencias"></canvas></div></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
@@ -1084,6 +1085,11 @@
                 renderChart('chartTime', 'bar', areaStats, paleta);
                 renderChart('chartFrente', 'bar', filtered.reduce((a,v) => { a[v.frente||'N/A']=(a[v.frente||'N/A']||0)+1; return a; }, {}), paleta);
                 renderChart('chartLeadTime', 'bar', { 'Médio': 10, 'Atual': 8 }, ['#00A5FF', '#FF1A5C']);
+                
+                const depStats = {};
+                filtered.forEach(p => { if(p.dependenciaArea) depStats[p.dependenciaArea] = (depStats[p.dependenciaArea] || 0) + 1; });
+                renderChart('chartDependencias', 'bar', depStats, paleta);
+
                 const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
                 if(bG) bG.innerHTML = ''; if(aG) aG.innerHTML = '';
                 const dashSortOrder = document.getElementById('dash-sort-date')?.value || 'desc';
