@@ -334,13 +334,15 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6 mb-8 md:mb-12">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
                 <div class="kpi-card"><p class="label-forte !mb-0 text-[9px]">Total</p><h2 id="kpi-total" class="text-2xl md:text-3xl font-black">0</h2></div>
+                <div class="kpi-card"><p class="label-forte !mb-0 text-[#94a3b8] text-[9px]">Backlog</p><h2 id="kpi-dash-backlog" class="text-2xl md:text-3xl font-black text-[#94a3b8]">0</h2></div>
+                <div class="kpi-card"><p class="label-forte !mb-0 text-[#fabd23] text-[9px]">Em Andamento</p><h2 id="kpi-dash-andamento" class="text-2xl md:text-3xl font-black text-[#fabd23]">0</h2></div>
                 <div class="kpi-card"><p class="label-forte !mb-0 text-cyan-500 text-[9px]">SLA Geral</p><h2 id="kpi-sla" class="text-2xl md:text-3xl font-black text-cyan-500">0%</h2></div>
                 <div class="kpi-card"><p class="label-forte !mb-0 text-green-500 text-[9px]">Aderência</p><h2 id="kpi-performance" class="text-2xl md:text-3xl font-black text-green-500">0%</h2></div>
+                <div class="kpi-card"><p class="label-forte !mb-0 text-indigo-500 text-[9px]">Saúde</p><h2 id="kpi-saude" class="text-2xl md:text-3xl font-black text-indigo-500">100%</h2></div>
                 <div class="kpi-card"><p class="label-forte !mb-0 text-blue-500 text-[9px]">Riscos</p><h2 id="kpi-riscos" class="text-xl md:text-2xl font-black text-blue-500">0</h2></div>
                 <div class="kpi-card"><p class="label-forte !mb-0 text-red-500 text-[9px]">Problemas</p><h2 id="kpi-problemas" class="text-xl md:text-2xl font-black text-red-500">0</h2></div>
-                <div class="kpi-card"><p class="label-forte !mb-0 text-indigo-500 text-[9px]">Saúde</p><h2 id="kpi-saude" class="text-2xl md:text-3xl font-black text-indigo-500">100%</h2></div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-8 md:mb-12">
@@ -466,6 +468,12 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+                <div class="kpi-card border-emerald-100 bg-emerald-50/20"><p class="label-forte !mb-0 text-emerald-600 text-[9px]">Finalizados</p><h2 id="kpi-archive-finalizados" class="text-2xl md:text-3xl font-black text-emerald-600">0</h2></div>
+                <div class="kpi-card border-red-100 bg-red-50/20"><p class="label-forte !mb-0 text-red-600 text-[9px]">Despriorizados</p><h2 id="kpi-archive-despriorizados" class="text-2xl md:text-3xl font-black text-red-600">0</h2></div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="column-board">
                     <label class="label-forte text-emerald-600 mb-6 flex justify-between items-center uppercase">
@@ -1050,6 +1058,8 @@
             });
             if (activeTab === 'dashboard') {
                 const f = filtered.filter(p => p.status === 'Finalizado');
+                const countBacklog = filtered.filter(p => p.status === 'Backlog').length;
+                const countAndamento = filtered.filter(p => p.status === 'Em Andamento').length;
                 const totalRisks = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Risco').length || 0), 0);
                 const totalProblems = filtered.reduce((acc, p) => acc + (p.attention?.filter(a => a.type === 'Problema').length || 0), 0);
                 const inSLA = filtered.filter(p => {
@@ -1060,6 +1070,8 @@
                 const slaPerc = filtered.length ? Math.round((inSLA.length / filtered.length) * 100) : 100;
                 const saude = Math.max(0, 100 - (totalProblems * 10) - (totalRisks * 5));
                 document.getElementById('kpi-total').innerText = filtered.length;
+                if(document.getElementById('kpi-dash-backlog')) document.getElementById('kpi-dash-backlog').innerText = countBacklog;
+                if(document.getElementById('kpi-dash-andamento')) document.getElementById('kpi-dash-andamento').innerText = countAndamento;
                 document.getElementById('kpi-performance').innerText = (filtered.length ? Math.round((f.length/filtered.length)*100) : 0) + '%';
                 document.getElementById('kpi-riscos').innerText = totalRisks;
                 document.getElementById('kpi-problemas').innerText = totalProblems;
@@ -1116,6 +1128,11 @@
                 sortedDespriorizados.forEach(p => { if(dG) dG.innerHTML += createProjectCard(p, today); });
                 document.getElementById('count-finalizado-archive').innerText = sortedFinalizados.length;
                 document.getElementById('count-despriorizado-archive').innerText = sortedDespriorizados.length;
+                
+                const kpiArchFin = document.getElementById('kpi-archive-finalizados');
+                if(kpiArchFin) kpiArchFin.innerText = sortedFinalizados.length;
+                const kpiArchDesp = document.getElementById('kpi-archive-despriorizados');
+                if(kpiArchDesp) kpiArchDesp.innerText = sortedDespriorizados.length;
             }
         };
 
