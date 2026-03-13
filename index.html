@@ -325,6 +325,10 @@
                                 <option value="Análise">Análise</option>
                                 <option value="Clientes">Clientes</option>
                             </select>
+                            <select id="dash-sort-date" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm text-indigo-600 font-black" onchange="window.refreshUI()">
+                                <option value="desc">Mais Recentes Primeiro</option>
+                                <option value="asc">Mais Antigos Primeiro</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -448,6 +452,18 @@
                 <div>
                     <h1 class="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none text-slate-900">Arquivo</h1>
                     <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-2 tracking-widest">Controle de Projetos Concluídos</p>
+                </div>
+                <div class="flex flex-col gap-2 no-print">
+                    <div class="flex flex-wrap gap-2">
+                        <select id="archive-filter-period" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
+                            <option value="all">Período</option><option value="mes">Mensal</option><option value="trimestre">Trimestral</option><option value="ano">Anual</option>
+                        </select>
+                        <select id="archive-filter-analista" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Analistas</option></select>
+                        <select id="archive-sort-date" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm text-indigo-600 font-black" onchange="window.refreshUI()">
+                            <option value="desc">Mais Recentes Primeiro</option>
+                            <option value="asc">Mais Antigos Primeiro</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1058,7 +1074,12 @@
                 renderChart('chartLeadTime', 'bar', { 'Médio': 10, 'Atual': 8 }, ['#00A5FF', '#FF1A5C']);
                 const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
                 if(bG) bG.innerHTML = ''; if(aG) aG.innerHTML = '';
-                const sortedDash = [...filtered].sort((a, b) => (b.data_criacao || '').localeCompare(a.data_criacao || ''));
+                const dashSortOrder = document.getElementById('dash-sort-date')?.value || 'desc';
+                const sortedDash = [...filtered].sort((a, b) => {
+                    const dateA = a.data_criacao || '';
+                    const dateB = b.data_criacao || '';
+                    return dashSortOrder === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+                });
                 sortedDash.forEach(p => {
                     const card = createProjectCard(p, today);
                     if(p.status === 'Backlog' && bG) bG.innerHTML += card;
@@ -1080,8 +1101,17 @@
             if (activeTab === 'archive') {
                 const fG = document.getElementById('grid-finalizado'), dG = document.getElementById('grid-despriorizado');
                 if(fG) fG.innerHTML = ''; if(dG) dG.innerHTML = '';
-                const sortedFinalizados = filtered.filter(p => p.status === 'Finalizado').sort((a, b) => (b.data_conclusao || '').localeCompare(a.data_conclusao || ''));
-                const sortedDespriorizados = filtered.filter(p => p.status === 'Despriorizado').sort((a, b) => (b.data_criacao || '').localeCompare(a.data_criacao || ''));
+                const sortOrder = document.getElementById('archive-sort-date')?.value || 'desc';
+                const sortedFinalizados = filtered.filter(p => p.status === 'Finalizado').sort((a, b) => {
+                    const dateA = a.data_conclusao || '';
+                    const dateB = b.data_conclusao || '';
+                    return sortOrder === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+                });
+                const sortedDespriorizados = filtered.filter(p => p.status === 'Despriorizado').sort((a, b) => {
+                    const dateA = a.data_criacao || '';
+                    const dateB = b.data_criacao || '';
+                    return sortOrder === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+                });
                 sortedFinalizados.forEach(p => { if(fG) fG.innerHTML += createProjectCard(p, today); });
                 sortedDespriorizados.forEach(p => { if(dG) dG.innerHTML += createProjectCard(p, today); });
                 document.getElementById('count-finalizado-archive').innerText = sortedFinalizados.length;
@@ -1441,7 +1471,7 @@
                     btns[1].setAttribute('onclick', `window.openDeleteModal('${newName}', 'analista')`);
                 }
             });
-            ['dash', 'list', 'planning-responsible'].forEach(prefix => {
+            ['dash', 'list', 'archive', 'planning-responsible'].forEach(prefix => {
                 const sel = document.getElementById(prefix.includes('planning') ? prefix : `${prefix}-filter-analista`);
                 if(sel) { for(let i=0; i<sel.options.length; i++) { if(sel.options[i].value === oldName) { sel.options[i].text = newName; sel.options[i].value = newName; } } }
             });
@@ -1451,7 +1481,7 @@
             const grid = document.getElementById('responsaveis-grid');
             const items = grid.querySelectorAll('.checkbox-item');
             items.forEach(item => { if(item.querySelector('input').value === name) item.remove(); });
-            ['dash', 'list', 'planning-responsible'].forEach(prefix => {
+            ['dash', 'list', 'archive', 'planning-responsible'].forEach(prefix => {
                 const sel = document.getElementById(prefix.includes('planning') ? prefix : `${prefix}-filter-analista`);
                 if(sel) { for(let i=sel.options.length-1; i>=0; i--) { if(sel.options[i].value === name) sel.remove(i); } }
             });
@@ -1468,7 +1498,7 @@
                 </div>`; 
             g.appendChild(l); 
             const pSel = document.getElementById('planning-responsible'); if(pSel) pSel.add(new Option(name, name));
-            ['dash', 'list'].forEach(p => { const el = document.getElementById(`${p}-filter-analista`); if(el) el.add(new Option(name, name)); });
+            ['dash', 'list', 'archive'].forEach(p => { const el = document.getElementById(`${p}-filter-analista`); if(el) el.add(new Option(name, name)); });
         }
         function renderAreaCheckbox(name) { 
             const g = document.getElementById('areas-checkbox-grid'); if(!g) return; 
