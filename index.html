@@ -583,14 +583,15 @@
 
                     <!-- CAMPO: DEPENDÊNCIA EXTERNA -->
                     <div class="mb-6">
-                        <label class="checkbox-item !bg-slate-50/50 !border-slate-100 !py-4 mb-4">
-                            <input type="checkbox" id="possui_dependencia" onchange="window.toggleDependenciaUI()">
-                            <span class="!text-[11px] !font-black uppercase tracking-tight">🏷️ Possui dependência externa?</span>
-                        </label>
-                        <div id="dependencia-fields" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="label-forte !mb-0">🏷️ Dependências Externas</label>
+                            <button type="button" class="btn-add-item no-print !w-auto !px-3 !h-7 !text-[10px]" onclick="window.toggleAddDependencyUI()">+ Nova Dependência</button>
+                        </div>
+                        
+                        <div id="add-dependency-box" class="hidden grid grid-cols-1 md:grid-cols-12 gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div class="md:col-span-4">
                                 <label class="label-forte">Área Responsável</label>
-                                <select id="dependencia_area" class="input-premium font-bold">
+                                <select id="new_dep_area" class="input-premium font-bold">
                                     <option value="">Selecione a área...</option>
                                     <option value="Compras">Compras</option>
                                     <option value="Eficiência">Eficiência</option>
@@ -600,11 +601,16 @@
                                     <option value="CX">CX</option>
                                 </select>
                             </div>
-                            <div>
+                            <div class="md:col-span-6">
                                 <label class="label-forte">Resumo da Dependência</label>
-                                <input type="text" id="dependencia_resumo" class="input-premium" placeholder="Ex: Aguardando integração de API">
+                                <input type="text" id="new_dep_resumo" class="input-premium" placeholder="Ex: Aguardando integração de API">
+                            </div>
+                            <div class="md:col-span-2 flex items-end">
+                                <button type="button" onclick="window.addDependency()" class="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold text-[10px] uppercase h-[38px] hover:bg-slate-800 transition-all">Incluir</button>
                             </div>
                         </div>
+
+                        <div id="active-dependencies-list" class="space-y-3 max-h-48 overflow-y-auto pr-2"></div>
                     </div>
 
                     <div class="mt-8 pt-6 border-t border-slate-50">
@@ -723,12 +729,10 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'unico-eficiencia-2026';
         
-        let projects = [], planningCycles = [], indicatorDefinitions = [], tempNotes = [], tempTasks = [], tempAttention = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, idToDelete = null, typeToDelete = null, editingCycleId = null;
+        let projects = [], planningCycles = [], indicatorDefinitions = [], tempNotes = [], tempTasks = [], tempAttention = [], tempDependencies = [], tempHistoricalDepAreas = [], user = null, charts = {}, isFormDirty = false, pendingTab = null, idToDelete = null, typeToDelete = null, editingCycleId = null;
 
         let analystToEdit = null;
         let previousStatusValue = null;
-        let previousDepState = false;
-        let currentDepStartTime = null;
 
         const defaultTeam = ["Ariel Mori", "Bárbara Pammela Savazi", "Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Natalia Pereira", "Otávio Augusto Oliveira", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
@@ -1133,9 +1137,14 @@
                 if (classVal && p.classificacao !== classVal) match = false;
                 if (estruturaVal && p.estrutura !== estruturaVal) match = false;
                 if (depVal) {
-                    if (depVal === 'SIM' && !p.possuiDependencia) match = false;
-                    if (depVal === 'NAO' && p.possuiDependencia) match = false;
-                    if (depVal !== 'SIM' && depVal !== 'NAO' && p.dependenciaArea !== depVal) match = false;
+                    const activeDeps = p.dependencies !== undefined ? p.dependencies : (p.possuiDependencia ? [{area: p.dependenciaArea}] : []);
+                    const hasDep = activeDeps.length > 0;
+                    if (depVal === 'SIM' && !hasDep) match = false;
+                    if (depVal === 'NAO' && hasDep) match = false;
+                    if (depVal !== 'SIM' && depVal !== 'NAO') {
+                         const hasSpecificDep = (p.historicalDepAreas && p.historicalDepAreas.includes(depVal)) || activeDeps.some(d => d.area === depVal) || p.dependenciaArea === depVal;
+                         if (!hasSpecificDep) match = false;
+                    }
                 }
                 if (p.data_criacao) {
                     if (dateStart && p.data_criacao < dateStart) match = false;
@@ -1184,7 +1193,13 @@
                 const nowIso = new Date().toISOString();
 
                 filtered.forEach(p => { 
-                    if(p.dependenciaArea) depStats[p.dependenciaArea] = (depStats[p.dependenciaArea] || 0) + 1; 
+                    const areasSet = new Set();
+                    if (p.historicalDepAreas) p.historicalDepAreas.forEach(a => areasSet.add(a));
+                    else {
+                        if (p.dependenciaArea) areasSet.add(p.dependenciaArea);
+                        if (p.dependencies) p.dependencies.forEach(d => areasSet.add(d.area));
+                    }
+                    areasSet.forEach(area => { if(area) depStats[area] = (depStats[area] || 0) + 1; });
                     
                     if (p.notes && p.notes.length > 0) {
                         p.notes.forEach(note => {
@@ -1197,7 +1212,16 @@
                             }
                         });
                     }
-                    if (p.possuiDependencia && p.dependenciaDataInicio) {
+                    
+                    if (p.dependencies !== undefined) {
+                        p.dependencies.forEach(dep => {
+                            if (dep.dataInicio) {
+                                const durs = calculateDependencyDurations(dep.dataInicio, nowIso);
+                                sumCorridasMins += durs.calendarMins;
+                                sumUteisMins += durs.businessMins;
+                            }
+                        });
+                    } else if (p.possuiDependencia && p.dependenciaDataInicio) {
                         const durs = calculateDependencyDurations(p.dependenciaDataInicio, nowIso);
                         sumCorridasMins += durs.calendarMins;
                         sumUteisMins += durs.businessMins;
@@ -1294,16 +1318,21 @@
             let conclusionInfo = (p.status === 'Finalizado' && p.data_conclusao) ? `<div class="flex justify-between items-center text-emerald-600"><span>CONCLUÍDO EM:</span><span>${p.data_conclusao.split('-').reverse().join('/')}</span></div>` : "";
 
             let dependenciaHtml = "";
-            if (p.possuiDependencia) {
+            const activeDeps = p.dependencies !== undefined ? p.dependencies : (p.possuiDependencia ? [{area: p.dependenciaArea, resumo: p.dependenciaResumo}] : []);
+            
+            if (activeDeps.length > 0) {
+                let depItemsHtml = activeDeps.map(d => `
+                    <div class="flex items-start gap-2">
+                         <div class="bg-black text-white px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter shrink-0 mt-0.5 flex items-center gap-1">
+                            <span>🏷️</span><span>${d.area || 'DEP. EXTERNA'}</span>
+                         </div>
+                         <span class="text-[9px] font-bold text-slate-500 leading-tight break-words flex-1">${d.resumo || 'Aguardando ação externa.'}</span>
+                    </div>
+                `).join('');
+
                 dependenciaHtml = `
-                    <div class="mt-4 p-4 bg-[#f1f5f9] border border-slate-100 rounded-2xl flex flex-col gap-2">
-                        <div class="flex items-center gap-2">
-                             <div class="bg-black text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-tighter flex items-center gap-1">
-                                <span>🏷️</span>
-                                <span>${p.dependenciaArea || 'DEP. EXTERNA'}</span>
-                             </div>
-                        </div>
-                        <p class="text-[10px] font-bold text-slate-500 leading-tight">${p.dependenciaResumo || 'Aguardando ação externa.'}</p>
+                    <div class="mt-4 p-3 bg-[#f1f5f9] border border-slate-100 rounded-xl flex flex-col gap-2">
+                        ${depItemsHtml}
                     </div>`;
             }
 
@@ -1351,10 +1380,78 @@
 
         window.setDirty = () => { isFormDirty = true; };
 
-        window.toggleDependenciaUI = () => {
-            const isChecked = document.getElementById('possui_dependencia').checked;
-            document.getElementById('dependencia-fields').classList.toggle('hidden', !isChecked);
+        window.toggleAddDependencyUI = () => {
+            document.getElementById('add-dependency-box').classList.toggle('hidden');
+        };
+
+        window.addDependency = () => {
+            const area = document.getElementById('new_dep_area').value;
+            const resumo = document.getElementById('new_dep_resumo').value.trim();
+            if (!area) { alertModal("Atenção", "Selecione a área responsável para incluir a dependência."); return; }
+            
+            const newDep = { id: Date.now(), area: area, resumo: resumo, dataInicio: new Date().toISOString() };
+            tempDependencies.push(newDep);
+            if(!tempHistoricalDepAreas.includes(area)) tempHistoricalDepAreas.push(area);
+            
+            const logMsg = `Dependência criada: ${area}${resumo ? ' - ' + resumo : ''}`;
+            tempNotes.unshift({ 
+                date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
+                text: logMsg, color: '#0ea5e9'
+            });
+            
+            document.getElementById('new_dep_area').value = '';
+            document.getElementById('new_dep_resumo').value = '';
+            document.getElementById('add-dependency-box').classList.add('hidden');
+            
+            window.renderDependenciesList();
+            window.renderHistoryLists();
             isFormDirty = true;
+        };
+
+        window.resolveDependency = (id) => {
+            const index = tempDependencies.findIndex(d => d.id === id);
+            if (index === -1) return;
+            const dep = tempDependencies[index];
+            const now = new Date().toISOString();
+            const durations = calculateDependencyDurations(dep.dataInicio, now);
+            
+            const logMsg = `Dependência resolvida (${dep.area}): ${dep.resumo ? dep.resumo + ' ' : ''}(Duração: ${durations.calendarStr} corridas | ${durations.businessStr} úteis)`;
+            tempNotes.unshift({ 
+                date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
+                text: logMsg, color: '#10b981'
+            });
+            
+            tempDependencies.splice(index, 1);
+            window.renderDependenciesList();
+            window.renderHistoryLists();
+            isFormDirty = true;
+        };
+
+        window.renderDependenciesList = () => {
+            const container = document.getElementById('active-dependencies-list');
+            if (!container) return;
+            container.innerHTML = '';
+            if (tempDependencies.length === 0) {
+                container.innerHTML = '<p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center py-5 bg-slate-50 rounded-xl border border-slate-200 border-dashed">Nenhuma dependência ativa</p>';
+                return;
+            }
+            tempDependencies.forEach(dep => {
+                const dataStr = new Date(dep.dataInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                container.innerHTML += `
+                    <div class="p-3.5 bg-amber-50 border border-amber-100 rounded-xl flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center animate-in fade-in">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                 <div class="bg-amber-500 text-white px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter shadow-sm">
+                                    ${dep.area}
+                                 </div>
+                                 <span class="text-[9px] font-black text-amber-600/70 uppercase tracking-widest">Início: ${dataStr}</span>
+                            </div>
+                            <p class="text-[11px] font-bold text-amber-900 leading-tight">${dep.resumo || 'Aguardando ação externa.'}</p>
+                        </div>
+                        <button type="button" onclick="window.resolveDependency(${dep.id})" class="bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-black text-[9px] uppercase shadow-md hover:bg-emerald-600 hover:scale-105 transition-all no-print whitespace-nowrap self-end sm:self-auto">Resolver</button>
+                    </div>
+                `;
+            });
         };
 
         window.updateStatusUI = (v) => {
@@ -1390,6 +1487,10 @@
         };
 
         window.confirmFinalizationQuick = () => {
+            if (tempDependencies.length > 0) {
+                alertModal("Dependências Ativas", "Você possui dependências externas ativas. Por favor, resolva todas elas antes de finalizar o projeto.");
+                return;
+            }
             const statusEl = document.getElementById('status'), dateEl = document.getElementById('data_conclusao');
             if(statusEl) statusEl.value = 'Finalizado'; 
             if(dateEl) dateEl.value = new Date().toISOString().split('T')[0];
@@ -1432,13 +1533,13 @@
             document.getElementById('edit-id').value = '';
             document.querySelectorAll('input[name="area_check"]').forEach(cb => cb.checked = false);
             document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => cb.checked = false);
-            document.getElementById('possui_dependencia').checked = false;
-            document.getElementById('dependencia-fields').classList.add('hidden');
+            
+            document.getElementById('add-dependency-box').classList.add('hidden');
+            tempDependencies = []; tempHistoricalDepAreas = [];
+            
             tempNotes = []; tempTasks = []; tempAttention = []; isFormDirty = false;
-            window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
+            window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList(); window.renderDependenciesList();
             previousStatusValue = null; 
-            previousDepState = false;
-            currentDepStartTime = null;
             window.updateStatusUI('Backlog');
             document.getElementById('btn-concluir-quick').classList.add('hidden');
             document.getElementById('description-edit-mode').classList.remove('hidden');
@@ -1462,19 +1563,25 @@
             document.getElementById('justificativa_despriorizacao').value = p.justificativa_despriorizacao || '';
             document.getElementById('data_conclusao').value = p.data_conclusao || '';
             
-            const depCheck = document.getElementById('possui_dependencia');
-            depCheck.checked = !!p.possuiDependencia;
-            previousDepState = !!p.possuiDependencia;
-            currentDepStartTime = p.dependenciaDataInicio || null;
+            if (p.dependencies !== undefined) {
+                tempDependencies = [...p.dependencies];
+            } else if (p.possuiDependencia && p.dependenciaDataInicio) {
+                tempDependencies = [{ id: Date.now(), area: p.dependenciaArea || 'Área não definida', resumo: p.dependenciaResumo || '', dataInicio: p.dependenciaDataInicio }];
+            } else {
+                tempDependencies = [];
+            }
 
-            document.getElementById('dependencia_area').value = p.dependenciaArea || '';
-            document.getElementById('dependencia_resumo').value = p.dependenciaResumo || '';
-            window.toggleDependenciaUI();
+            if (p.historicalDepAreas !== undefined) {
+                tempHistoricalDepAreas = [...p.historicalDepAreas];
+            } else {
+                tempHistoricalDepAreas = [];
+                if (p.dependenciaArea) tempHistoricalDepAreas.push(p.dependenciaArea);
+            }
 
             previousStatusValue = p.status || 'Backlog';
             window.updateStatusUI(previousStatusValue);
             tempNotes = p.notes || []; tempTasks = p.tasks || []; tempAttention = p.attention || [];
-            window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList();
+            window.renderHistoryLists(); window.renderTasksList(); window.renderAttentionList(); window.renderDependenciesList();
             const pAreas = Array.isArray(p.time) ? p.time : [p.time];
             document.querySelectorAll('input[name="area_check"]').forEach(cb => { cb.checked = pAreas.includes(cb.value); });
             document.querySelectorAll('input[name="responsavel_check"]').forEach(cb => { cb.checked = p.responsavel?.includes(cb.value); });
@@ -1540,34 +1647,16 @@
             const id = document.getElementById('edit-id').value;
             const statusVal = document.getElementById('status').value;
             const justificativa = document.getElementById('justificativa_despriorizacao').value;
-            if (statusVal === 'Despriorizado' && !justificativa.trim()) { alertModal("Campo Obrigatório", "Para despriorizar uma iniciativa, é obrigatório preencher o motivo da despriorização."); return; }
             
-            const possuiDep = document.getElementById('possui_dependencia').checked;
-            const areaDep = document.getElementById('dependencia_area').value;
-            const resumoDep = document.getElementById('dependencia_resumo').value.trim();
-            
-            let dataInicio = currentDepStartTime;
-
-            if (possuiDep && !previousDepState) {
-                dataInicio = new Date().toISOString();
-                const logMsg = `Dependência criada: ${areaDep || 'Área não definida'}${resumoDep ? ' - ' + resumoDep : ''}`;
-                tempNotes.unshift({ 
-                    date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
-                    text: logMsg,
-                    color: '#0ea5e9'
-                });
-            } else if (!possuiDep && previousDepState) {
-                const now = new Date().toISOString();
-                const durations = calculateDependencyDurations(dataInicio, now);
-                dataInicio = null;
-                
-                tempNotes.unshift({ 
-                    date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
-                    text: `Dependência resolvida (Duração: ${durations.calendarStr} corridas | ${durations.businessStr} úteis)`,
-                    color: '#10b981'
-                });
+            if ((statusVal === 'Finalizado' || statusVal === 'Despriorizado') && tempDependencies.length > 0) { 
+                alertModal("Dependências Ativas", "Você possui dependências externas ativas. É obrigatório resolvê-las (clicando em Resolver) antes de finalizar ou despriorizar o projeto."); 
+                return; 
             }
-
+            if (statusVal === 'Despriorizado' && !justificativa.trim()) { 
+                alertModal("Campo Obrigatório", "Para despriorizar uma iniciativa, é obrigatório preencher o motivo da despriorização."); 
+                return; 
+            }
+            
             const data = { 
                 iniciativa: document.getElementById('iniciativa').value, 
                 prioridade: document.getElementById('prioridade').value,
@@ -1582,10 +1671,12 @@
                 responsavel: resps, 
                 justificativa_despriorizacao: justificativa, 
                 data_conclusao: document.getElementById('data_conclusao').value, 
-                possuiDependencia: possuiDep,
-                dependenciaArea: areaDep,
-                dependenciaResumo: document.getElementById('dependencia_resumo').value,
-                dependenciaDataInicio: dataInicio,
+                dependencies: tempDependencies,
+                historicalDepAreas: tempHistoricalDepAreas,
+                possuiDependencia: tempDependencies.length > 0,
+                dependenciaArea: null, 
+                dependenciaResumo: null,
+                dependenciaDataInicio: null,
                 notes: tempNotes, 
                 tasks: tempTasks, 
                 attention: tempAttention 
