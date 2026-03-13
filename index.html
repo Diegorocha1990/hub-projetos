@@ -313,6 +313,17 @@
                             <select id="dash-filter-frente" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
                                 <option value="">Frentes (Todas)</option>
                             </select>
+                            <select id="dash-filter-dependencia" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
+                                <option value="">Dependência (Todas)</option>
+                                <option value="SIM">Com Dependência</option>
+                                <option value="NAO">Sem Dependência</option>
+                                <option value="Compras">Dep: Compras</option>
+                                <option value="Eficiência">Dep: Eficiência</option>
+                                <option value="Engenharia">Dep: Engenharia</option>
+                                <option value="Privacidade">Dep: Privacidade</option>
+                                <option value="Segurança da informação">Dep: Segurança</option>
+                                <option value="CX">Dep: CX</option>
+                            </select>
                         </div>
                         <div class="flex flex-wrap gap-2">
                             <select id="dash-filter-classificacao" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
@@ -356,11 +367,11 @@
                     <div class="flex flex-col gap-3 w-full max-w-[200px]">
                         <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center">
                             <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest block mb-1">Horas Úteis</span>
-                            <h3 id="dash-dep-uteis" class="text-xl md:text-2xl font-black text-emerald-600">0.0h</h3>
+                            <h3 id="dash-dep-uteis" class="text-xl md:text-2xl font-black text-emerald-600">0h 0m</h3>
                         </div>
                         <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-center">
                             <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Horas Corridas</span>
-                            <h3 id="dash-dep-corridas" class="text-xl md:text-2xl font-black text-slate-500">0.0h</h3>
+                            <h3 id="dash-dep-corridas" class="text-xl md:text-2xl font-black text-slate-500">0h 0m</h3>
                         </div>
                     </div>
                 </div>
@@ -448,6 +459,17 @@
                         <select id="list-filter-analista" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Analistas</option></select>
                         <select id="list-filter-area" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Áreas</option></select>
                         <select id="list-filter-frente" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Frentes</option></select>
+                        <select id="list-filter-dependencia" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
+                            <option value="">Dependência (Todas)</option>
+                            <option value="SIM">Com Dep.</option>
+                            <option value="NAO">Sem Dep.</option>
+                            <option value="Compras">Dep: Compras</option>
+                            <option value="Eficiência">Dep: Eficiência</option>
+                            <option value="Engenharia">Dep: Engenharia</option>
+                            <option value="Privacidade">Dep: Privacidade</option>
+                            <option value="Segurança da informação">Dep: Segurança</option>
+                            <option value="CX">Dep: CX</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -475,6 +497,17 @@
                             <option value="all">Período</option><option value="mes">Mensal</option><option value="trimestre">Trimestral</option><option value="ano">Anual</option>
                         </select>
                         <select id="archive-filter-analista" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()"><option value="">Analistas</option></select>
+                        <select id="archive-filter-dependencia" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm" onchange="window.refreshUI()">
+                            <option value="">Dependência (Todas)</option>
+                            <option value="SIM">Com Dep.</option>
+                            <option value="NAO">Sem Dep.</option>
+                            <option value="Compras">Dep: Compras</option>
+                            <option value="Eficiência">Dep: Eficiência</option>
+                            <option value="Engenharia">Dep: Engenharia</option>
+                            <option value="Privacidade">Dep: Privacidade</option>
+                            <option value="Segurança da informação">Dep: Segurança</option>
+                            <option value="CX">Dep: CX</option>
+                        </select>
                         <select id="archive-sort-date" class="input-premium !py-1.5 !px-3 !text-[10px] !w-auto shadow-sm text-indigo-600 font-black" onchange="window.refreshUI()">
                             <option value="desc">Mais Recentes Primeiro</option>
                             <option value="asc">Mais Antigos Primeiro</option>
@@ -719,7 +752,6 @@
             }
         };
 
-        // Função de inicialização de autenticação (Anónima por defeito conforme solicitado)
         const initAuth = async () => {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -752,22 +784,43 @@
         };
 
         const calculateDependencyDurations = (startISO, endISO) => {
-            if (!startISO) return { calendar: "0", business: "0" };
+            if (!startISO) return { calendarMins: 0, businessMins: 0, calendarStr: "0h 0m", businessStr: "0h 0m" };
             const start = new Date(startISO);
             const end = new Date(endISO);
-            const calendarHrs = Math.max(0, (end - start) / 36e5).toFixed(1);
-            let businessMinutes = 0;
+            const calendarMins = Math.max(0, Math.floor((end - start) / 60000));
+            
+            let businessMins = 0;
             let iter = new Date(start);
             while (iter < end) {
                 const day = iter.getDay();
                 const hour = iter.getHours();
                 if (day !== 0 && day !== 6 && hour >= 9 && hour < 18) {
-                    businessMinutes++;
+                    businessMins++;
                 }
-                iter.setMinutes(iter.getMinutes() + 1);
+                iter.setTime(iter.getTime() + 60000);
             }
-            const businessHrs = (businessMinutes / 60).toFixed(1);
-            return { calendar: calendarHrs, business: businessHrs };
+            
+            const formatMins = (m) => `${Math.floor(m / 60)}h ${m % 60}m`;
+            return { 
+                calendarMins, 
+                businessMins, 
+                calendarStr: formatMins(calendarMins), 
+                businessStr: formatMins(businessMins) 
+            };
+        };
+
+        const parseDurationToMinutes = (str) => {
+            let mins = 0;
+            if (!str) return 0;
+            if (str.includes('h') && !str.includes('m')) {
+                mins = Math.round(parseFloat(str.replace('h', '')) * 60);
+            } else {
+                const hMatch = str.match(/(\d+)h/);
+                const mMatch = str.match(/(\d+)m/);
+                if (hMatch) mins += parseInt(hMatch[1]) * 60;
+                if (mMatch) mins += parseInt(mMatch[1]);
+            }
+            return mins;
         };
 
         onAuthStateChanged(auth, u => {
@@ -923,7 +976,7 @@
             if(!container) return;
             container.innerHTML = '';
             if(planningCycles.length === 0) {
-                 container.innerHTML = '<div class="h-full flex flex-col items-center justify-center p-12 text-center bg-white border border-slate-100 rounded-3xl"><p class="text-slate-400 font-bold text-xs uppercase tracking-widest leading-relaxed">Nenhum resultado consolidado.<br>Preencha os dados à esquerda e clique em Salvar Ciclo.</p></div>';
+                 container.innerHTML = '<div class="h-full flex flex-col items-center justify-center p-12 text-center bg-white border border-slate-100 rounded-3xl"><p class="text-slate-400 font-bold text-xs uppercase tracking-widest leading-relaxed">Nenhum resultado consolado.<br>Preencha os dados à esquerda e clique em Salvar Ciclo.</p></div>';
                  return;
             }
             [...planningCycles].sort((a,b) => b.year - a.year || b.semester.localeCompare(a.semester)).forEach(c => {
@@ -1069,6 +1122,8 @@
             const frenteVal = document.getElementById(`${prefix}-filter-frente`)?.value || '';
             const classVal = document.getElementById(`${prefix}-filter-classificacao`)?.value || '';
             const estruturaVal = document.getElementById(`${prefix}-filter-estrutura`)?.value || '';
+            const depVal = document.getElementById(`${prefix}-filter-dependencia`)?.value || '';
+            
             const filtered = projects.filter(p => {
                 let match = true;
                 if (searchVal && !p.iniciativa?.toLowerCase().includes(searchVal)) match = false;
@@ -1077,6 +1132,11 @@
                 if (frenteVal && p.frente !== frenteVal) match = false;
                 if (classVal && p.classificacao !== classVal) match = false;
                 if (estruturaVal && p.estrutura !== estruturaVal) match = false;
+                if (depVal) {
+                    if (depVal === 'SIM' && !p.possuiDependencia) match = false;
+                    if (depVal === 'NAO' && p.possuiDependencia) match = false;
+                    if (depVal !== 'SIM' && depVal !== 'NAO' && p.dependenciaArea !== depVal) match = false;
+                }
                 if (p.data_criacao) {
                     if (dateStart && p.data_criacao < dateStart) match = false;
                     if (dateEnd && p.data_criacao > dateEnd) match = false;
@@ -1089,6 +1149,7 @@
                 }
                 return match;
             });
+
             if (activeTab === 'dashboard') {
                 const f = filtered.filter(p => p.status === 'Finalizado');
                 const countBacklog = filtered.filter(p => p.status === 'Backlog').length;
@@ -1119,7 +1180,7 @@
                 renderChart('chartLeadTime', 'bar', { 'Médio': 10, 'Atual': 8 }, ['#00A5FF', '#FF1A5C'], false);
                 
                 const depStats = {};
-                let sumCorridas = 0, sumUteis = 0;
+                let sumCorridasMins = 0, sumUteisMins = 0;
                 const nowIso = new Date().toISOString();
 
                 filtered.forEach(p => { 
@@ -1128,24 +1189,25 @@
                     if (p.notes && p.notes.length > 0) {
                         p.notes.forEach(note => {
                             if (note.text && note.text.includes("Duração:")) {
-                                const match = note.text.match(/Duração: ([\d.]+)h corridas \| ([\d.]+)h úteis/);
+                                const match = note.text.match(/Duração: (.*?) corridas \| (.*?) úteis/);
                                 if (match) {
-                                    sumCorridas += parseFloat(match[1]);
-                                    sumUteis += parseFloat(match[2]);
+                                    sumCorridasMins += parseDurationToMinutes(match[1]);
+                                    sumUteisMins += parseDurationToMinutes(match[2]);
                                 }
                             }
                         });
                     }
                     if (p.possuiDependencia && p.dependenciaDataInicio) {
                         const durs = calculateDependencyDurations(p.dependenciaDataInicio, nowIso);
-                        sumCorridas += parseFloat(durs.calendar);
-                        sumUteis += parseFloat(durs.business);
+                        sumCorridasMins += durs.calendarMins;
+                        sumUteisMins += durs.businessMins;
                     }
                 });
                 renderChart('chartDependencias', 'bar', depStats, paleta, true);
 
-                if(document.getElementById('dash-dep-corridas')) document.getElementById('dash-dep-corridas').innerText = sumCorridas.toFixed(1) + 'h';
-                if(document.getElementById('dash-dep-uteis')) document.getElementById('dash-dep-uteis').innerText = sumUteis.toFixed(1) + 'h';
+                const formatTotalMins = (m) => `${Math.floor(m / 60)}h ${Math.round(m % 60)}m`;
+                if(document.getElementById('dash-dep-corridas')) document.getElementById('dash-dep-corridas').innerText = formatTotalMins(sumCorridasMins);
+                if(document.getElementById('dash-dep-uteis')) document.getElementById('dash-dep-uteis').innerText = formatTotalMins(sumUteisMins);
 
                 const bG = document.getElementById('grid-backlog'), aG = document.getElementById('grid-andamento');
                 if(bG) bG.innerHTML = ''; if(aG) aG.innerHTML = '';
@@ -1501,7 +1563,7 @@
                 
                 tempNotes.unshift({ 
                     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 
-                    text: `Dependência resolvida (Duração: ${durations.calendar}h corridas | ${durations.business}h úteis)`,
+                    text: `Dependência resolvida (Duração: ${durations.calendarStr} corridas | ${durations.businessStr} úteis)`,
                     color: '#10b981'
                 });
             }
