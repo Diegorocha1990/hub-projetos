@@ -568,7 +568,7 @@
                     <div class="flex flex-wrap items-start gap-4 mb-6">
                         <div class="flex-1 min-w-[140px]">
                             <label class="label-forte">Estrutura</label>
-                            <select id="estrutura" required class="input-premium font-bold">
+                            <select id="estrutura" required class="input-premium font-bold" onchange="window.handleEstruturaChange(this.value); window.setDirty();">
                                 <option value="Análise">Análise</option>
                                 <option value="Clientes">Clientes</option>
                             </select>
@@ -583,6 +583,31 @@
                         </div>
                         <div class="flex-1 min-w-[130px]"><label class="label-forte">Status</label><select id="status" class="input-premium font-black text-slate-900" onchange="window.updateStatusUI(this.value)"><option value="Backlog">Backlog</option><option value="Em Andamento">Em Andamento</option><option value="Finalizado">Finalizado</option><option value="Despriorizado">Despriorizado</option></select></div>
                     </div>
+
+                    <!-- MÓDULO ADD-ON: ESTRUTURA ANÁLISE -->
+                    <div id="unico_analise_container" class="mb-6 p-5 bg-indigo-50/40 border border-indigo-100 rounded-2xl transition-all duration-300">
+                        <h4 class="text-[10px] font-black text-indigo-800 uppercase mb-4 tracking-widest flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                            Módulo Específico: Análise
+                        </h4>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                            <div class="lg:col-span-4">
+                                <label class="label-forte !text-indigo-600">Núcleo Operacional</label>
+                                <select id="unico_nucleo_operacional" class="input-premium border-indigo-200 text-xs">
+                                    <option value="">Selecione...</option>
+                                    <option value="OPS ID">OPS ID</option>
+                                    <option value="OPS Insights">OPS Insights</option>
+                                </select>
+                            </div>
+                            <div class="lg:col-span-8">
+                                <label class="label-forte !text-indigo-600">Frentes de Atuação (Multi-select)</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="unico_frentes_grid">
+                                    <!-- Preenchido via JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FIM ADD-ON -->
 
                     <!-- CAMPO: DEPENDÊNCIA EXTERNA -->
                     <div class="mb-6">
@@ -741,6 +766,9 @@
         const defaultTeam = ["Ariel Mori", "Bárbara Pammela Savazi", "Cauan Pereira Da Silva", "Diego Francisco Rocha", "Hudson Nestor Pereira Cortes", "Lucas Henrique Jantsch", "Luiz Gustavo Ribeiro", "Michael Gabriel Moraes Faria", "Natalia Pereira", "Otávio Augusto Oliveira", "Simone Thomé de Andrade"].sort();
         const defaultAreas = ["Análise", "CX", "Comunicação", "Mesa", "Onboarding"].sort();
         const defaultFrentes = ["Automação", "Performance", "Reestruturação", "Simplificação"].sort();
+
+        // ADD-ON DATA: Módulo Análise
+        const unicoFrentesList = ["Liveness", "Base de Autenticados", "IDUnico", "IDToken", "Hipóteses", "IDTrust", "IDPay", "Contestação Check", "Contestação IDPay", "Contestação IDUnico", "IDDocs", "IDAge"];
 
         const teamAvatars = {
             "Ariel Mori": "", "Bárbara Pammela Savazi": "", "Cauan Pereira Da Silva": "", "Diego Francisco Rocha": "", "Hudson Nestor Pereira Cortes": "", "Lucas Henrique Jantsch": "", "Luiz Gustavo Ribeiro": "", "Michael Gabriel Moraes Faria": "", "Natalia Pereira": "", "Otávio Augusto Oliveira": "", "Simone Thomé de Andrade": ""
@@ -1549,6 +1577,11 @@
             document.getElementById('description-edit-mode').classList.remove('hidden');
             document.getElementById('description-view-mode').classList.add('hidden');
             document.getElementById('description-text-display').innerHTML = '';
+            
+            // ADD-ON: Reset Fields
+            document.getElementById('unico_nucleo_operacional').value = '';
+            document.querySelectorAll('input[name="unico_frentes_check"]').forEach(cb => cb.checked = false);
+            window.handleEstruturaChange(document.getElementById('estrutura').value || 'Análise');
         }
 
         window.editProjectByID = (id) => {
@@ -1581,6 +1614,12 @@
                 tempHistoricalDepAreas = [];
                 if (p.dependenciaArea) tempHistoricalDepAreas.push(p.dependenciaArea);
             }
+
+            // ADD-ON: Load Data
+            document.getElementById('unico_nucleo_operacional').value = p.unico_nucleo_operacional || '';
+            const frentesSaved = Array.isArray(p.unico_frentes_atuacao) ? p.unico_frentes_atuacao : [];
+            document.querySelectorAll('input[name="unico_frentes_check"]').forEach(cb => { cb.checked = frentesSaved.includes(cb.value); });
+            window.handleEstruturaChange(p.estrutura || 'Análise');
 
             previousStatusValue = p.status || 'Backlog';
             window.updateStatusUI(previousStatusValue);
@@ -1652,6 +1691,15 @@
             const statusVal = document.getElementById('status').value;
             const justificativa = document.getElementById('justificativa_despriorizacao').value;
             
+            // ADD-ON: Captação Condicional dos Dados
+            const estruturaVal = document.getElementById('estrutura').value;
+            let nucleoVal = null;
+            let frentesAnalise = [];
+            if (estruturaVal === 'Análise') {
+                nucleoVal = document.getElementById('unico_nucleo_operacional').value;
+                frentesAnalise = Array.from(document.querySelectorAll('input[name="unico_frentes_check"]:checked')).map(cb => cb.value);
+            }
+            
             if ((statusVal === 'Finalizado' || statusVal === 'Despriorizado') && tempDependencies.length > 0) { 
                 alertModal("Dependências Ativas", "Você possui dependências externas ativas. É obrigatório resolvê-las (clicando em Resolver) antes de finalizar ou despriorizar o projeto."); 
                 return; 
@@ -1683,7 +1731,11 @@
                 dependenciaDataInicio: null,
                 notes: tempNotes, 
                 tasks: tempTasks, 
-                attention: tempAttention 
+                attention: tempAttention,
+                
+                // ADD-ON: Persistência Estruturada para Dashboard
+                unico_nucleo_operacional: nucleoVal,
+                unico_frentes_atuacao: frentesAnalise
             };
 
             if(id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id), data); else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), data);
@@ -1748,7 +1800,33 @@
             mod.innerHTML = `<div class="bg-white p-8 rounded-3xl max-w-sm text-center"><div class="w-12 h-12 ${iconColor} rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">${color === 'emerald' ? '✓' : '!'}</div><h3 class="font-black uppercase text-slate-800 mb-2">${title}</h3><p class="text-sm font-medium text-slate-500 mb-6">${msg}</p><button onclick="this.parentElement.parentElement.remove()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase text-[10px]">FECHAR</button></div>`;
             document.body.appendChild(mod);
         }
-        const setupFilters = () => { defaultTeam.forEach(renderAnalista); defaultAreas.forEach(renderAreaCheckbox); defaultFrentes.forEach(f => { const sel = document.getElementById('frente'); if(sel) sel.add(new Option(f, f)); }); };
+        
+        // ADD-ON: Lógica e Inicialização do Módulo de Análise
+        window.handleEstruturaChange = (val) => {
+            const container = document.getElementById('unico_analise_container');
+            if (!container) return;
+            if (val === 'Análise') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+                document.getElementById('unico_nucleo_operacional').value = '';
+                document.querySelectorAll('input[name="unico_frentes_check"]').forEach(cb => cb.checked = false);
+            }
+        };
+
+        const setupUnicoFrentes = () => {
+            const container = document.getElementById('unico_frentes_grid');
+            if (!container) return;
+            unicoFrentesList.forEach(frente => {
+                const label = document.createElement('label');
+                label.className = "checkbox-item !bg-white !border-indigo-100 hover:!border-indigo-300 !py-2 !px-3 !gap-2 !rounded-xl";
+                label.innerHTML = `<input type="checkbox" name="unico_frentes_check" value="${frente}"><span class="!text-[9px] !font-black !text-indigo-900 truncate" title="${frente}">${frente}</span>`;
+                container.appendChild(label);
+            });
+            window.handleEstruturaChange(document.getElementById('estrutura')?.value || 'Análise');
+        };
+
+        const setupFilters = () => { defaultTeam.forEach(renderAnalista); defaultAreas.forEach(renderAreaCheckbox); defaultFrentes.forEach(f => { const sel = document.getElementById('frente'); if(sel) sel.add(new Option(f, f)); }); setupUnicoFrentes(); };
         setupFilters(); initAuth();
     </script>
 </body>
